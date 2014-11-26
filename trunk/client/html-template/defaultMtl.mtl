@@ -1,0 +1,41 @@
+# Blender MTL File: 'untitled4.blend'
+# Material Count: 2
+
+newmtl defTexJPG
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+map_Kd defaultTex.jpg
+
+newmtl defTexPNG
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+map_Kd defaultTex.png
+
+newmtl defTexPNGalpha
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+d 1.0
+illum 2
+map_Kd defaultTex.png
+map_d defaultTex.png
+
+newmtl red
+Ns 96.078431
+Ka 1.000000 0.000000 0.000000
+Kd 1.000000 0.000000 0.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.0
+illum 1
+
+newmtl blue
+Ka 0.000000 0.000000 1.000000
+Kd 0.000000 0.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+illum 1
+
+
