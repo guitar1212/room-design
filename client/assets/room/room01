@@ -1,7 +1,8 @@
 #type	path	pos3	rot3	scale	light
 //load	..\assets\obj\emma\model_mesh.obj	0,0,0	0,0,0	40
-load	..\assets\obj\table\Table.obj	200,8,0	0,0,0	100
-load	..\assets\obj\shelliemay\shelliemay.obj	0,100,0	-90,0,0	4	N
+//load	..\assets\obj\table\Table.obj	200,8,0	0,0,0	100
+load	..\assets\obj\chair\Armchair_06_obj.obj	0,,0	-0,0,0	2	N
+//load	..\assets\obj\shelliemay\shelliemay.obj	0,100,0	-90,0,0	4	N
 //load	..\assets\obj\bear2\bear001.obj	0,0,0	90,0,0	10
 //load	..\assets\obj\bear\bear001.obj
 //load	..\assets\obj\testbox.obj	0,0,0	0,0,0	1	// MM ¸t½Ï¸Ë¹¢
