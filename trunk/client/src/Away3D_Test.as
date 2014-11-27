@@ -49,6 +49,7 @@ package
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
 	import away3d.events.MouseEvent3D;
+	import away3d.library.assets.NamedAssetBase;
 	import away3d.lights.*;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.DAEParser;
@@ -67,7 +68,9 @@ package
 	
 	import com.infy.util.btn.DefaultBtn;
 	import com.infy.util.obj.ObjEditor;
+	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.getObject3DInfo;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -154,7 +157,7 @@ package
 		private var _inactiveMaterial:ColorMaterial;
 		private var _activeMaterial:ColorMaterial;
 
-		private var m_curSelectMesh:Mesh = null;
+		private var m_curSelectObject:ObjectContainer3D = null;
 		private var m_meshList:Vector.<Mesh> = new Vector.<Mesh>();
 		
 		private var m_objList:Vector.<Loader3D> = new Vector.<Loader3D>();
@@ -295,55 +298,54 @@ package
 		private var m_wireframeState:int = 0;
 		private function toggleWireFrame():void
 		{
-			if(m_curSelectMesh)
+			if(m_curSelectObject)
 			{
 				// create wireframe
 				if(m_wireframeState == 0)
 				{
-					drawWireFrame(m_curSelectMesh);
+					drawWireFrame(m_curSelectObject);
 				}
 				// only wireframe
 				else if(m_wireframeState == 1)
 				{	
-					var s:SegmentSet;
-					for(var i:int = 0; i < m_curSelectMesh.numChildren; i++)
-					{						
-						s = m_curSelectMesh.getChildAt(i) as SegmentSet;
-						trace(typeof(s));
+					removeWireFrame(m_curSelectObject);
+					/*var s:SegmentSet;
+					for(var i:int = 0; i < m_curSelectObject.numChildren; i++)
+					{					
+						
+						s = m_curSelectObject.getChildAt(i) as SegmentSet;
+						
 						if(s is WireframePrimitiveBase)
 							continue;
 						
-						m_curSelectMesh.removeChild(s);
+						m_curSelectObject.removeChild(s);
 						s.removeAllSegments();
 						s.dispose();
 						s = null;
 						//s.updateImplicitVisibility();
 						break;
-					}
+					}*/
 				}
-				else if(m_wireframeState == 2)
-				{
-					for(var i:int = 0; i < m_curSelectMesh.geometry.subGeometries.length; i++)
-					{
-						//m_curSelectMesh.geometry.subGeometries[i].visible = true;
-					}
-					m_curSelectMesh.visible = true;
+				/*else if(m_wireframeState == 2)
+				{					
+					m_curSelectObject.visible = true;
 					
-					var s:SegmentSet = m_curSelectMesh.getChildAt(m_curSelectMesh.numChildren - 1) as SegmentSet;
+					var s:SegmentSet = m_curSelectObject.getChildAt(m_curSelectObject.numChildren - 1) as SegmentSet;
 					if(s)
 					{	
 						s.removeAllSegments();
-						m_curSelectMesh.removeChild(s);
+						m_curSelectObject.removeChild(s);
 						s.dispose();
 						s = null;
 					}
-				}
+				}*/
 				
 				m_wireframeState++;
 				if(m_wireframeState > 1)
 					m_wireframeState = 0;
 			}
 		}
+		
 		
 		/**
 		 * Initialise the engine
@@ -356,6 +358,7 @@ package
 			scene = new Scene3D();
 			
 			camera = new Camera3D();
+			camera.name = "mainCamera";
 			
 			view = new View3D();
 			view.antiAlias = 4;
@@ -614,47 +617,51 @@ package
 						cameraController.panAngle = 45;
 						cameraController.tiltAngle = 20;
 						break;
+					
+					case Keyboard.C:
+						setCameraInfo(cameraController);
+						break;
 				}
 			}
 			
 			
 			// TODO Auto-generated method stub
-			if(m_curSelectMesh == null)
+			if(m_curSelectObject == null)
 				return;
 			
 			switch(event.keyCode)
 			{
 				case Keyboard.LEFT:
-					m_curSelectMesh.x += 1;
+					m_curSelectObject.x += 1;
 					break;
 				case Keyboard.RIGHT:
-					m_curSelectMesh.x -= 1;
+					m_curSelectObject.x -= 1;
 					break;
 				case Keyboard.UP:
 					if(event.ctrlKey)
-						m_curSelectMesh.y += 1;
+						m_curSelectObject.y += 1;
 					else
-						m_curSelectMesh.z -= 1;
+						m_curSelectObject.z -= 1;
 					break;
 				case Keyboard.DOWN:
 					if(event.ctrlKey)
-						m_curSelectMesh.y -= 1;
+						m_curSelectObject.y -= 1;
 					else
-						m_curSelectMesh.z += 1;
+						m_curSelectObject.z += 1;
 					break;
 				
 				case Keyboard.DELETE:
-					deleteMesh(m_curSelectMesh);
-					m_curSelectMesh = null;
+					deleteSceneObject(m_curSelectObject);
+					m_curSelectObject = null;
 					break;		
 				
 				case Keyboard.NUMPAD_ADD:
 					m_loaderScale = 2;
-					m_curSelectMesh.scale(m_loaderScale);
+					m_curSelectObject.scale(m_loaderScale);
 					break;
 				case Keyboard.NUMPAD_SUBTRACT:
 					m_loaderScale = 0.5;
-					m_curSelectMesh.scale(m_loaderScale);
+					m_curSelectObject.scale(m_loaderScale);
 					break;	
 				
 				case Keyboard.ESCAPE:
@@ -815,123 +822,183 @@ package
 		}
 		
 		private function createPlane(args:Array):void
-		{
-			var objName:String = args.shift();
-			var pos:Array = String(args.shift()).split(",");
-			var rotation:Array = String(args.shift()).split(",");
-			var size:Array = String(args.shift()).split(",");
-			var colorArr:Array = String(args.shift()).split(",");
-			var r:uint = colorArr[0];
-			var g:uint = colorArr[1];
-			var b:uint = colorArr[2];
-			var color:uint = r << 16 | g << 8 | b;
-			var alpha:Number = args.shift();
-			var m:ColorMaterial = new ColorMaterial(color, alpha);
-			
-			var plane:Mesh = new Mesh(new PlaneGeometry(size[0], size[1]), m);
-			plane.name = objName;
-			plane.x = pos[0];
-			plane.y = pos[1];
-			plane.z = pos[2];
-			plane.rotationX = rotation[0];
-			plane.rotationY = rotation[1];
-			plane.rotationZ = rotation[2];
-			plane.mouseEnabled = true;
-			plane.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);			
+		{	
+			var plane:Mesh = PrimitiveCreator.createPlane(args);
 			m_meshList.push(plane);
-			
 			addToScene(plane);
+			plane.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+			plane.material.lightPicker = lightPicker;
 		}
 		
 		private function createBox(args:Array):void
-		{
-			var objName:String = args.shift();
-			var pos:Array = String(args.shift()).split(",");
-			var rotation:Array = String(args.shift()).split(",");
-			var size:Array = String(args.shift()).split(",");
-			var colorArr:Array = String(args.shift()).split(",");
-			var r:uint = colorArr[0];
-			var g:uint = colorArr[1];
-			var b:uint = colorArr[2];
-			var color:uint = r << 16 | g << 8 | b;
-			var alpha:Number = args.shift();
-			var m:ColorMaterial = new ColorMaterial(color, alpha);
-			m.lightPicker = lightPicker;
-			var box:Mesh = new Mesh(new CubeGeometry(size[0], size[1], size[2]), m);
-			box.name = objName;
-			box.x = pos[0];
-			box.y = pos[1];
-			box.z = pos[2];
-			box.rotationX = rotation[0];
-			box.rotationY = rotation[1];
-			box.rotationZ = rotation[2];
+		{	
+			var box:Mesh = PrimitiveCreator.createCube(args);
 			addToScene(box);
-			box.mouseEnabled = true;
-			box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);			
-			m_meshList.push(box);
-			
-			//drawWireFrame(box);
+			box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+			box.material.lightPicker = lightPicker;			
 		}
 		
 		private function onSceneItemSelect(o:ObjectContainer3D):void
 		{
+			if(m_curSelectObject)
+			{
+				if(m_curSelectObject == o)
+					return;
+				
+				hideBoundBox(m_curSelectObject);				
+				m_curSelectObject = null;
+			}
+			
 			if(o is Mesh)
 			{
 				selectMesh(o as Mesh);
 			}
+			else if(o is Loader3D)
+			{
+				selectLoader3D(o as Loader3D);
+			}
+			else
+			{
+				select3DObject(o);
+			}
+		}
+		
+		private function select3DObject(o:ObjectContainer3D):void
+		{
+			m_curSelectObject = o;
+			drawBoundBox(o);
+			
+			setObjectInfo(o);
+		}
+		
+		private function drawBoundBox(o:ObjectContainer3D):void
+		{	
+			var color:uint = 0x11ff32;
+			var thinkness:Number = 1.5;
+			
+			if(o is Mesh)
+			{
+				var m:Mesh = o as Mesh;
+				m.bounds.boundingRenderable.color = color;
+				m.bounds.boundingRenderable.thickness = thinkness;
+				m.showBounds = true;
+			}
+			else
+			{
+				var w:Number = o.maxX - o.minX;
+				var h:Number = o.maxY - o.minY;
+				var d:Number = o.maxZ - o.minZ;
+				
+				var wc:WireframeCube = new WireframeCube(w, h, d, color, thinkness);
+				wc.x = o.minX + w/2;
+				wc.y = o.minY + h/2;
+				wc.z = o.minZ + d/2;
+				wc.name = "boundingBox";
+				o.addChild(wc);
+			}
+		}
+		
+		private function hideBoundBox(o:ObjectContainer3D):void
+		{
+			if(o is Mesh)
+			{
+				var m:Mesh = o as Mesh;
+				m.showBounds = false;
+			}
+			else
+			{
+				var i:int = 0, len:int = o.numChildren;
+				for(i; i < len; i++)
+				{
+					var c:ObjectContainer3D = o.getChildAt(i);
+					if(c.name == "boundingBox")
+					{
+						o.removeChild(c);
+						c.dispose();
+						c = null;
+						break;
+					}
+				}
+			}
 		}
 		
 		private function selectMesh(m:Mesh):void
+		{	
+			select3DObject(m as ObjectContainer3D);
+			
+			
+			/*if(m_curSelectObject.material is TextureMaterial)
+			TextureMaterial(billboard.material).texture = TextureMaterial(m_curSelectObject.material).texture;*/			
+			billboard.material = m.material;
+		}
+		
+		private function selectLoader3D(l:Loader3D):void
 		{
-			if(m_curSelectMesh)
-			{
-				if(m_curSelectMesh == m)
-					return;
-				
-				m_curSelectMesh.showBounds = false;
-				m_curSelectMesh = null;
-			}
-			
-			m_curSelectMesh = m;
-			m_curSelectMesh.bounds.boundingRenderable.color = 0x11ff32;
-			m_curSelectMesh.bounds.boundingRenderable.thickness = 2;
-			m_curSelectMesh.showBounds = true; 
-			
-			setMeshInfo(m_curSelectMesh);
-			
-			/*if(m_curSelectMesh.material is TextureMaterial)			
-			TextureMaterial(billboard.material).texture = TextureMaterial(m_curSelectMesh.material).texture;*/			
-			billboard.material = m_curSelectMesh.material;	
+			select3DObject(l as ObjectContainer3D);
 			
 		}
 		
 		private function cleanItemSelect():void
 		{
-			if(m_curSelectMesh)
+			if(m_curSelectObject)
 			{
-				m_curSelectMesh.showBounds = false;
+				//m_curSelectObject.showBounds = false;
+				hideBoundBox(m_curSelectObject);
 				
-				setMeshInfo(null);
-				m_curSelectMesh = null;
+				setObjectInfo(null);
+				m_curSelectObject = null;
 			}
 		}
 		
 		
-		protected function on3DObjeMouseDown(event:Event):void
+		protected function on3DObjeMouseDown(event:MouseEvent3D):void
 		{
-			var m:Mesh = event.target as Mesh;
+			/*var m:Mesh = event.target as Mesh;
 			
-			selectMesh(m);
+			selectMesh(m);*/
 			
+			var o:ObjectContainer3D = event.target as ObjectContainer3D;
+			onSceneItemSelect(o);
 			
 		}
 		
-		private function setMeshInfo(m:Mesh):void
+		private function setObjectInfo(o:ObjectContainer3D):void
 		{
 			var text:String = "";
-			if(m)
-				text = "mesh info :\nname : " + m.name + "\nmtl type : " + m.material.assetType + "\nmtl name : " + m.material.name;
+			
+			if(o)
+			{
+				text = "Object Info :\nname : " + o.name + 
+					   "\ntype : " + o.assetType +
+					   "\npos : " + o.position.toString() + 
+					   "\n sPos : " + o.scenePosition.toString() +
+					   "\nrot : " + o.eulers.toString() +
+					   "\nscale : " + o.scaleX + ", " + o.scaleY + ", " + o.scaleZ +
+					   "\nclas : " + getQualifiedClassName(o) +
+					   "\ntriangles : " + getObject3DInfo.getFaceCounts(o)
+					   "\nvertices : " + getObject3DInfo.getVertexCounts(o);
+			}
+			
 			m_meshInfo.text = text;	
+		}
+		
+		private function setCameraInfo(controller:ControllerBase):void
+		{
+			var text:String = "";
+			var camera:Camera3D = controller.targetObject as Camera3D;
+			
+			if(controller is HoverController)
+			{
+				text = "HoverController\nname : " + camera.name +
+					   "\n" + camera.frustumPlanes.toString();
+					
+			}
+			else if(controller is FirstPersonController)
+			{
+				
+			}
+			
+			trace(text);
 		}
 		
 		private function onCreateObject(data:String, type:String = "obj"):void
@@ -1026,6 +1093,8 @@ package
 			
 			this.addToScene(event.target as ObjectContainer3D);
 			
+			event.target.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+			
 			/*for(i = 0; i < len; i++)
 			{
 				mesh = (event.target as Loader3D).getChildAt(i) as Mesh;
@@ -1061,7 +1130,7 @@ package
 					//mesh.material = m;
 					mesh.material.lightPicker = lightPicker;
 					//md.displayVertexNormals(mesh, 0x66ccff, 15000);
-					mesh.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+					//mesh.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
 					//drawWireFrame(mesh);
 				}
 				else
@@ -1077,20 +1146,20 @@ package
 			
 		}
 		
-		private function deleteMesh(mesh:Mesh):void
+		private function deleteSceneObject(obj:ObjectContainer3D):void
 		{
-			if(mesh && scene.contains(mesh))
+			/*if(mesh && scene.contains(mesh))
 			{
 				scene.removeChild(mesh);
 				var idx:int = m_meshList.indexOf(mesh);
 				m_meshList.splice(idx, 1);
 			}
-			mesh = null;
+			mesh = null;*/
 		}
 		
 		private function cleanScene():void
 		{
-			m_curSelectMesh = null;
+			m_curSelectObject = null;
 			while(m_meshList.length > 0)
 			{
 				var m:Mesh = m_meshList.pop();
@@ -1127,7 +1196,57 @@ package
 			}
 		}
 		
-		private function drawWireFrame(mesh:Mesh):void
+		private function removeWireFrame(o:ObjectContainer3D):void
+		{
+			// TODO Auto Generated method stub
+			var s:SegmentSet;
+			for(var i:int = 0; i < o.numChildren; i++)
+			{					
+				var c:ObjectContainer3D = o.getChildAt(i);
+				if(c is SegmentSet)
+				{
+					if(c.name == "wireframe")
+					{
+						o.removeChild(c);
+						SegmentSet(c).removeAllSegments();
+						SegmentSet(c).dispose();
+						c = null;
+					}
+				}
+				else
+				{
+					removeWireFrame(c);
+				}
+			}
+		}
+		
+		private function removeMeshWireFrame(m:Mesh):void
+		{
+			
+		}
+		
+		private function drawWireFrame(obj:ObjectContainer3D):void
+		{
+			if(obj is Mesh)
+				drawMeshWireFrame(obj as Mesh);
+			else
+			{
+				var i:int = 0, len:int = obj.numChildren;
+				for(i; i < len; i++)
+				{
+					var c:ObjectContainer3D = obj.getChildAt(i);
+					if(c is Mesh)
+						drawMeshWireFrame(c as Mesh);
+					else if(c is WireframePrimitiveBase)
+						continue;
+					else
+						drawWireFrame(c);
+				}
+			}
+		}
+		
+		
+		private function drawMeshWireFrame(mesh:Mesh):void
 		{
 			var all:Vector.<ISubGeometry> = mesh.geometry.subGeometries;
 			var g:ISubGeometry;
@@ -1155,6 +1274,7 @@ package
 					ss.addSegment(new LineSegment(vc, va, 0xff0000, 0xaaaaaa, 1));					
 				}
 			}
+			ss.name = "wireframe";
 			mesh.addChild(ss);
 			m_segmentSetList.push(ss);
 			//this.addToScene(ss);
