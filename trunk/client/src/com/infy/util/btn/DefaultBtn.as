@@ -14,7 +14,7 @@ package com.infy.util.btn
 		private var m_text:TextField = new TextField();
 		private var m_cb:Function = null;
 		
-		public function DefaultBtn(text:String, callback:Function, width:int = 70, height:int = 30, color:uint = 0xaaaaaa, alpha:Number = 0.7)
+		public function DefaultBtn(text:String, callback:Function, width:int = 70, height:int = 25, color:uint = 0xaaaaaa, alpha:Number = 0.7)
 		{
 			super();
 			
