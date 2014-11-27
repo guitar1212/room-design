@@ -5,7 +5,7 @@ load	..\assets\obj\chair\Armchair_06_obj.obj	0,,0	-0,0,0	2	N
 //load	..\assets\obj\shelliemay\shelliemay.obj	0,100,0	-90,0,0	4	N
 //load	..\assets\obj\bear2\bear001.obj	0,0,0	90,0,0	10
 //load	..\assets\obj\bear\bear001.obj
-//load	..\assets\obj\testbox.obj	0,0,0	0,0,0	1	// MM 竧较杆耿
+load	..\assets\obj\testbox.obj	150,0,0	0,0,0	1	// MM 竧较杆耿
 //load	..\assets\obj\Shower\Shower.obj	0,0,0	0,0,0	1
 //load	..\assets\obj\Shower\3dm-shower.3ds	0,0,0	0,0,0	1
 //load	..\assets\obj\building\building.obj	0,0,0	0,0,0	1	// 计び 礚猭更

@@ -4,6 +4,7 @@ package com.infy.util.scene
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	import flash.utils.Dictionary;
 	
 	/**
@@ -22,8 +23,15 @@ package com.infy.util.scene
 		public function SceneObjectView()
 		{
 			super();
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			this.addEventListener(MouseEvent.CLICK, onMouseClick);
 			refresh();
+		}
+		
+		protected function onMouseDown(event:MouseEvent):void
+		{
+			// TODO Auto-generated method stub
+			event.stopPropagation();
 		}
 		
 		protected function onMouseClick(event:MouseEvent):void
@@ -50,6 +58,7 @@ package com.infy.util.scene
 		{
 			var t:TextField = new TextField();
 			t.selectable = false;
+			t.autoSize = TextFieldAutoSize.LEFT;
 			var s:String = "";
 			for(var i:int = 0; i < sub; i++)
 				s += "    ";

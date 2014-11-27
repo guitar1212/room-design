@@ -11,6 +11,7 @@ package
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.loaders.parsers.Parsers;
 	
+	import com.infy.constant.View3DCons;
 	import com.infy.game.RoomGame;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
@@ -29,7 +30,7 @@ package
 	 * @long  Nov 26, 2014
 	 * 
 	 */	
-	[SWF(backgroundColor="#223344", frameRate="60", quality="LOW", width="1024", height="768")]
+	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW", width="1024", height="768")]
 	public class RoomDesign extends Sprite
 	{
 		
@@ -64,8 +65,12 @@ package
 			initGame();
 			initEngine();
 			
-			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);			
+			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
+			this.stage.addEventListener(Event.RESIZE, onResize);
+			
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			
+			onResize();
 		}		
 		
 		private function initEngine():void
@@ -78,9 +83,9 @@ package
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;
-			view.width = 900;
-			view.height = 700;
-			view.backgroundColor = 0xFFFFFF;
+			view.width = View3DCons.WIDTH;
+			view.height = View3DCons.HEIGHT;
+			view.backgroundColor = View3DCons.BACKGROUND_COLOR;
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera);
 			cameraController.distance = 150;
@@ -135,6 +140,37 @@ package
 				}
 			}
 			
+		}
+		
+		protected function onResize(event:Event = null):void
+		{
+			if(stage.stageWidth < View3DCons.WIDTH)
+			{
+				view.width = stage.stageWidth;
+				view.x = 0;
+			}
+			else
+			{
+				view.width = View3DCons.WIDTH;
+				view.x = (stage.stageWidth - View3DCons.WIDTH)/2
+			}
+			
+			if(stage.stageHeight > View3DCons.HEIGHT + View3DCons.GAP_TOP)
+			{
+				view.y = View3DCons.GAP_TOP;
+				view.height = View3DCons.HEIGHT;
+				
+			}
+			else if(stage.stageHeight < View3DCons.HEIGHT)
+			{
+				view.y = 0;
+				view.height = stage.stageHeight;
+			}
+			else
+			{
+				view.y = (stage.stageHeight - View3DCons.HEIGHT)/2;
+				view.height = View3DCons.HEIGHT;
+			}
 		}
 		
 		private function initLayer():void

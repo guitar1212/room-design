@@ -66,6 +66,7 @@ package
 	import away3d.tools.helpers.data.MeshDebug;
 	import away3d.utils.*;
 	
+	import com.infy.constant.View3DCons;
 	import com.infy.util.btn.DefaultBtn;
 	import com.infy.util.obj.ObjEditor;
 	import com.infy.util.primitive.PrimitiveCreator;
@@ -85,7 +86,7 @@ package
 	
 	import mx.utils.ObjectProxy;
 	
-	[SWF(backgroundColor="#FFFFFF", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
 	{
 		//signature swf
@@ -174,6 +175,7 @@ package
 		private var billboard:Sprite3D;
 		
 		private var m_meshInfo:TextField;
+		private var m_cameraInfo:TextField;		
 		
 		private var m_sceneContainer:SceneObjectView;
 		
@@ -219,7 +221,11 @@ package
 		
 		private function initUI():void
 		{
-			// TODO Auto Generated method stub
+			var ui:WebDesignUI = new WebDesignUI();
+			ui.curStep = 1;
+			this.addChild(ui);
+			
+			
 			var oe:ObjEditor = new ObjEditor();
 			this.addChild(oe);
 			oe.x = 10;
@@ -277,6 +283,16 @@ package
 			m_meshInfo.y = 600;
 			m_meshInfo.text = "mesh info :";
 			this.addChild(m_meshInfo);
+			
+			m_cameraInfo = new TextField();
+			m_cameraInfo.background = true;
+			m_cameraInfo.border = true;
+			m_cameraInfo.width = 200;
+			m_cameraInfo.height = 200;
+			m_cameraInfo.x = 10;
+			m_cameraInfo.y = 600;
+			m_cameraInfo.text = "camera info :";
+			this.addChild(m_cameraInfo);
 			
 			m_sceneContainer = new SceneObjectView();
 			m_sceneContainer.x = 1300;
@@ -364,7 +380,9 @@ package
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;
-			view.backgroundColor = 0xaaaaaa;
+			view.backgroundColor = View3DCons.BACKGROUND_COLOR;
+			view.width = View3DCons.WIDTH;
+			view.height = View3DCons.HEIGHT;
 			//setup controller to be used on the camera
 			/*cameraController = new HoverController(camera);
 			cameraController.distance = 150;
@@ -548,9 +566,9 @@ package
 		 */
 		private function initListeners():void
 		{
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			stage.addEventListener(Event.RESIZE, onResize);
 			
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
@@ -723,7 +741,7 @@ package
 		private function onMouseUp(event:MouseEvent):void
 		{
 			move = false;
-			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+			removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
 		/**
@@ -740,9 +758,36 @@ package
 		 */
 		private function onResize(event:Event = null):void
 		{
-			view.width = stage.stageWidth;
-			view.height = stage.stageHeight;
-			//SignatureBitmap.y = stage.stageHeight - Signature.height;
+			if(stage.stageWidth < View3DCons.WIDTH)
+			{
+				view.width = stage.stageWidth;
+				view.x = 0;
+			}
+			else
+			{
+				view.width = View3DCons.WIDTH;
+				view.x = (stage.stageWidth - View3DCons.WIDTH)/2
+			}
+			
+			if(stage.stageHeight > View3DCons.HEIGHT + View3DCons.GAP_TOP)
+			{
+				view.y = View3DCons.GAP_TOP;
+				view.height = View3DCons.HEIGHT;
+				
+			}
+			else if(stage.stageHeight < View3DCons.HEIGHT)
+			{
+				view.y = 0;
+				view.height = stage.stageHeight;
+			}
+			else
+			{
+				view.y = (stage.stageHeight - View3DCons.HEIGHT)/2;
+				view.height = View3DCons.HEIGHT;
+			}
+			
+			m_sceneContainer.x = stage.stageWidth - m_sceneContainer.width - 30;
+			
 		}
 		
 		private function loadRoomConfig():void
