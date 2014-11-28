@@ -38,6 +38,7 @@ THE SOFTWARE.
 package
 {
 	import away3d.cameras.*;
+	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.ISubGeometry;
@@ -67,6 +68,7 @@ package
 	import away3d.utils.*;
 	
 	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
 	import com.infy.util.btn.DefaultBtn;
 	import com.infy.util.obj.ObjEditor;
 	import com.infy.util.primitive.PrimitiveCreator;
@@ -176,6 +178,7 @@ package
 		
 		private var m_meshInfo:TextField;
 		private var m_cameraInfo:TextField;		
+		private var m_lightInfo:TextField;
 		
 		private var m_sceneContainer:SceneObjectView;
 		
@@ -221,10 +224,9 @@ package
 		
 		private function initUI():void
 		{
-			var ui:WebDesignUI = new WebDesignUI();
+			/*var ui:WebDesignUI = new WebDesignUI();
 			ui.curStep = 1;
-			this.addChild(ui);
-			
+			this.addChild(ui);*/
 			
 			var oe:ObjEditor = new ObjEditor();
 			this.addChild(oe);
@@ -235,12 +237,12 @@ package
 			
 			m_pathInput = new TextField();
 			m_pathInput.type = TextFieldType.INPUT;
-			m_pathInput.autoSize = TextFieldAutoSize.LEFT;			
-			m_pathInput.width = 950;			
-			m_pathInput.height = 40;
+			//m_pathInput.autoSize = TextFieldAutoSize.LEFT;			
+			m_pathInput.width = 300;			
+			m_pathInput.height = 20;
 			m_pathInput.text = '..\\assets\\obj\\bear2\\bear001.obj';
-			m_pathInput.x = 290;
-			m_pathInput.y = 15;
+			m_pathInput.x = 200;
+			m_pathInput.y = 10;
 			m_pathInput.border = true;
 			m_pathInput.background = true;
 			m_pathInput.backgroundColor = 0x98dfca;			
@@ -248,30 +250,30 @@ package
 			
 			var inputButton:DefaultBtn = new DefaultBtn("Enter", onInputEnter);
 			inputButton.x = m_pathInput.x + m_pathInput.width + 10;
-			inputButton.y = 15;
+			inputButton.y = 10;
 			this.addChild(inputButton);
 			
 			var wireframeBtn:DefaultBtn = new DefaultBtn("wireFrame", toggleWireFrame);
-			wireframeBtn.x = inputButton.x + inputButton.width + 10;
-			wireframeBtn.y = 15;
+			wireframeBtn.x = inputButton.x + inputButton.width + 5;
+			wireframeBtn.y = 10;
 			this.addChild(wireframeBtn);
 			
 			m_roomPathInput = new TextField();
 			m_roomPathInput.type = TextFieldType.INPUT;
-			m_roomPathInput.autoSize = TextFieldAutoSize.LEFT;			
-			m_roomPathInput.width = 950;			
-			m_roomPathInput.height = 40;
+			//m_roomPathInput.autoSize = TextFieldAutoSize.LEFT;			
+			m_roomPathInput.width = 300;			
+			m_roomPathInput.height = 20;
 			m_roomPathInput.text = '..\\assets\\room\\room01';
-			m_roomPathInput.x = 290;
-			m_roomPathInput.y = 55;
+			m_roomPathInput.x = 200;
+			m_roomPathInput.y = 33;
 			m_roomPathInput.border = true;
 			m_roomPathInput.background = true;
 			m_roomPathInput.backgroundColor = 0x98dfca;			
 			this.addChild(m_roomPathInput);
 			
 			var roomPathBtn:DefaultBtn = new DefaultBtn("get room", loadRoomConfig);
-			roomPathBtn.x = m_roomPathInput.x + m_roomPathInput.width + 10;
-			roomPathBtn.y = 55;
+			roomPathBtn.x = m_roomPathInput.x + m_roomPathInput.width + 5;
+			roomPathBtn.y = 33;
 			this.addChild(roomPathBtn);
 			
 			m_meshInfo = new TextField();
@@ -280,7 +282,7 @@ package
 			m_meshInfo.width = 200;
 			m_meshInfo.height = 200;
 			m_meshInfo.x = 10;
-			m_meshInfo.y = 600;
+			m_meshInfo.y = 570;
 			m_meshInfo.text = "mesh info :";
 			this.addChild(m_meshInfo);
 			
@@ -289,10 +291,20 @@ package
 			m_cameraInfo.border = true;
 			m_cameraInfo.width = 200;
 			m_cameraInfo.height = 200;
-			m_cameraInfo.x = 10;
-			m_cameraInfo.y = 600;
+			m_cameraInfo.x = 250;
+			m_cameraInfo.y = 570;
 			m_cameraInfo.text = "camera info :";
 			this.addChild(m_cameraInfo);
+			
+			m_lightInfo = new TextField();
+			m_lightInfo.background = true;
+			m_lightInfo.border = true;
+			m_lightInfo.width = 200;
+			m_lightInfo.height = 200;
+			m_lightInfo.x = 490;
+			m_lightInfo.y = 570;
+			m_lightInfo.text = "light info :";
+			this.addChild(m_lightInfo);
 			
 			m_sceneContainer = new SceneObjectView();
 			m_sceneContainer.x = 1300;
@@ -373,7 +385,9 @@ package
 			
 			scene = new Scene3D();
 			
-			camera = new Camera3D();
+			var lens:PerspectiveLens = new PerspectiveLens();
+			lens.near = 5;
+			camera = new Camera3D(lens);
 			camera.name = "mainCamera";
 			
 			view = new View3D();
@@ -449,7 +463,7 @@ package
 			light1.direction = new Vector3D(0, -1, 0);
 			light1.ambient = 1.0;
 			light1.diffuse = 1.0;
-			
+			light1.name = "light_dir_1";
 			addToScene(light1);
 			
 			light2 = new DirectionalLight();
@@ -457,7 +471,7 @@ package
 			light2.color = 0xFFFFFF;
 			light2.ambient = 0.1;
 			light2.diffuse = 0.7;
-			
+			light2.name = "light_dir_2";
 			addToScene(light2);
 			
 			lightPicker = new StaticLightPicker([light1, light2]);
@@ -599,6 +613,7 @@ package
 				{
 					case Keyboard.DELETE:
 						cleanScene();
+						m_sceneContainer.clean();
 						break;
 				}
 					
@@ -724,6 +739,9 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
+			if(event.target is TextField)
+				return;
+			
 			if(cameraController)
 			{
 				lastPanAngle = cameraController.panAngle;
@@ -880,7 +898,8 @@ package
 			var box:Mesh = PrimitiveCreator.createCube(args);
 			addToScene(box);
 			box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
-			box.material.lightPicker = lightPicker;			
+			box.material.lightPicker = lightPicker;	
+			m_meshList.push(box);
 		}
 		
 		private function onSceneItemSelect(o:ObjectContainer3D):void
@@ -906,6 +925,18 @@ package
 			{
 				select3DObject(o);
 			}
+			
+			if(o is LightBase)
+			{
+				setLightInfo(o as LightBase);
+				lightTest(o);
+			}
+		}
+		
+		private function lightTest(o:ObjectContainer3D):void
+		{
+			// TODO Auto Generated method stub
+			
 		}
 		
 		private function select3DObject(o:ObjectContainer3D):void
@@ -1044,6 +1075,24 @@ package
 			}
 			
 			trace(text);
+		}
+		
+		private function setLightInfo(light:LightBase):void
+		{
+			var text:String = "Light Info : \nname : " + light.name + "\n";
+			if(light is DirectionalLight)
+				text += "type : Direction\nDir : " + DirectionalLight(light).direction.toString();
+			else if(light is PointLight)
+				text += ("type : Point");
+			else if(light is LightProbe)
+				text += ("type : LightProbe");
+			
+			text += "\ncolor : " + light.color.toString(16) + 
+					"\nambient : " + light.ambient + "\nambient color : " + light.ambientColor.toString(16) +  
+				    "\ndiffuse : " + light.diffuse +
+					"\nspecular : " + light.specular;
+			
+			m_lightInfo.text = text;
 		}
 		
 		private function onCreateObject(data:String, type:String = "obj"):void
@@ -1314,9 +1363,9 @@ package
 					//vb = mesh.sceneTransform.transformVector(vb);
 					//vc = mesh.sceneTransform.transformVector(vc);
 					
-					ss.addSegment(new LineSegment(va, vb, 0xff0000, 0xaaaaaa, 1));						
-					ss.addSegment(new LineSegment(vb, vc, 0xff0000, 0xaaaaaa, 1));
-					ss.addSegment(new LineSegment(vc, va, 0xff0000, 0xaaaaaa, 1));					
+					ss.addSegment(new LineSegment(va, vb, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));					
+					ss.addSegment(new LineSegment(vb, vc, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));
+					ss.addSegment(new LineSegment(vc, va, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));					
 				}
 			}
 			ss.name = "wireframe";

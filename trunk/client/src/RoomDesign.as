@@ -95,7 +95,10 @@ package
 			cameraController.tiltAngle = 20;
 			
 			addChild(view);
-			addChild(new AwayStats(view));
+			var awayState:AwayStats = new AwayStats(view);
+			awayState.x = 924;
+			awayState.y = 85;
+			addChild(awayState);
 			
 			Parsers.enableAllBundled();
 			

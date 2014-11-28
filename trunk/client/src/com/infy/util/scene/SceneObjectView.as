@@ -23,8 +23,8 @@ package com.infy.util.scene
 		public function SceneObjectView()
 		{
 			super();
-			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			this.addEventListener(MouseEvent.CLICK, onMouseClick);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, false, 0, true);
+			this.addEventListener(MouseEvent.CLICK, onMouseClick, false, 0, true);
 			refresh();
 		}
 		
@@ -113,6 +113,11 @@ package com.infy.util.scene
 			this.graphics.beginFill(0x88213a, 0.75);
 			this.graphics.drawRect(0, 0, 180, h);
 			this.graphics.endFill();				
+		}
+		
+		public function clean():void
+		{
+			this.removeChildren();
 		}
 		
 	}
