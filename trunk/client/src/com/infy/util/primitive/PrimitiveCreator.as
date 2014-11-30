@@ -2,6 +2,8 @@ package com.infy.util.primitive
 {
 	import away3d.entities.Mesh;
 	import away3d.materials.ColorMaterial;
+	import away3d.materials.methods.CelDiffuseMethod;
+	import away3d.materials.methods.CelSpecularMethod;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
 
@@ -29,6 +31,17 @@ package com.infy.util.primitive
 			var color:uint = r << 16 | g << 8 | b;
 			var alpha:Number = args.shift();
 			var m:ColorMaterial = new ColorMaterial(color, alpha);
+			m.specular = 0.25;
+			var sm:CelSpecularMethod = new CelSpecularMethod();
+			var cm:CelDiffuseMethod = new CelDiffuseMethod();
+			
+			sm.specularColor = 0xff0000;
+			sm.smoothness = 0.5;
+			m.specularMethod = sm;
+			
+			cm.smoothness = 0.1;
+			m.diffuseMethod = cm;
+			
 			//m.lightPicker = lightPicker;
 			var box:Mesh = new Mesh(new CubeGeometry(size[0], size[1], size[2]), m);
 			box.name = objName;
