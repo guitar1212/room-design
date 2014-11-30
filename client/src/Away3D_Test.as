@@ -50,6 +50,7 @@ package
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
 	import away3d.events.MouseEvent3D;
+	import away3d.filters.BloomFilter3D;
 	import away3d.library.assets.NamedAssetBase;
 	import away3d.lights.*;
 	import away3d.loaders.Loader3D;
@@ -596,12 +597,12 @@ package
 		{	
 			if(event.delta > 0) // forward
 			{
-				cameraController.distance += 50;
+				cameraController.distance += 20;
 			}
 			else
 			{
 				if(cameraController.distance > 50)
-					cameraController.distance -= 50;
+					cameraController.distance -= 20;
 			}
 		}
 		
@@ -653,6 +654,15 @@ package
 					
 					case Keyboard.C:
 						setCameraInfo(cameraController);
+						break;
+					
+					case Keyboard.NUMBER_9:
+						var b:BloomFilter3D = new BloomFilter3D();
+						view.filters3d = [b];
+						break;
+					
+					case Keyboard.NUMBER_0:
+						view.filters3d = null;
 						break;
 				}
 			}
