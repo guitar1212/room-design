@@ -6,7 +6,7 @@ package com.infy.constant
 		public static const HEIGHT:int = 380;
 		public static const GAP_TOP:int = 55;
 		
-		public static const BACKGROUND_COLOR:uint = 0xaaaaaa;
+		public static const BACKGROUND_COLOR:uint = 0xffcccc;
 		public function View3DCons()
 		{
 		}
