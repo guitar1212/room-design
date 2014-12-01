@@ -44,6 +44,8 @@ package com.infy.game
 		
 		public var cameraController:HoverController;
 		
+		private var m_curRoomID:String;
+		
 		public function RoomGame(root:Sprite)
 		{
 			m_root = root;
@@ -140,6 +142,16 @@ package com.infy.game
 		public function get root():Sprite
 		{
 			return m_root;
+		}
+		
+		public function get roomID():String
+		{
+			return m_curRoomID;
+		}
+		
+		public function set roomID(id:String):void
+		{
+			m_curRoomID = id;
 		}
 		
 		public function update():void
