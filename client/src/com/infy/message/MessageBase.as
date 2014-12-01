@@ -15,7 +15,7 @@ package com.infy.message
 		
 		public function send():void
 		{
-			
+			MessageManager.instance.send(this);
 		}
 
 		public function get mode():int

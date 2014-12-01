@@ -30,9 +30,15 @@ package com.infy.message
 		public function initialize(host:String, method:String):void
 		{
 			m_rpc = new PHPRPC_Client(host, [method]);
+			m_rpc.keyLength = 256;
+			m_rpc.encryptMode = 2;
 			m_host = host;
 		}
 		
-		
+		public function send(msg:MessageBase):void
+		{
+			var mode:int = msg.mode;
+			
+		}
 	}
 }
