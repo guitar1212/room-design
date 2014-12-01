@@ -17,6 +17,7 @@ package com.infy.stage
 		override public function initilaize():void
 		{
 			super.initilaize();
+			game.ui.show(true);
 			game.ui.type = 0;
 			game.ui.loadingProgress = 0;
 			game.hide3DView();
