@@ -36,6 +36,12 @@ package com.infy.stage
 			super.update();
 		}
 		
+		
+		private function setRoomData(room:*):void
+		{
+				
+		}
+		
 		private function onNextStage():void
 		{
 			StageManager.instance.changeStage(2);
