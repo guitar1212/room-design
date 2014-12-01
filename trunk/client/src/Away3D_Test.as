@@ -37,37 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
-	import away3d.cameras.lenses.PerspectiveLens;
-	import away3d.containers.*;
-	import away3d.controllers.*;
-	import away3d.core.base.ISubGeometry;
-	import away3d.core.base.SubMesh;
-	import away3d.core.math.Vector3DUtils;
-	import away3d.core.pick.PickingColliderType;
-	import away3d.debug.*;
-	import away3d.entities.*;
-	import away3d.events.AssetEvent;
-	import away3d.events.LoaderEvent;
-	import away3d.events.MouseEvent3D;
-	import away3d.filters.BloomFilter3D;
-	import away3d.library.assets.NamedAssetBase;
-	import away3d.lights.*;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.DAEParser;
-	import away3d.loaders.parsers.Max3DSParser;
-	import away3d.loaders.parsers.OBJParser;
-	import away3d.loaders.parsers.ParserBase;
-	import away3d.loaders.parsers.Parsers;
-	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.utils.WireframeMapGenerator;
-	import away3d.primitives.*;
-	import away3d.primitives.data.Segment;
-	import away3d.textures.BitmapTexture;
-	import away3d.tools.helpers.data.MeshDebug;
-	import away3d.utils.*;
-	
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
 	import com.infy.util.btn.DefaultBtn;
@@ -76,18 +45,69 @@ package
 	import com.infy.util.scene.SceneObjectView;
 	import com.infy.util.tools.getObject3DInfo;
 	
-	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.*;
+	import flash.display.Bitmap;
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.ui.Keyboard;
-	import flash.utils.*;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
 	
 	import mx.utils.ObjectProxy;
+	
+	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.ControllerBase;
+	import away3d.controllers.FirstPersonController;
+	import away3d.controllers.HoverController;
+	import away3d.core.base.ISubGeometry;
+	import away3d.core.base.SubMesh;
+	import away3d.core.math.Vector3DUtils;
+	import away3d.core.pick.PickingColliderType;
+	import away3d.debug.AwayStats;
+	import away3d.debug.WireframeAxesGrid;
+	import away3d.entities.Mesh;
+	import away3d.entities.SegmentSet;
+	import away3d.entities.Sprite3D;
+	import away3d.events.AssetEvent;
+	import away3d.events.LoaderEvent;
+	import away3d.events.MouseEvent3D;
+	import away3d.filters.BloomFilter3D;
+	import away3d.library.assets.NamedAssetBase;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.LightBase;
+	import away3d.lights.LightProbe;
+	import away3d.lights.PointLight;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.parsers.DAEParser;
+	import away3d.loaders.parsers.Max3DSParser;
+	import away3d.loaders.parsers.OBJParser;
+	import away3d.loaders.parsers.ParserBase;
+	import away3d.loaders.parsers.Parsers;
+	import away3d.materials.ColorMaterial;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.utils.WireframeMapGenerator;
+	import away3d.primitives.CubeGeometry;
+	import away3d.primitives.LineSegment;
+	import away3d.primitives.WireframeCube;
+	import away3d.primitives.WireframePrimitiveBase;
+	import away3d.primitives.data.Segment;
+	import away3d.textures.BitmapTexture;
+	import away3d.tools.helpers.data.MeshDebug;
+	import away3d.utils.Cast;
 	
 	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -205,30 +225,10 @@ package
 			initListeners();	
 			
 						
-			//loadRoom(roomPath);
-			
-			//loadModel("..\\assets\\obj\\bear2\\bear001.obj");
-			//loadModel("..\\assets\\obj\\doll\\doll.obj");		
-			//loadModel("..\\assets\\obj\\cube\\Cube1.obj");
-			//loadModel("..\\assets\\obj\\cube\\unityCube1.obj");
-			//loadModel("..\\assets\\obj\\desktop\\ModernDeskOBJ.obj");
-			//loadModel("..\\assets\\obj\\cube\\room.obj");
-			//loadModel("..\\assets\\obj\\cube\\cubemaya.obj");
-			//loadModel("..\\assets\\obj\\pumpkin\\model_mesh.obj");
-			//loadModel("..\\assets\\obj\\room\\room.dae");
-			//loadModel("..\\assets\\obj\\drone\\drone_dead_orbit_LP.obj");
-			//loadModel("..\\assets\\dae\\hrncek1\\hrncek.dae");
-			//loadModel("..\\assets\\obj\\bear\\Model.obj");
-			//loadModel("..\\assets\\obj\\2room\\710-2人房.obj");
-			//loadModel("..\\assets\\obj\\tt1\\mesh.obj");
 		}
 		
 		private function initUI():void
 		{
-			/*var ui:WebDesignUI = new WebDesignUI();
-			ui.curStep = 1;
-			this.addChild(ui);*/
-			
 			var oe:ObjEditor = new ObjEditor();
 			this.addChild(oe);
 			oe.x = 10;
@@ -650,6 +650,7 @@ package
 						cameraController.maxTiltAngle = 90;
 						cameraController.panAngle = 45;
 						cameraController.tiltAngle = 20;
+						setCameraInfo(cameraController);
 						break;
 					
 					case Keyboard.C:
@@ -732,6 +733,7 @@ package
 			if (move) {
 				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+				setCameraInfo(cameraController);
 			}
 			
 			light1.direction = new Vector3D(Math.sin(getTimer()/10000)*150000, 1000, Math.cos(getTimer()/10000)*150000);
@@ -1075,8 +1077,19 @@ package
 			
 			if(controller is HoverController)
 			{
+				var lookAt:Vector3D = HoverController(controller).lookAtPosition;
 				text = "HoverController\nname : " + camera.name +
-					   "\n" + camera.frustumPlanes.toString();
+					   "\n" + camera.lens.toString() +
+					   "\npos : " + camera.position.x.toFixed(2) + ", " + camera.position.y.toFixed(2) + ", " + camera.position.y.toFixed(2) +
+					   "\nnear : " + camera.lens.near + 
+					   "\nfar : " + camera.lens.far +
+					   "\nfov : " + PerspectiveLens(camera.lens).fieldOfView + 
+					   "\nfocalLength :  " + PerspectiveLens(camera.lens).focalLength +
+					   "\ndistance :" + HoverController(controller).distance +
+					   "\npanAngle : " + HoverController(controller).panAngle.toFixed(2) + " (" +  HoverController(controller).minPanAngle + ", " + HoverController(controller).maxPanAngle + ")" +
+					   "\ntiltAngle : " + HoverController(controller).tiltAngle.toFixed(2) + " (" +  HoverController(controller).minTiltAngle + ", " + HoverController(controller).maxTiltAngle + ")" +
+					   "\nlookAt : " + lookAt.x.toFixed(2) + ", " + lookAt.y.toFixed(2) + ", " + lookAt.z.toFixed(2) +
+					   "\n";
 					
 			}
 			else if(controller is FirstPersonController)
@@ -1085,6 +1098,7 @@ package
 			}
 			
 			trace(text);
+			m_cameraInfo.text = text;
 		}
 		
 		private function setLightInfo(light:LightBase):void
