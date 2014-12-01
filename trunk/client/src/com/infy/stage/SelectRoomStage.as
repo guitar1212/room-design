@@ -21,16 +21,24 @@ package com.infy.stage
 			game.ui.type = 0;
 			game.ui.loadingProgress = 0;
 			game.hide3DView();
+						
+			game.ui.cbMouseClick = onNextStage;
 		}
 		
 		override public function release():void
 		{
-			super.release();	
+			super.release();
+			game.ui.cbMouseClick = null;
 		}
 		
 		override public function update():void
 		{
 			super.update();
+		}
+		
+		private function onNextStage():void
+		{
+			StageManager.instance.changeStage(2);
 		}
 	}
 }

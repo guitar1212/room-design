@@ -1,5 +1,7 @@
 package com.infy.message
 {
+	import org.phprpc.PHPRPC_Client;
+
 	/**
 	 * 
 	 * @long  Dec 1, 2014
@@ -9,8 +11,9 @@ package com.infy.message
 	{
 		private static var m_instance:MessageManager = null;
 		
+		private var m_rpc:PHPRPC_Client = null;
+		
 		private var m_host:String;
-		private var m_port:String;
 		
 		public function MessageManager()
 		{
@@ -24,14 +27,12 @@ package com.infy.message
 			return m_instance;
 		}
 		
-		public function set host(value:String):void
+		public function initialize(host:String, method:String):void
 		{
-			m_host = value;
+			m_rpc = new PHPRPC_Client(host, [method]);
+			m_host = host;
 		}
 		
-		public function set port(value:String):void
-		{
-			m_port = value;
-		}
+		
 	}
 }

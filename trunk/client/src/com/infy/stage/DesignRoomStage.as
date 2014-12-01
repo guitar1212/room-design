@@ -19,6 +19,7 @@ package com.infy.stage
 			super.initilaize();
 			game.ui.type = 1;
 			game.ui.showLoading(0);
+			game.ui.cbMouseClick = onNextStage;
 			
 			// show 3d view
 			game.show3DView();
@@ -27,11 +28,17 @@ package com.infy.stage
 		override public function release():void
 		{
 			super.release();
+			game.ui.cbMouseClick = null;
 		}
 		
 		override public function update():void
 		{
 			super.update();
+		}
+		
+		private function onNextStage():void
+		{
+			StageManager.instance.changeStage(3);
 		}
 	}
 }
