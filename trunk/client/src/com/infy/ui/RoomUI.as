@@ -8,10 +8,8 @@ package com.infy.ui
 	 * @long  Nov 26, 2014
 	 * 
 	 */	
-	public class RoomUI extends Sprite
+	public class RoomUI extends WebDesignUI
 	{
-		private var m_ui:WebDesignUI;
-		
 		private var m_loading:LoadingUI;
 		
 		public function RoomUI()
@@ -21,11 +19,8 @@ package com.infy.ui
 		}
 		
 		private function init():void
-		{			 
-			m_ui = new WebDesignUI();
-			this.addChild(m_ui);
-			
-			m_ui.curStep = 0;
+		{	
+			curStep = 0;
 			loadingProgress = 0;
 		}
 		
@@ -36,7 +31,7 @@ package com.infy.ui
 		 */		
 		public function set type(_type:int):void
 		{
-			m_ui.curStep = _type;			
+			curStep = _type;			
 		}
 		
 		
@@ -73,6 +68,11 @@ package com.infy.ui
 			m_loading.y = 250;
 		}
 			
+		
+		public function show(value:Boolean):void
+		{
+			this.visible = value;
+		}
 		
 	}
 }

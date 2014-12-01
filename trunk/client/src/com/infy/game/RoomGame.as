@@ -18,6 +18,7 @@ package com.infy.game
 	import com.infy.layer.LayerManager;
 	import com.infy.stage.ConfirmRoomStage;
 	import com.infy.stage.DesignRoomStage;
+	import com.infy.stage.InitialStage;
 	import com.infy.stage.SelectRoomStage;
 	import com.infy.stage.StageManager;
 	import com.infy.ui.RoomUI;
@@ -61,9 +62,10 @@ package com.infy.game
 				
 		private function initStage():void
 		{
-			StageManager.instance.addStage(new SelectRoomStage(this));	//0
-			StageManager.instance.addStage(new DesignRoomStage(this));	//1
-			StageManager.instance.addStage(new ConfirmRoomStage(this));	//2			
+			StageManager.instance.addStage(new InitialStage(this));		//0
+			StageManager.instance.addStage(new SelectRoomStage(this));	//1
+			StageManager.instance.addStage(new DesignRoomStage(this));	//2
+			StageManager.instance.addStage(new ConfirmRoomStage(this));	//3			
 		}
 		
 		private function initUI():void
@@ -189,13 +191,13 @@ package com.infy.game
 			switch(keycode)
 			{
 				case Keyboard.NUMBER_1:
-					StageManager.instance.changeStage(0);
-					break;
-				case Keyboard.NUMBER_2:
 					StageManager.instance.changeStage(1);
 					break;
-				case Keyboard.NUMBER_3:
+				case Keyboard.NUMBER_2:
 					StageManager.instance.changeStage(2);
+					break;
+				case Keyboard.NUMBER_3:
+					StageManager.instance.changeStage(3);
 					break;
 			}
 		}
