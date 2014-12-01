@@ -15,7 +15,10 @@ package com.infy.stage
 		private static const STEP_2:int = 2;
 		private static const STEP_3:int = 3;
 		private static const STEP_4:int = 4;
-		private static const STEP_5:int = 5;
+		private static const STEP_5_FINISH:int = 5;
+		
+		private static const HOST:String = "";
+		private static const METHOD:String = "";
 		
 		private var m_step:int = 0;
 		
@@ -36,8 +39,7 @@ package com.infy.stage
 			
 			game.ui.show(false);
 			
-			MessageManager.instance.host = "";
-			MessageManager.instance.port = "";
+			MessageManager.instance.initialize(HOST, METHOD);			
 			
 		}
 		
@@ -66,9 +68,10 @@ package com.infy.stage
 			{
 				
 			}
-			else if(m_step == STEP_5)
+			else if(m_step == STEP_5_FINISH)
 			{
-				
+				m_step = 0;
+				StageManager.instance.changeStage(1);
 			}
 		}
 	}
