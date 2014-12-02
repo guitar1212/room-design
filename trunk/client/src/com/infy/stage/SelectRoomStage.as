@@ -23,6 +23,15 @@ package com.infy.stage
 			game.hide3DView();
 						
 			game.ui.cbMouseClick = onNextStage;
+			game.ui.cbItemClick = onItmeClick;
+			
+			
+		}
+		
+		private function onItmeClick(index:int):void
+		{
+			// TODO Auto Generated method stub
+			
 		}
 		
 		override public function release():void
