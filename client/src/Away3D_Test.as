@@ -84,6 +84,7 @@ package
 	
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
+	import com.infy.event.CameraEvent;
 	import com.infy.ui.ModifyCameraUI;
 	import com.infy.ui.ModifySliderUI;
 	import com.infy.util.btn.DefaultBtn;
@@ -323,6 +324,12 @@ package
 			m_cameraModifyUI.y = 550;
 			m_cameraModifyUI.checkCallback = toggleCameraLocked;
 			this.addChild(m_cameraModifyUI);
+			m_cameraModifyUI.addEventListener(CameraEvent.CHANGE, onCameraInfoChange);
+		}
+		
+		protected function onCameraInfoChange(event:Event):void
+		{
+			setCameraInfo(cameraController);
 		}
 		
 		private function toggleCameraLocked(lock:Boolean):void
@@ -620,6 +627,8 @@ package
 				if(cameraController.distance > 50)
 					cameraController.distance -= 20;
 			}
+			setCameraInfo(cameraController);
+			m_cameraModifyUI.refresh();
 		}
 		
 		protected function onStageKeyDown(event:KeyboardEvent):void
@@ -751,9 +760,10 @@ package
 				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 				setCameraInfo(cameraController);
+				m_cameraModifyUI.refresh();
 			}
 			
-			light1.direction = new Vector3D(Math.sin(getTimer()/10000)*150000, 1000, Math.cos(getTimer()/10000)*150000);
+			//light1.direction = new Vector3D(Math.sin(getTimer()/10000)*150000, 1000, Math.cos(getTimer()/10000)*150000);
 			
 			//cube.roll(1);
 			//sphere.rotationX += 1;
@@ -768,7 +778,7 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
-			if(event.target is TextField)
+			if(event.target is TextField) // 滑鼠在UI上點擊 不用
 				return;
 			
 			if(cameraController)
