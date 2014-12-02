@@ -37,33 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import com.infy.constant.View3DCons;
-	import com.infy.constant.WireFrameConst;
-	import com.infy.util.btn.DefaultBtn;
-	import com.infy.util.obj.ObjEditor;
-	import com.infy.util.primitive.PrimitiveCreator;
-	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.getObject3DInfo;
-	
-	import flash.display.Bitmap;
-	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.geom.Vector3D;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import flash.text.TextField;
-	import flash.text.TextFieldAutoSize;
-	import flash.text.TextFieldType;
-	import flash.ui.Keyboard;
-	import flash.utils.getQualifiedClassName;
-	import flash.utils.getTimer;
-	
-	import mx.utils.ObjectProxy;
-	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
@@ -108,6 +81,35 @@ package
 	import away3d.textures.BitmapTexture;
 	import away3d.tools.helpers.data.MeshDebug;
 	import away3d.utils.Cast;
+	
+	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
+	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifySliderUI;
+	import com.infy.util.btn.DefaultBtn;
+	import com.infy.util.obj.ObjEditor;
+	import com.infy.util.primitive.PrimitiveCreator;
+	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.getObject3DInfo;
+	
+	import flash.display.Bitmap;
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+	import flash.text.TextFieldType;
+	import flash.ui.Keyboard;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
+	
+	import mx.utils.ObjectProxy;
 	
 	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -203,6 +205,9 @@ package
 		
 		private var m_sceneContainer:SceneObjectView;
 		
+		private var m_cameraModifyUI:ModifyCameraUI;
+		
+		private var m_bLockCamera:Boolean = false;
 		
 		/**
 		 * Constructor
@@ -312,6 +317,17 @@ package
 			m_sceneContainer.y = 30;
 			m_sceneContainer.itemSelectCallback = onSceneItemSelect;
 			this.addChild(m_sceneContainer);
+			
+			m_cameraModifyUI = new ModifyCameraUI();
+			m_cameraModifyUI.x = 700;
+			m_cameraModifyUI.y = 550;
+			m_cameraModifyUI.checkCallback = toggleCameraLocked;
+			this.addChild(m_cameraModifyUI);
+		}
+		
+		private function toggleCameraLocked(lock:Boolean):void
+		{
+			m_bLockCamera = lock;
 		}
 		
 		protected function onInputEnter():void
@@ -651,6 +667,7 @@ package
 						cameraController.panAngle = 45;
 						cameraController.tiltAngle = 20;
 						setCameraInfo(cameraController);
+						m_cameraModifyUI.target = cameraController;
 						break;
 					
 					case Keyboard.C:
@@ -730,7 +747,7 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			if (move) {
+			if (move && !m_bLockCamera) {
 				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 				setCameraInfo(cameraController);
@@ -1067,7 +1084,7 @@ package
 					   "\nvertices : " + getObject3DInfo.getVertexCounts(o);
 			}
 			
-			m_meshInfo.text = text;	
+			m_meshInfo.text = text;
 		}
 		
 		private function setCameraInfo(controller:ControllerBase):void
@@ -1097,7 +1114,6 @@ package
 				
 			}
 			
-			trace(text);
 			m_cameraInfo.text = text;
 		}
 		
@@ -1211,7 +1227,7 @@ package
 			
 			this.addToScene(event.target as ObjectContainer3D);
 			
-			event.target.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+			event.target.addEventListener(MouseEvent3D.CLICK, on3DObjeMouseDown);
 			
 			/*for(i = 0; i < len; i++)
 			{
