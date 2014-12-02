@@ -38,5 +38,11 @@ package com.infy.ui
 			if(m_cb != null)
 				m_cb(label.text, event.value);
 		}
+		
+		public function set sliderValue(_value:int):void
+		{
+			this.slider.value = _value;
+			this.value.text = _value.toString();;
+		}
 	}
 }

@@ -5,6 +5,8 @@ package com.infy.ui
 	import away3d.controllers.ControllerBase;
 	import away3d.controllers.HoverController;
 	
+	import com.infy.event.CameraEvent;
+	
 	import fl.controls.CheckBox;
 	
 	import flash.display.Sprite;
@@ -37,12 +39,12 @@ package com.infy.ui
 			this.addChild(m_checkbox);
 			m_checkbox.addEventListener(Event.CHANGE, onCheckBoxChange);
 			
-			addSlider("panAngle", 0, -180, 180, onSlideChange);
-			addSlider("tiltAngle", 0, -90, 90, onSlideChange);			
-			addSlider("near", 5, 1, 100, onSlideChange);
-			addSlider("far", 3000, 1000, 5000, onSlideChange);
-			addSlider("distance", 150, 20, 1000, onSlideChange);
-			addSlider("fov", 60, 16, 75, onSlideChange);
+			addSlider(0, "panAngle", 0, -180, 180, onSlideChange);
+			addSlider(1, "tiltAngle", 0, -90, 90, onSlideChange);			
+			addSlider(2, "near", 5, 1, 100, onSlideChange);
+			addSlider(3, "far", 3000, 1000, 5000, onSlideChange);
+			addSlider(4, "distance", 150, 20, 1000, onSlideChange);
+			addSlider(5, "fov", 60, 16, 75, onSlideChange);
 						
 			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -62,12 +64,12 @@ package com.infy.ui
 			event.stopPropagation();
 		}
 		
-		public function addSlider(title:String, defaultVal:Number, min:Number, max:Number, cb:Function):void
+		public function addSlider(index:int, title:String, defaultVal:Number, min:Number, max:Number, cb:Function):void
 		{
 			var s:ModifySliderUI = new ModifySliderUI(title, defaultVal, min, max, cb);
 			s.x = m_dx;
 			s.y = m_dy;
-			this.addChild(s);
+			this.addChildAt(s, index);
 			
 			m_dy += 25;
 		}
@@ -75,6 +77,20 @@ package com.infy.ui
 		public function set target(contoller:ControllerBase):void
 		{
 			m_targetCameraController = contoller;
+			
+			refresh();
+		}
+		
+		public function refresh():void
+		{
+			var cam:Camera3D = m_targetCameraController.targetObject as Camera3D;
+			
+			ModifySliderUI(getChildAt(0)).sliderValue = HoverController(m_targetCameraController).panAngle;
+			ModifySliderUI(getChildAt(1)).sliderValue = HoverController(m_targetCameraController).tiltAngle;
+			ModifySliderUI(getChildAt(2)).sliderValue = cam.lens.near;
+			ModifySliderUI(getChildAt(3)).sliderValue = cam.lens.far;
+			ModifySliderUI(getChildAt(4)).sliderValue = HoverController(m_targetCameraController).distance;
+			ModifySliderUI(getChildAt(5)).sliderValue = PerspectiveLens(cam.lens).fieldOfView;			
 		}
 		
 		private function onSlideChange(title:String, value:Number):void
@@ -86,9 +102,14 @@ package com.infy.ui
 			if(title == "panAngle")  HoverController(m_targetCameraController).panAngle = value;
 			if(title == "tiltAngle")  HoverController(m_targetCameraController).tiltAngle = value;
 			if(title == "near") cam.lens.near = value;
-			if(title == "far") cam.lens.far = value;
+			if(title == "far") cam.lens.far = value;			
+			if(title == "distance") HoverController(m_targetCameraController).distance = value;
 			if(title == "fov") PerspectiveLens(cam.lens).fieldOfView = value;
-			if(title == "distance") HoverController(m_targetCameraController).distance = value;			
+			
+			var event:CameraEvent = new CameraEvent(CameraEvent.CHANGE);
+			event.attribute = title;
+			event.value = value;
+			this.dispatchEvent(event);
 		}
 				
 		public function set checkCallback(cb:Function):void
