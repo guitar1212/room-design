@@ -8,6 +8,8 @@
 	public class WebDesignUIBase extends MovieClip
 	{
 		public var cbMouseClick:Function = null;
+		public var cbItemClick:Function = null;
+		public var miniViewArr:Array = new Array();
 		
 		public function WebDesignUIBase()
 		{
@@ -17,6 +19,8 @@
 		
 		public function set curStep(step:int):void
 		{			
+			this["nextBtn"].visible = step != 2;
+			this["miniAnchor"].visible = step != 1;
 			switch(step)
 			{
 				case 0:
@@ -75,6 +79,27 @@
 			this["roomIntroTf"].text = desc;
 		}
 		
+		/*視角Item*/
+		public function set viewItemVO(arr:Array):void
+		{
+			var itemLeng:int = arr.length;
+			while(this["miniAnchor"].numChildren)
+			{
+				this["miniAnchor"].removeChildAt(0);
+			}
+			for(var i:int = 0; i< itemLeng;++i)
+			{
+				var viewItem:DesignViewItem = new DesignViewItem();
+				miniViewArr.push(viewItem);
+				miniViewArr[i].x = 220 * i;
+				miniViewArr[i].setViewPic(arr[i].itemIcon);
+				miniViewArr[i].setId(arr[i].id);
+				this["miniAnchor"].addChild(miniViewArr[i]);
+				miniViewArr[i].cbItemClick = onItemClick;
+			}
+			
+		}
+		
 		private function addSingleChild(mc:DisplayObjectContainer, child:DisplayObject = null):void
 		{
 			while(mc.numChildren > 0)
@@ -106,6 +131,11 @@
 		{
 			if (cbMouseClick != null)
 				cbMouseClick();
+		}
+		private function onItemClick(id:String):void
+		{
+			if (cbItemClick != null)
+				cbItemClick(id);
 		}
 
 	}
