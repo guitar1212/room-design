@@ -51,7 +51,7 @@ package com.infy.util.scene
 				
 				var key:String = t.text;
 				if(m_itemDic[key] && m_itemClickCb != null)
-					m_itemClickCb(m_itemDic[key]);
+					m_itemClickCb(m_itemDic[key].obj);
 				
 				if(m_lastSelectItem)
 					m_lastSelectItem.filters = [];

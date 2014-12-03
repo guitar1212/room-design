@@ -22,6 +22,8 @@ package com.infy.ui
 		{	
 			curStep = 0;
 			loadingProgress = 0;
+			
+			this.labelCount = ["DIdidi", "656473", "4543254"];
 		}
 		
 		/**
