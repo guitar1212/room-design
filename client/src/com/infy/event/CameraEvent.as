@@ -13,6 +13,7 @@ package com.infy.event
 		public function CameraEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
+			
 		}
 	}
 }
