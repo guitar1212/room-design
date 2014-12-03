@@ -4,6 +4,7 @@ package com.infy.util.primitive
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.methods.CelDiffuseMethod;
 	import away3d.materials.methods.CelSpecularMethod;
+	import away3d.materials.methods.FresnelEnvMapMethod;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
 
@@ -32,15 +33,17 @@ package com.infy.util.primitive
 			var alpha:Number = args.shift();
 			var m:ColorMaterial = new ColorMaterial(color, alpha);
 			m.specular = 0.25;
-			var sm:CelSpecularMethod = new CelSpecularMethod();
+			/*var sm:CelSpecularMethod = new CelSpecularMethod();
 			var cm:CelDiffuseMethod = new CelDiffuseMethod();
 			
 			sm.specularColor = 0xff0000;
 			sm.smoothness = 0.5;
-			m.specularMethod = sm;
+			//m.specularMethod = sm;
 			
 			cm.smoothness = 0.1;
-			m.diffuseMethod = cm;
+			//m.diffuseMethod = cm;*/
+			
+			m.alpha = 0.4;			
 			
 			//m.lightPicker = lightPicker;
 			var box:Mesh = new Mesh(new CubeGeometry(size[0], size[1], size[2]), m);
@@ -82,6 +85,43 @@ package com.infy.util.primitive
 			plane.rotationZ = rotation[2];
 			plane.mouseEnabled = true;	
 			return plane;
+		}
+		
+		public static function get defaultCubeObjectData():String
+		{
+			return "mtllib defaultMtl.mtl" + "\n" +
+				   "v 0.000000 20.000000 20.000000" + "\n" +
+				   "v 0.000000 0.000000 20.000000" + "\n" +
+				   "v 20.000000 0.000000 20.000000" + "\n" +
+				   "v 20.000000 20.000000 20.000000" + "\n" +
+				   "v 0.000000 20.000000 0.000000" + "\n" +
+				   "v 0.000000 0.000000 0.000000" + "\n" +
+				   "v 20.000000 0.000000 0.000000" + "\n" +
+				   "v 20.000000 20.000000 0.000000" + "\n" +
+				   "# 8 vertices" + "\n" +
+				   "vt 0.000000 1.000000 0.000000" + "\n" +
+				   "vt 0.000000 0.000000 0.000000" + "\n" +
+				   "vt 1.000000 0.000000 0.000000" + "\n" +
+				   "vt 1.000000 1.000000 0.000000" + "\n" +
+				   "g front" + "\n" +
+				   "usemtl defTexJPG" + "\n" +
+				   "f 1/1 2/2 3/3 4/4" + "\n" +
+				   "g back" + "\n" +
+				   "usemtl blue" + "\n" +
+				   "f 8 7 6 5" + "\n" +
+				   "g right" + "\n" +
+				   "usemtl green" + "\n" +
+				   "f 4 3 7 8" + "\n" +
+				   "g top" + "\n" +
+				   "usemtl red" + "\n" +
+				   "f 5 1 4 8" + "\n" +
+				   "g left" + "\n" +
+				   "usemtl orange" + "\n" +
+				   "f 5 6 2 1" + "\n" +
+				   "g bottom" + "\n" +
+				   "usemtl defTexPNGalpha" + "\n" +
+				   "f 2/1 6/2 7/3 3/4" + "\n"
+				   ;
 		}
 		
 	}

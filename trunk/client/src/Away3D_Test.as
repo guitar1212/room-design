@@ -46,9 +46,6 @@ package
 	import away3d.controllers.FirstPersonController;
 	import away3d.controllers.HoverController;
 	import away3d.core.base.ISubGeometry;
-	import away3d.core.base.SubMesh;
-	import away3d.core.math.Vector3DUtils;
-	import away3d.core.pick.PickingColliderType;
 	import away3d.debug.AwayStats;
 	import away3d.debug.WireframeAxesGrid;
 	import away3d.entities.Mesh;
@@ -58,12 +55,12 @@ package
 	import away3d.events.LoaderEvent;
 	import away3d.events.MouseEvent3D;
 	import away3d.filters.BloomFilter3D;
-	import away3d.library.assets.NamedAssetBase;
 	import away3d.lights.DirectionalLight;
 	import away3d.lights.LightBase;
 	import away3d.lights.LightProbe;
 	import away3d.lights.PointLight;
 	import away3d.loaders.Loader3D;
+	import away3d.loaders.misc.AssetLoaderContext;
 	import away3d.loaders.parsers.DAEParser;
 	import away3d.loaders.parsers.Max3DSParser;
 	import away3d.loaders.parsers.OBJParser;
@@ -72,26 +69,28 @@ package
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.utils.WireframeMapGenerator;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.WireframeCube;
 	import away3d.primitives.WireframePrimitiveBase;
-	import away3d.primitives.data.Segment;
 	import away3d.textures.BitmapTexture;
-	import away3d.tools.helpers.data.MeshDebug;
 	import away3d.utils.Cast;
 	
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
 	import com.infy.event.CameraEvent;
+	import com.infy.event.ObjEvent;
+	import com.infy.ui.Modify3DObjectUI;
 	import com.infy.ui.ModifyCameraUI;
-	import com.infy.ui.ModifySliderUI;
-	import com.infy.util.btn.DefaultBtn;
-	import com.infy.util.obj.ObjEditor;
+	import com.infy.ui.RoomEditor;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.scene.SceneObjectView;
 	import com.infy.util.tools.getObject3DInfo;
+	import com.infy.util.zip.ZipLoader;
+	
+	import fl.controls.BaseButton;
+	import fl.controls.Button;
+	import fl.controls.TextInput;
 	
 	import flash.display.Bitmap;
 	import flash.display.Sprite;
@@ -104,13 +103,9 @@ package
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
-	import flash.text.TextFieldAutoSize;
-	import flash.text.TextFieldType;
 	import flash.ui.Keyboard;
+	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
-	import flash.utils.getTimer;
-	
-	import mx.utils.ObjectProxy;
 	
 	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -195,20 +190,29 @@ package
 		private var m_loaderScale:Number = 1.0;
 		private var m_axis:WireframeAxesGrid = null;
 		
-		private var m_pathInput:TextField;
-		private var m_roomPathInput:TextField;
+		private var m_pathInput:TextInput;
+		private var m_roomPathInput:TextInput;
+		private var roomEditorBtn:Button;
+		private var wireframeBtn:Button;
 		
 		private var billboard:Sprite3D;
 		
 		private var m_meshInfo:TextField;
 		private var m_cameraInfo:TextField;		
 		private var m_lightInfo:TextField;
+		private var m_mouseInfoText:TextField;
 		
 		private var m_sceneContainer:SceneObjectView;
 		
 		private var m_cameraModifyUI:ModifyCameraUI;
+		private var m_objModifyUI:Modify3DObjectUI;
+		
+		private var m_objeditor:RoomEditor;
+		private var m_roomEditor:RoomEditor;
 		
 		private var m_bLockCamera:Boolean = false;
+		
+	
 		
 		/**
 		 * Constructor
@@ -235,54 +239,47 @@ package
 		
 		private function initUI():void
 		{
-			var oe:ObjEditor = new ObjEditor();
-			this.addChild(oe);
-			oe.x = 10;
-			oe.y = 100;
+			// OBJ Editor
+			m_objeditor = new RoomEditor(250, 400,  onCreateObject, null);			
+			this.addChild(m_objeditor);
+			m_objeditor.x = 5;
+			m_objeditor.y = 100;
+			m_objeditor.data = PrimitiveCreator.defaultCubeObjectData;
 			
-			oe.callback = onCreateObject;
-			
-			m_pathInput = new TextField();
-			m_pathInput.type = TextFieldType.INPUT;
-			//m_pathInput.autoSize = TextFieldAutoSize.LEFT;			
+			// Input Obj Loading
+			m_pathInput = new TextInput();
 			m_pathInput.width = 300;			
 			m_pathInput.height = 20;
 			m_pathInput.text = '..\\assets\\obj\\bear2\\bear001.obj';
 			m_pathInput.x = 200;
-			m_pathInput.y = 10;
-			m_pathInput.border = true;
-			m_pathInput.background = true;
-			m_pathInput.backgroundColor = 0x98dfca;			
+			m_pathInput.y = 5;
 			this.addChild(m_pathInput);
 			
-			var inputButton:DefaultBtn = new DefaultBtn("Enter", onInputEnter);
-			inputButton.x = m_pathInput.x + m_pathInput.width + 10;
-			inputButton.y = 10;
-			this.addChild(inputButton);
+			var inputBtn:Button = new Button();
+			inputBtn.label = "Enter";
+			inputBtn.x = m_pathInput.x + m_pathInput.width + 5;
+			inputBtn.y = m_pathInput.y;
+			inputBtn.addEventListener(MouseEvent.CLICK, onInputEnter);			
+			this.addChild(inputBtn);
 			
-			var wireframeBtn:DefaultBtn = new DefaultBtn("wireFrame", toggleWireFrame);
-			wireframeBtn.x = inputButton.x + inputButton.width + 5;
-			wireframeBtn.y = 10;
-			this.addChild(wireframeBtn);
 			
-			m_roomPathInput = new TextField();
-			m_roomPathInput.type = TextFieldType.INPUT;
-			//m_roomPathInput.autoSize = TextFieldAutoSize.LEFT;			
+			// input room config loading
+			m_roomPathInput = new TextInput();
 			m_roomPathInput.width = 300;			
 			m_roomPathInput.height = 20;
 			m_roomPathInput.text = '..\\assets\\room\\room01';
-			m_roomPathInput.x = 200;
-			m_roomPathInput.y = 33;
-			m_roomPathInput.border = true;
-			m_roomPathInput.background = true;
-			m_roomPathInput.backgroundColor = 0x98dfca;			
+			m_roomPathInput.x = inputBtn.x + inputBtn.width + 15;
+			m_roomPathInput.y = m_pathInput.y;
 			this.addChild(m_roomPathInput);
 			
-			var roomPathBtn:DefaultBtn = new DefaultBtn("get room", loadRoomConfig);
+			var roomPathBtn:Button = new Button();
+			roomPathBtn.label = "Get Room";
 			roomPathBtn.x = m_roomPathInput.x + m_roomPathInput.width + 5;
-			roomPathBtn.y = 33;
+			roomPathBtn.y = m_roomPathInput.y;
+			roomPathBtn.addEventListener(MouseEvent.CLICK, loadRoomConfig);
 			this.addChild(roomPathBtn);
 			
+			// show mesh info
 			m_meshInfo = new TextField();
 			m_meshInfo.background = true;
 			m_meshInfo.border = true;
@@ -293,6 +290,7 @@ package
 			m_meshInfo.text = "mesh info :";
 			this.addChild(m_meshInfo);
 			
+			// show camera info
 			m_cameraInfo = new TextField();
 			m_cameraInfo.background = true;
 			m_cameraInfo.border = true;
@@ -303,6 +301,7 @@ package
 			m_cameraInfo.text = "camera info :";
 			this.addChild(m_cameraInfo);
 			
+			// show light info
 			m_lightInfo = new TextField();
 			m_lightInfo.background = true;
 			m_lightInfo.border = true;
@@ -313,23 +312,77 @@ package
 			m_lightInfo.text = "light info :";
 			this.addChild(m_lightInfo);
 			
+			// scene obje contianer
 			m_sceneContainer = new SceneObjectView();
 			m_sceneContainer.x = 1300;
 			m_sceneContainer.y = 30;
 			m_sceneContainer.itemSelectCallback = onSceneItemSelect;
 			this.addChild(m_sceneContainer);
 			
+			// camera modify ui
 			m_cameraModifyUI = new ModifyCameraUI();
 			m_cameraModifyUI.x = 700;
 			m_cameraModifyUI.y = 550;
 			m_cameraModifyUI.checkCallback = toggleCameraLocked;
 			this.addChild(m_cameraModifyUI);
 			m_cameraModifyUI.addEventListener(CameraEvent.CHANGE, onCameraInfoChange);
+			
+			// 3dObject modify UI
+			m_objModifyUI = new Modify3DObjectUI();
+			m_objModifyUI.x = 950;
+			m_objModifyUI.y = 550;
+			m_objModifyUI.addEventListener(ObjEvent.CHANGE, on3DObjectInfoChange);
+			this.addChild(m_objModifyUI);
+			
+			// toggle roomeditro ui button
+			roomEditorBtn = new Button();
+			roomEditorBtn.label = "Open Room Editor";
+			roomEditorBtn.x = inputBtn.x + inputBtn.width + 5;
+			roomEditorBtn.y = m_pathInput.y;
+			roomEditorBtn.addEventListener(MouseEvent.CLICK, toggleRoomConfigEditor);
+			this.addChild(roomEditorBtn);
+			
+			// toggle wireframe button
+			wireframeBtn = new Button();
+			wireframeBtn.label = "wireFrame";
+			wireframeBtn.x = roomEditorBtn.x + roomEditorBtn.width + 5;
+			wireframeBtn.y = m_pathInput.y;
+			wireframeBtn.addEventListener(MouseEvent.CLICK, toggleWireFrame);
+			wireframeBtn.enabled = false;
+			this.addChild(wireframeBtn);
+			
+			// room editro ui
+			m_roomEditor = new RoomEditor();
+			m_roomEditor.x = 275;
+			m_roomEditor.y = 460;
+			m_roomEditor.visible = false;
+			this.addChild(m_roomEditor);
+			
+			// show mouse info
+			m_mouseInfoText = new TextField();
+			m_mouseInfoText.selectable = false;
+			m_mouseInfoText.mouseEnabled = false;
+			this.addChild(m_mouseInfoText);
 		}
 		
-		protected function onCameraInfoChange(event:Event):void
+		protected function toggleRoomConfigEditor(event:MouseEvent):void
+		{
+			m_roomEditor.visible = !m_roomEditor.visible;
+			if(m_roomEditor.visible)
+				roomEditorBtn.label = "Hide RoomEditor";
+			else
+				roomEditorBtn.label = "Open RoomEditor";
+		}
+		
+		protected function onCameraInfoChange(event:CameraEvent):void
 		{
 			setCameraInfo(cameraController);
+		}
+		
+		protected function on3DObjectInfoChange(event:ObjEvent):void
+		{
+			if(m_curSelectObject)
+				setObjectInfo(m_curSelectObject);
 		}
 		
 		private function toggleCameraLocked(lock:Boolean):void
@@ -337,18 +390,21 @@ package
 			m_bLockCamera = lock;
 		}
 		
-		protected function onInputEnter():void
+		protected function onInputEnter(event:MouseEvent):void
 		{
 			// TODO Auto-generated method stub
 			var path:String = m_pathInput.text;
 			if(path == "" || path =="\n")
 				return;
-				
-			loadModel(path, "obj", [0, 0, 0], [0, 0, 0], 1);
+			
+			var ta:Array = path.split(".");
+			var type:String = String(ta[ta.length - 1]).toLocaleLowerCase();
+			
+			loadModel(path, type, [0, 0, 0], [0, 0, 0], 1);
 		}
 		
 		private var m_wireframeState:int = 0;
-		private function toggleWireFrame():void
+		private function toggleWireFrame(event:MouseEvent):void
 		{
 			if(m_curSelectObject)
 			{
@@ -610,25 +666,45 @@ package
 			stage.addEventListener(Event.RESIZE, onResize);
 			
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
+			stage.addEventListener(MouseEvent.CLICK, stageMouseClickHandler);
 			
 			this.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			
 			onResize();
 		}
 		
+		protected function stageMouseClickHandler(event:MouseEvent):void
+		{
+			// TODO Auto-generated method stub
+			if(!event.bubbles)
+				this.stage.focus = stage;
+			
+			setMouseInfo();
+		}
+		
 		protected function onMouseWheel(event:MouseEvent):void
 		{	
-			if(event.delta > 0) // forward
+			if(event.target is TextField) 
 			{
-				cameraController.distance += 20;
+				event.stopPropagation();
+				return;
 			}
-			else
+			
+			if(cameraController)
 			{
-				if(cameraController.distance > 50)
-					cameraController.distance -= 20;
+				if(event.delta > 0) // forward
+				{
+					cameraController.distance += 20;
+				}
+				else
+				{
+					if(cameraController.distance > 50)
+						cameraController.distance -= 20;
+				}
+				setCameraInfo(cameraController);
+				m_cameraModifyUI.refresh();
+				event.stopImmediatePropagation();
 			}
-			setCameraInfo(cameraController);
-			m_cameraModifyUI.refresh();
 		}
 		
 		protected function onStageKeyDown(event:KeyboardEvent):void
@@ -748,7 +824,7 @@ package
 			if(m_axis.parent == null)
 				addToScene(m_axis);
 			else
-				scene.removeChild(m_axis);
+				removeFromeScene(m_axis);
 		}
 		
 		/**
@@ -778,7 +854,10 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
-			if(event.target is TextField) // 滑鼠在UI上點擊 不用
+			// 滑鼠在UI上點擊 不用
+			if(event.target is TextField) 
+				return;
+			else if(event.target is BaseButton)
 				return;
 			
 			if(cameraController)
@@ -845,9 +924,22 @@ package
 			
 			m_sceneContainer.x = stage.stageWidth - m_sceneContainer.width - 30;
 			
+			m_mouseInfoText.x = view.x;
+			m_mouseInfoText.y = view.y + view.height + 3;
+			
+			roomEditorBtn.x = m_mouseInfoText.x + m_mouseInfoText.width;
+			roomEditorBtn.y = m_mouseInfoText.y;
+			
+			wireframeBtn.x = roomEditorBtn.x + roomEditorBtn.width + 5;
+			wireframeBtn.y = m_mouseInfoText.y;
 		}
 		
-		private function loadRoomConfig():void
+		private function setMouseInfo():void
+		{
+			m_mouseInfoText.text = "(" + stage.mouseX + ", " + stage.mouseY + ")";
+		}
+		
+		private function loadRoomConfig(event:MouseEvent = null):void
 		{
 			var path:String = m_roomPathInput.text;
 			loadRoom(path);
@@ -864,15 +956,17 @@ package
 		{
 			var urlLoader:URLLoader = event.target as URLLoader;
 			parserRoom(urlLoader.data);
+			m_roomEditor.data = urlLoader.data;
 		}
 		
 		private function parserRoom(data:String):void
 		{
-			var lines:Array = data.split("\r\n");
+			//var lines:Array = data.split("\r\n");			
+			var lines:Array = data.split("\n");
 			lines.shift(); // skip first line;
 			for(var i:int = 0; i < lines.length; i++)
 			{
-				var raw:String = lines[i];
+				var raw:String = lines[i];0
 				if(raw == "" || raw == "\n")
 					continue;
 				
@@ -948,8 +1042,7 @@ package
 				if(m_curSelectObject == o)
 					return;
 				
-				hideBoundBox(m_curSelectObject);				
-				m_curSelectObject = null;
+				cleanItemSelect();
 			}
 			
 			if(o is Mesh)
@@ -984,6 +1077,9 @@ package
 			drawBoundBox(o);
 			
 			setObjectInfo(o);
+			wireframeBtn.enabled = true;
+			
+			m_objModifyUI.target = m_curSelectObject;
 		}
 		
 		private function drawBoundBox(o:ObjectContainer3D):void
@@ -1062,6 +1158,7 @@ package
 				
 				setObjectInfo(null);
 				m_curSelectObject = null;
+				wireframeBtn.enabled = false;
 			}
 		}
 		
@@ -1145,7 +1242,7 @@ package
 			m_lightInfo.text = text;
 		}
 		
-		private function onCreateObject(data:String, type:String = "obj"):void
+		private function onCreateObject(data:String, type:String = "obj", path:String = ""):void
 		{			
 			var p:ParserBase;
 			/*var p:ParserBase = new OBJParser();
@@ -1163,7 +1260,8 @@ package
 			}
 			
 			var l:Loader3D = new Loader3D(false);
-			l.loadData(data, null, null, p);
+			var a:AssetLoaderContext = new AssetLoaderContext(true, path);			
+			l.loadData(data, a, null, p);
 			l.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
 			l.addEventListener(AssetEvent.MATERIAL_COMPLETE, assetCompleteHandler);
 			l.addEventListener(AssetEvent.ASSET_COMPLETE, assetCompleteHandler);
@@ -1195,28 +1293,43 @@ package
 			trace("assetCompleteHandler = " + event.type + ",  assetType = " + event.assetPrevName);
 		}
 		
+		private function loadZipOBJComplete(fileName:String, data:ByteArray, path:String):void
+		{
+			var a:Array = path.split("\\");
+			a.pop();
+			var p:String = a.join("\\");
+			onCreateObject(data.toString(), fileName.split(".").pop(), p);
+		}
 		
 		private function loadModel(path:String, type:String, pos3:Array, rot3:Array, scale:Number):void
-		{			
-			
-			var loader:Loader3D = new Loader3D();
-			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
-			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetCompleted);
-			loader.load(new URLRequest(path));			
-			loader.rotationX = rot3[0];
-			loader.rotationY = rot3[1];
-			loader.rotationZ = rot3[2];
-			loader.x = pos3[0];
-			loader.y = pos3[1];
-			loader.z = pos3[2];
-			
-			loader.scale(scale);
-			
-			loader.mouseEnabled = true;
-			loader.mouseChildren = true;
-		 	
-			//addToScene(loader);
-			m_objList.push(loader);
+		{		
+			if(type == "zip")
+			{
+				var z:ZipLoader = new ZipLoader();
+				z.load(path);
+				z.completeCallback = loadZipOBJComplete;
+			}
+			else //if(type == "obj")
+			{
+				var loader:Loader3D = new Loader3D();
+				loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
+				loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetCompleted);
+				loader.load(new URLRequest(path));			
+				loader.rotationX = rot3[0];
+				loader.rotationY = rot3[1];
+				loader.rotationZ = rot3[2];
+				loader.x = pos3[0];
+				loader.y = pos3[1];
+				loader.z = pos3[2];
+				
+				loader.scale(scale);
+				
+				loader.mouseEnabled = true;
+				loader.mouseChildren = true;
+			 	
+				//addToScene(loader);
+				m_objList.push(loader);
+			}
 		}
 		
 		protected function onModelLoadCompleted(event:LoaderEvent):void
@@ -1294,7 +1407,7 @@ package
 		{
 			/*if(mesh && scene.contains(mesh))
 			{
-				scene.removeChild(mesh);
+				removeFromeScene(mesh);
 				var idx:int = m_meshList.indexOf(mesh);
 				m_meshList.splice(idx, 1);
 			}
@@ -1307,7 +1420,7 @@ package
 			while(m_meshList.length > 0)
 			{
 				var m:Mesh = m_meshList.pop();
-				scene.removeChild(m);
+				removeFromeScene(m)				
 				m.removeEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
 			}
 			
@@ -1319,7 +1432,7 @@ package
 			while(m_objList.length > 0)
 			{
 				var l:Loader3D = m_objList.pop();
-				scene.removeChild(l);
+				removeFromeScene(l);
 				
 				m_sceneContainer.removeObject(l.name);
 			}
@@ -1338,6 +1451,12 @@ package
 				var c:ObjectContainer3D = o.getChildAt(i);
 				m_sceneContainer.addObject(c.name, c, 1);
 			}
+		}
+		
+		private function removeFromeScene(o:ObjectContainer3D):void
+		{
+			m_sceneContainer.removeObject(o);
+			scene.removeChild(o);			
 		}
 		
 		private function removeWireFrame(o:ObjectContainer3D):void

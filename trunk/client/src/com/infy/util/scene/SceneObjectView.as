@@ -1,5 +1,7 @@
 package com.infy.util.scene
 {
+	import away3d.containers.ObjectContainer3D;
+	
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
@@ -37,11 +39,16 @@ package com.infy.util.scene
 		protected function onMouseClick(event:MouseEvent):void
 		{
 			var t:TextField = event.target as TextField;
+			setSelect(t);
+		}
+		
+		private function setSelect(t:TextField):void
+		{
 			if(t)
 			{
 				if(m_lastSelectItem == t)
 					return;
-								
+				
 				var key:String = t.text;
 				if(m_itemDic[key] && m_itemClickCb != null)
 					m_itemClickCb(m_itemDic[key]);
@@ -60,23 +67,45 @@ package com.infy.util.scene
 			t.selectable = false;
 			t.autoSize = TextFieldAutoSize.LEFT;
 			var s:String = "";
+			var data:Object = {};
 			for(var i:int = 0; i < sub; i++)
 				s += "    ";
 			s += "- "
 			t.text = s + key;
-			m_itemDic[s + key] = obj;
+			data.index = this.numChildren;
+			data.obj = obj;
+			data.text = t;
+			m_itemDic[s + key] = data;
 			
 			this.addChild(t);
 			
 			refresh();
 		}
 		
-		public function removeObject(key:String):void
+		public function removeObject(obj:*):void
 		{
-			if(m_itemDic[key])
+			var b:Boolean = false;
+			var o:Object;
+			for (var key:String in m_itemDic)
 			{
-				refresh();	
+				o = m_itemDic[key];
+				if(o.obj == obj)
+				{
+					b = true;
+					break;
+				}
 			}
+			
+			if(!b) return;
+			
+			this.removeChild(o.text);
+			
+			o = null;
+						
+			m_itemDic[key] = null;
+			delete m_itemDic[key];
+				
+			refresh();
 		}
 		
 		public function set itemSelectCallback(cb:Function):void
@@ -84,11 +113,17 @@ package com.infy.util.scene
 			m_itemClickCb = cb;
 		}
 		
-		public function setSelectItem(key:String):void
+		public function setSelectItem(obj:ObjectContainer3D):void
 		{
-			if(m_itemDic[key])
+			var o:Object;
+			for (var key:String in m_itemDic)
 			{
-				
+				o = m_itemDic[key];
+				if(o.obj == obj)
+				{
+					setSelect(o.text);
+					break;
+				}
 			}
 		}
 		
