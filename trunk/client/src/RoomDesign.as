@@ -50,7 +50,7 @@ package
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			
 			onResize();
-		}		
+		}
 		
 		
 		private function initGame():void
