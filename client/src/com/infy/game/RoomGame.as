@@ -211,6 +211,13 @@ package com.infy.game
 				case Keyboard.NUMBER_3:
 					StageManager.instance.changeStage(3);
 					break;
+				
+				case Keyboard.NUMPAD_ADD:
+					ui.loadingProgress += 10;
+					break;
+				case Keyboard.NUMPAD_SUBTRACT:
+					ui.loadingProgress -= 10;
+					break;
 			}
 		}
 	}

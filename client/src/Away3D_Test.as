@@ -69,6 +69,7 @@ package
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.methods.LightingMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.WireframeCube;
@@ -82,6 +83,7 @@ package
 	import com.infy.event.ObjEvent;
 	import com.infy.ui.Modify3DObjectUI;
 	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifyLightUI;
 	import com.infy.ui.RoomEditor;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.scene.SceneObjectView;
@@ -91,6 +93,7 @@ package
 	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
+	import fl.events.SliderEvent;
 	
 	import flash.display.Bitmap;
 	import flash.display.Sprite;
@@ -107,7 +110,7 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
-	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
 	{
 		//signature swf
@@ -194,6 +197,7 @@ package
 		private var m_roomPathInput:TextInput;
 		private var roomEditorBtn:Button;
 		private var wireframeBtn:Button;
+		private var createLightBtn:Button;
 		
 		private var billboard:Sprite3D;
 		
@@ -206,6 +210,7 @@ package
 		
 		private var m_cameraModifyUI:ModifyCameraUI;
 		private var m_objModifyUI:Modify3DObjectUI;
+		private var m_lightModifyUI:ModifyLightUI;
 		
 		private var m_objeditor:RoomEditor;
 		private var m_roomEditor:RoomEditor;
@@ -240,7 +245,7 @@ package
 		private function initUI():void
 		{
 			// OBJ Editor
-			m_objeditor = new RoomEditor(250, 400,  onCreateObject, null);			
+			m_objeditor = new RoomEditor(250, 350,  onCreateObject, null);			
 			this.addChild(m_objeditor);
 			m_objeditor.x = 5;
 			m_objeditor.y = 100;
@@ -253,6 +258,7 @@ package
 			m_pathInput.text = '..\\assets\\obj\\bear2\\bear001.obj';
 			m_pathInput.x = 200;
 			m_pathInput.y = 5;
+			m_pathInput.addEventListener(KeyboardEvent.KEY_DOWN, onPathInputChange);
 			this.addChild(m_pathInput);
 			
 			var inputBtn:Button = new Button();
@@ -269,7 +275,7 @@ package
 			m_roomPathInput.height = 20;
 			m_roomPathInput.text = '..\\assets\\room\\room01';
 			m_roomPathInput.x = inputBtn.x + inputBtn.width + 15;
-			m_roomPathInput.y = m_pathInput.y;
+			m_roomPathInput.y = m_pathInput.y;			
 			this.addChild(m_roomPathInput);
 			
 			var roomPathBtn:Button = new Button();
@@ -334,6 +340,12 @@ package
 			m_objModifyUI.addEventListener(ObjEvent.CHANGE, on3DObjectInfoChange);
 			this.addChild(m_objModifyUI);
 			
+			m_lightModifyUI = new ModifyLightUI("Directional Light");
+			m_lightModifyUI.x = 1200;
+			m_lightModifyUI.y = 550;
+			m_lightModifyUI.addEventListener(SliderEvent.CHANGE, onLightInfoChange)
+			this.addChild(m_lightModifyUI);
+			
 			// toggle roomeditro ui button
 			roomEditorBtn = new Button();
 			roomEditorBtn.label = "Open Room Editor";
@@ -351,6 +363,13 @@ package
 			wireframeBtn.enabled = false;
 			this.addChild(wireframeBtn);
 			
+			createLightBtn = new Button();
+			createLightBtn.label = "create Light";
+			createLightBtn.x = wireframeBtn.x + wireframeBtn.width + 5;
+			createLightBtn.y = m_pathInput.y;
+			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
+			this.addChild(createLightBtn);
+			
 			// room editro ui
 			m_roomEditor = new RoomEditor();
 			m_roomEditor.x = 275;
@@ -363,6 +382,16 @@ package
 			m_mouseInfoText.selectable = false;
 			m_mouseInfoText.mouseEnabled = false;
 			this.addChild(m_mouseInfoText);
+		}
+		
+		protected function onPathInputChange(event:KeyboardEvent):void
+		{
+			if(event.keyCode == Keyboard.ENTER)
+			{
+				onInputEnter(null);
+				this.stage.focus = stage;
+			}
+			
 		}
 		
 		protected function toggleRoomConfigEditor(event:MouseEvent):void
@@ -383,6 +412,12 @@ package
 		{
 			if(m_curSelectObject)
 				setObjectInfo(m_curSelectObject);
+		}
+		
+		protected function onLightInfoChange(event:SliderEvent):void
+		{
+			if(m_curSelectObject is LightBase)
+				setLightInfo(m_curSelectObject as LightBase);
 		}
 		
 		private function toggleCameraLocked(lock:Boolean):void
@@ -453,7 +488,23 @@ package
 					m_wireframeState = 0;
 			}
 		}
-		
+
+		private var m_lightCount:int = 0;
+		private function createLight(event:MouseEvent):void
+		{
+			var light:LightBase = new DirectionalLight();
+			DirectionalLight(light).direction = new Vector3D(0, -1, 0);
+			light.ambient = 1.0;
+			light.diffuse = 1.0;
+			light.name = "light_" + m_lightCount;
+			addToScene(light);
+			
+			var lights:Array = lightPicker.lights;
+			lights.push(light);
+			lightPicker.lights = lights;
+			
+			m_lightCount++;
+		}
 		
 		/**
 		 * Initialise the engine
@@ -755,10 +806,6 @@ package
 						m_cameraModifyUI.target = cameraController;
 						break;
 					
-					case Keyboard.C:
-						setCameraInfo(cameraController);
-						break;
-					
 					case Keyboard.NUMBER_9:
 						var b:BloomFilter3D = new BloomFilter3D();
 						view.filters3d = [b];
@@ -932,6 +979,10 @@ package
 			
 			wireframeBtn.x = roomEditorBtn.x + roomEditorBtn.width + 5;
 			wireframeBtn.y = m_mouseInfoText.y;
+			
+			createLightBtn.x = wireframeBtn.x + wireframeBtn.width + 5;
+			createLightBtn.y = m_mouseInfoText.y;
+			
 		}
 		
 		private function setMouseInfo():void
@@ -1062,6 +1113,7 @@ package
 			{
 				setLightInfo(o as LightBase);
 				lightTest(o);
+				m_lightModifyUI.target = o as LightBase;
 			}
 		}
 		
