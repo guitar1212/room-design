@@ -10,8 +10,12 @@
 		public var cbMouseClick:Function = null;
 		public var cbItemClick:Function = null;
 		public var cbLabelClick:Function = null;
+		public var cbBtnChooseClick:Function = null;
+		public var cbLabelItemClick:Function = null;
+		
 		private var m_miniViewArr:Array = null;
 		private var m_labelArr:Array = null;
+		private var m_btnArr:Array = null;
 		
 		
 		public function WebDesignUIBase()
@@ -19,13 +23,20 @@
 			// constructor code
 			m_miniViewArr = new Array();
 			m_labelArr = new Array();
+			m_btnArr = new Array();
 			initUI();
 		}
 		
 		public function set curStep(step:int):void
 		{			
-			this["nextBtn"].visible = step != 2;
-			this["miniAnchor"].visible = step != 1;
+			this["nextBtn"].visible = (step != 2);
+			this["miniAnchor"].visible = (step != 1);
+			
+			this["labelAnchor"].visible = (step == 0);
+			this["btnAnchor"].visible = (step == 2);
+			this["titleTf"].visible = (step != 1);
+			this["roomIntroTf"].visible = (step != 1);
+			this["page1"].visible = (step == 1);
 			switch(step)
 			{
 				case 0:
@@ -73,8 +84,8 @@
 			this["step" + step]["setpWordTf"].text = infoString;
 			
 		}
-		
-		public function set labelCount(labelNameArr:Array):void
+		/*LABEL_Array*/
+		public function set labelArray(labelNameArr:Array):void
 		{
 			var nameLength:int = labelNameArr.length;
 			while(this["labelAnchor"].numChildren)
@@ -90,6 +101,35 @@
 				m_labelArr.push(labelMC);
 				this["labelAnchor"].addChild(m_labelArr[i]);
 				m_labelArr[i].cbLabelClick = onLabelClick;
+			}
+			
+		}
+		public function set labelCurChoose(index:int):void
+		{
+			var labeArrLeng:int = m_labelArr.length;
+			for(var i:int = 0; i< labeArrLeng;++i)
+			{
+				m_labelArr[i].isLabelChoose = (i == index);
+			}
+		}
+		/*BTN_Array*/
+		
+		public function set btnArray(btnNameArr:Array):void
+		{
+			var nameLength:int = btnNameArr.length;
+			while(this["btnAnchor"].numChildren)
+			{
+				this["btnAnchor"].removeChildAt(0);
+			}
+			for(var i:int = 0;i < nameLength;++i)
+			{
+				var btn:ChooseBtn = new ChooseBtn();
+				btn.x = 125 * i;
+				btn.btnName = btnNameArr[i];
+				btn.btnId = String(i);
+				m_btnArr.push(btn);
+				this["btnAnchor"].addChild(m_btnArr[i]);
+				m_btnArr[i].cbChooseBtnClick = onBtnChooseClick;
 			}
 			
 		}
@@ -123,6 +163,21 @@
 				m_miniViewArr[i].cbItemClick = onItemClick;
 			}
 			
+		}
+		/*Page2 相關接口*/
+		public function set labelItemArray(labelNameArr:Array):void
+		{
+			this["page1"].labelArray = labelNameArr;
+			this["page1"].cbLabelClick = onLabelItemClick;
+		}
+		public function set labelItemCurChoose(index:int):void
+		{
+			this["page1"].labelCurChoose = index;
+		}
+		
+		public function set goodsVOArr(arr:Array):void
+		{
+			this["page1"].goodsItemVO = arr;
 		}
 		
 		private function addSingleChild(mc:DisplayObjectContainer, child:DisplayObject = null):void
@@ -172,6 +227,18 @@
 			{
 				m_labelArr[i].isLabelChoose = (i == int(id));
 			}
+			
+		}
+		
+		private function onLabelItemClick(id:String):void
+		{
+			if(cbLabelItemClick != null)
+				cbLabelItemClick(id)
+		}
+		private function onBtnChooseClick(id:String):void
+		{
+			if(cbBtnChooseClick != null)
+				cbBtnChooseClick(id)
 			
 		}
 
