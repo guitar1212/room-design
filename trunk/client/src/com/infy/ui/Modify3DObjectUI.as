@@ -22,19 +22,19 @@ package com.infy.ui
 		{
 			super();
 			
-			addSlider(0, "x", 0, -500, 500, onSlideChange);
-			addSlider(1, "y", 0, -500, 500, onSlideChange);			
-			addSlider(2, "z", 0, -500, 500, onSlideChange);
-			addSlider(3, "scale", 1, 0.2, 10, onSlideChange);
-			addSlider(4, "rotX", 0, -180, 180, onSlideChange);
-			addSlider(5, "rotY", 0, -180, 180, onSlideChange);
-			addSlider(6, "rotZ", 0, -180, 180, onSlideChange);
+			addSlider(0, "x", 0, -500, 500, 1);
+			addSlider(1, "y", 0, -500, 500, 1);			
+			addSlider(2, "z", 0, -500, 500, 1);
+			addSlider(3, "scale", 1, 0.1, 10, 0.1);
+			addSlider(4, "rotX", 0, -180, 180, 1);
+			addSlider(5, "rotY", 0, -180, 180, 1);
+			addSlider(6, "rotZ", 0, -180, 180, 1);
 			
 		}
 		
-		public function addSlider(index:int, title:String, defaultVal:Number, min:Number, max:Number, cb:Function):void
+		public function addSlider(index:int, title:String, defaultVal:Number, min:Number, max:Number, intervar:Number):void
 		{
-			var s:ModifySliderUI = new ModifySliderUI(title, defaultVal, min, max, cb);
+			var s:ModifySliderUI = new ModifySliderUI(title, defaultVal, min, max, onSlideChange, intervar);
 			s.x = m_dx;
 			s.y = m_dy;
 			this.addChildAt(s, index);

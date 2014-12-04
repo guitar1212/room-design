@@ -11,6 +11,7 @@ package com.infy.ui
 	public class RoomUI extends WebDesignUI
 	{
 		private var m_loading:LoadingUI;
+		private var m_loadingProgress:int = 0;
 		
 		public function RoomUI()
 		{
@@ -21,9 +22,7 @@ package com.infy.ui
 		private function init():void
 		{	
 			curStep = 0;
-			loadingProgress = 0;
-			
-			this.labelCount = ["DIdidi", "656473", "4543254"];
+			loadingProgress = 0;			
 		}
 		
 		/**
@@ -61,7 +60,13 @@ package com.infy.ui
 			if(m_loading == null)
 				m_loading = new LoadingUI();
 			
+			m_loadingProgress = value;
 			m_loading.curProgress = value;
+		}
+		
+		public function get loadingProgress():int
+		{
+			return m_loadingProgress;
 		}
 		
 		public function resize():void

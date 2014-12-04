@@ -7,6 +7,8 @@ package com.infy.util.primitive
 	import away3d.materials.methods.FresnelEnvMapMethod;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
+	
+	import com.infy.util.tools.ColorUtil;
 
 	/**
 	 * 
@@ -29,7 +31,7 @@ package com.infy.util.primitive
 			var r:uint = colorArr[0];
 			var g:uint = colorArr[1];
 			var b:uint = colorArr[2];
-			var color:uint = r << 16 | g << 8 | b;
+			var color:uint = ColorUtil.getHexCode(r, g, b);
 			var alpha:Number = args.shift();
 			var m:ColorMaterial = new ColorMaterial(color, alpha);
 			m.specular = 0.25;

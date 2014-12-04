@@ -145,7 +145,7 @@ package com.infy.util.scene
 			
 			this.graphics.clear();
 			
-			this.graphics.beginFill(0x88213a, 0.75);
+			this.graphics.beginFill(0xc2c2c2, 0.75);
 			this.graphics.drawRect(0, 0, 180, h);
 			this.graphics.endFill();				
 		}

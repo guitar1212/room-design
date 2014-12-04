@@ -1,8 +1,12 @@
 package com.infy.ui
 {
+	import com.infy.ui.comp.MoveIcon;
+	
 	import fl.controls.Button;
 	import fl.controls.TextArea;
 	
+	import flash.display.Bitmap;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	
@@ -11,8 +15,8 @@ package com.infy.ui
 	 * @long  Dec 3, 2014
 	 * 
 	 */	
-	public class RoomEditor extends Sprite
-	{
+	public class RoomEditor extends MovieClip
+	{	
 		private var m_text:TextArea = new TextArea();
 		
 		private var m_okBtn:Button = new Button();
@@ -22,6 +26,8 @@ package com.infy.ui
 		private var m_okCB:Function = null;
 		
 		private var m_cancelCB:Function = null;
+		
+		private var m_moveBtn:MoveIcon;
 		
 		public function RoomEditor(w:Number = 650, h:Number = 200, okCB:Function = null, cancelCB:Function = null)
 		{
@@ -33,7 +39,11 @@ package com.infy.ui
 			
 			m_text.width = w;
 			m_text.height = h;
-			m_text.text = "I am RoomEditor";
+			m_text.text = "I am Editor";
+			m_text.textField.background = true;
+			m_text.textField.backgroundColor = 0xc2c2c2;
+			
+			
 			this.addChild(m_text);
 			
 			if(m_okCB != null)
@@ -53,6 +63,25 @@ package com.infy.ui
 				m_cleanBtn.addEventListener(MouseEvent.CLICK, onCancelBtnClick);
 				this.addChild(m_cleanBtn);
 			}
+			
+			m_moveBtn = new MoveIcon();			
+			this.addChild(m_moveBtn);
+			m_moveBtn.x = m_text.width - m_moveBtn.width;
+			m_moveBtn.y = -m_moveBtn.height;
+		}
+		
+		protected function onMouseDown(event:MouseEvent):void
+		{
+			// TODO Auto-generated method stub
+			this.alpha = 0.35;
+			this.startDrag();
+		}
+		
+		protected function onMouseUp(event:MouseEvent):void
+		{
+			this.alpha = 1;
+			this.stopDrag();
+			
 		}
 		
 		protected function onOKBtnClick(event:MouseEvent):void

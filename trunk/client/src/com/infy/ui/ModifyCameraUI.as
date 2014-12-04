@@ -12,6 +12,8 @@ package com.infy.ui
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
+	import flashx.textLayout.formats.Direction;
 
 	/**
 	 * 
@@ -39,12 +41,12 @@ package com.infy.ui
 			this.addChild(m_checkbox);
 			m_checkbox.addEventListener(Event.CHANGE, onCheckBoxChange);
 			
-			addSlider(0, "panAngle", 0, -180, 180, onSlideChange);
-			addSlider(1, "tiltAngle", 0, -90, 90, onSlideChange);			
-			addSlider(2, "near", 5, 1, 100, onSlideChange);
-			addSlider(3, "far", 3000, 1000, 5000, onSlideChange);
-			addSlider(4, "distance", 150, 20, 1000, onSlideChange);
-			addSlider(5, "fov", 60, 16, 75, onSlideChange);
+			addSlider(0, "panAngle", 0, -180, 180, 1);
+			addSlider(1, "tiltAngle", 0, -90, 90, 1);			
+			addSlider(2, "near", 5, 1, 100, 1);
+			addSlider(3, "far", 3000, 1000, 5000, 1);
+			addSlider(4, "distance", 150, 20, 1000, 1);
+			addSlider(5, "fov", 60, 16, 75, 0.5);
 						
 			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -64,9 +66,9 @@ package com.infy.ui
 			event.stopPropagation();
 		}
 		
-		public function addSlider(index:int, title:String, defaultVal:Number, min:Number, max:Number, cb:Function):void
+		public function addSlider(index:int, title:String, defaultVal:Number, min:Number, max:Number, interval:Number):void
 		{
-			var s:ModifySliderUI = new ModifySliderUI(title, defaultVal, min, max, cb);
+			var s:ModifySliderUI = new ModifySliderUI(title, defaultVal, min, max, onSlideChange);
 			s.x = m_dx;
 			s.y = m_dy;
 			this.addChildAt(s, index);
@@ -78,14 +80,21 @@ package com.infy.ui
 		{
 			m_targetCameraController = contoller;
 			
+			setAtributMapping();
+			
 			refresh();
+		}
+		
+		private function setAtributMapping():void
+		{	
 		}
 		
 		public function refresh():void
 		{
 			var cam:Camera3D = m_targetCameraController.targetObject as Camera3D;
 			
-			ModifySliderUI(getChildAt(0)).sliderValue = HoverController(m_targetCameraController).panAngle;
+			//ModifySliderUI(getChildAt(0)).sliderValue = HoverController(m_targetCameraController).panAngle;
+			ModifySliderUI(getChildAt(0)).sliderValue = m_targetCameraController["panAngle"];
 			ModifySliderUI(getChildAt(1)).sliderValue = HoverController(m_targetCameraController).tiltAngle;
 			ModifySliderUI(getChildAt(2)).sliderValue = cam.lens.near;
 			ModifySliderUI(getChildAt(3)).sliderValue = cam.lens.far;
@@ -113,7 +122,7 @@ package com.infy.ui
 		}
 				
 		public function set checkCallback(cb:Function):void
-		{
+		{			
 			m_checkCB = cb;
 		}
 		
