@@ -1107,6 +1107,9 @@ package
 		private function createBox(args:Array):void
 		{	
 			var box:Mesh = PrimitiveCreator.createCube(args);
+			box.castsShadows = true;
+			(box.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
+			(box.material as ColorMaterial).shadowMethod.epsilon = 0.2;
 			addToScene(box);
 			box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
 			box.material.lightPicker = lightPicker;	
