@@ -5,6 +5,7 @@ package com.infy.util.primitive
 	import away3d.materials.methods.CelDiffuseMethod;
 	import away3d.materials.methods.CelSpecularMethod;
 	import away3d.materials.methods.FresnelEnvMapMethod;
+	import away3d.materials.methods.ShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
 	
@@ -46,7 +47,6 @@ package com.infy.util.primitive
 			//m.diffuseMethod = cm;*/
 			
 			m.alpha = 0.4;			
-			
 			//m.lightPicker = lightPicker;
 			var box:Mesh = new Mesh(new CubeGeometry(size[0], size[1], size[2]), m);
 			box.name = objName;

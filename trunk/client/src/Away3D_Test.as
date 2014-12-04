@@ -48,6 +48,7 @@ package
 	import away3d.core.base.ISubGeometry;
 	import away3d.debug.AwayStats;
 	import away3d.debug.WireframeAxesGrid;
+	import away3d.entities.Entity;
 	import away3d.entities.Mesh;
 	import away3d.entities.SegmentSet;
 	import away3d.entities.Sprite3D;
@@ -69,7 +70,9 @@ package
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.methods.FilteredShadowMapMethod;
 	import away3d.materials.methods.LightingMethodBase;
+	import away3d.materials.methods.ShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.WireframeCube;
@@ -198,6 +201,7 @@ package
 		private var roomEditorBtn:Button;
 		private var wireframeBtn:Button;
 		private var createLightBtn:Button;
+		private var saveRoomBtn:Button;
 		
 		private var billboard:Sprite3D;
 		
@@ -370,6 +374,12 @@ package
 			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
 			this.addChild(createLightBtn);
 			
+			// save btn
+			saveRoomBtn = new Button();
+			saveRoomBtn.label = "Save Room";
+			saveRoomBtn.addEventListener(MouseEvent.CLICK, saveRoom);
+			this.addChild(saveRoomBtn);
+			
 			// room editro ui
 			m_roomEditor = new RoomEditor();
 			m_roomEditor.x = 275;
@@ -506,6 +516,15 @@ package
 			m_lightCount++;
 		}
 		
+		private function saveRoom(event:MouseEvent):void
+		{
+			var i:int = 0, len:int = scene.numChildren;
+			for(i; i < len; i++)
+			{
+				var c:ObjectContainer3D = scene.getChildAt(i);
+				trace(c);
+			}
+		}
 		/**
 		 * Initialise the engine
 		 */
@@ -983,6 +1002,8 @@ package
 			createLightBtn.x = wireframeBtn.x + wireframeBtn.width + 5;
 			createLightBtn.y = m_mouseInfoText.y;
 			
+			saveRoomBtn.x = createLightBtn.x + createLightBtn.width + 5;
+			saveRoomBtn.y = m_mouseInfoText.y;
 		}
 		
 		private function setMouseInfo():void
@@ -1071,6 +1092,12 @@ package
 		private function createPlane(args:Array):void
 		{	
 			var plane:Mesh = PrimitiveCreator.createPlane(args);
+			
+			// make shadow????
+			plane.castsShadows = true;
+			(plane.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
+			(plane.material as ColorMaterial).shadowMethod.epsilon = 0.2;
+			
 			m_meshList.push(plane);
 			addToScene(plane);
 			plane.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
