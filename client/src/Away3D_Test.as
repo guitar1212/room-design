@@ -48,7 +48,6 @@ package
 	import away3d.core.base.ISubGeometry;
 	import away3d.debug.AwayStats;
 	import away3d.debug.WireframeAxesGrid;
-	import away3d.entities.Entity;
 	import away3d.entities.Mesh;
 	import away3d.entities.SegmentSet;
 	import away3d.entities.Sprite3D;
@@ -71,8 +70,6 @@ package
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.FilteredShadowMapMethod;
-	import away3d.materials.methods.LightingMethodBase;
-	import away3d.materials.methods.ShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.WireframeCube;
@@ -80,6 +77,8 @@ package
 	import away3d.textures.BitmapTexture;
 	import away3d.utils.Cast;
 	
+	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
 	import com.infy.event.CameraEvent;
@@ -111,7 +110,9 @@ package
 	import flash.text.TextField;
 	import flash.ui.Keyboard;
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -177,10 +178,13 @@ package
 		
 		//navigation variables
 		private var move:Boolean = false;
+		private var m_shiftKeyDown:Boolean = false;
 		private var lastPanAngle:Number;
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
+		private var lastPanX:Number;
+		private var lastPanY:Number;
 		
 		private var _inactiveMaterial:ColorMaterial;
 		private var _activeMaterial:ColorMaterial;
@@ -259,7 +263,8 @@ package
 			m_pathInput = new TextInput();
 			m_pathInput.width = 300;			
 			m_pathInput.height = 20;
-			m_pathInput.text = '..\\assets\\obj\\bear2\\bear001.obj';
+			//m_pathInput.text = '..\\assets\\obj\\bear2\\bear001.obj';
+			m_pathInput.text = '..\\assets\\obj\\emma\\model_mesh.obj';
 			m_pathInput.x = 200;
 			m_pathInput.y = 5;
 			m_pathInput.addEventListener(KeyboardEvent.KEY_DOWN, onPathInputChange);
@@ -733,15 +738,18 @@ package
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			this.addEventListener(MouseEvent.DOUBLE_CLICK, onMouseDobuleClick);
 			stage.addEventListener(Event.RESIZE, onResize);
 			
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
+			stage.addEventListener(KeyboardEvent.KEY_UP, onStageKeyUp);
 			stage.addEventListener(MouseEvent.CLICK, stageMouseClickHandler);
 			
 			this.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			
 			onResize();
 		}
+		
 		
 		protected function stageMouseClickHandler(event:MouseEvent):void
 		{
@@ -792,6 +800,7 @@ package
 			}
 			else if(event.shiftKey)
 			{
+				m_shiftKeyDown = true;
 				switch(event.keyCode)
 				{
 					case Keyboard.DELETE:
@@ -815,14 +824,13 @@ package
 						testDrawWireFrame(m_meshList[0]);
 						break;*/
 					case Keyboard.NUMBER_1:
-						cameraController = new HoverController(camera);
-						cameraController.distance = 150;
-						cameraController.minTiltAngle = -15;
-						cameraController.maxTiltAngle = 90;
-						cameraController.panAngle = 45;
-						cameraController.tiltAngle = 20;
-						setCameraInfo(cameraController);
-						m_cameraModifyUI.target = cameraController;
+						var c:CameraInfo = CameraInfoManager.instance.getCameraInfo("cam01");
+						setCamera(c, camera);						
+						break;
+					
+					case Keyboard.NUMBER_2:
+						var c2:CameraInfo = CameraInfoManager.instance.getCameraInfo("cam02");
+						setCamera(c2, camera);
 						break;
 					
 					case Keyboard.NUMBER_9:
@@ -882,6 +890,11 @@ package
 			}
 		}
 		
+		protected function onStageKeyUp(event:KeyboardEvent):void
+		{
+			m_shiftKeyDown = event.shiftKey;			
+		}
+		
 		private function toggleAxisShow():void
 		{
 			if(m_axis == null)
@@ -898,9 +911,26 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			if (move && !m_bLockCamera) {
-				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+			if (move && !m_bLockCamera) 
+			{
+				if(m_shiftKeyDown)
+				{
+					var dx:Number = 0.3*(stage.mouseX - lastPanX);
+					var dy:Number = 0.3*(stage.mouseY - lastPanY);
+					
+					cameraController.lookAtPosition.x += dx;
+					cameraController.lookAtPosition.y += dy;
+					cameraController.update();
+					lastPanX = stage.mouseX;
+					lastPanY = stage.mouseY;
+					lastMouseX = stage.mouseX;
+					lastMouseY = stage.mouseY;
+				}
+				else
+				{
+					cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+					cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;					
+				}
 				setCameraInfo(cameraController);
 				m_cameraModifyUI.refresh();
 			}
@@ -933,7 +963,12 @@ package
 				lastMouseX = stage.mouseX;
 				lastMouseY = stage.mouseY;
 				move = true;
-				stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);	
+				stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+				if(event.shiftKey)
+				{
+					lastPanX = stage.mouseX;
+					lastPanY = stage.mouseY;
+				}
 			}			
 		}
 		
@@ -944,6 +979,11 @@ package
 		{
 			move = false;
 			removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+		}
+		
+		private function onMouseDobuleClick(event:MouseEvent):void
+		{
+			
 		}
 		
 		/**
@@ -1045,8 +1085,12 @@ package
 				var args:Array = raw.split("\t");
 				if(args[0] == "load")
 					parserLoadCommand(args)
-				else if(args[0] == "cam")
-					setCamera(args);
+				else if(args[0] == "camera")
+					parseCameraInfo(args);
+				/*else if(args[0] == "light")
+					parseCrameraInfo(args);
+				else if(args[0] == "sound")
+					parseCrameraInfo(args);*/
 				else
 					createPrimitives(args);
 			}
@@ -1067,9 +1111,55 @@ package
 				loadModel(path, "obj", pos, rotation, size);
 		}
 		
-		private function setCamera(args:Array):void
+		private function parseCameraInfo(args:Array):void
 		{
+			var keyword:String = args.shift() as String;
+			var cam_name:String = args.shift() as String;
+			var isDefault:Boolean = String(args.shift()) == "Y" ? true : false;
+			var type:String = args.shift();
+			var near:Number = args.shift();
+			var far:Number = args.shift();
+			var fov:Number = args.shift();
+			var distance:Number = args.shift();
+			var panAngle:Number = args.shift();
+			var tiltAngle:Number = args.shift();
+			var lookAt:Array = String(args.shift()).split(",");
 			
+			var camInfo:CameraInfo = new CameraInfo();
+			camInfo.name = cam_name;
+			camInfo.isDefault = isDefault;
+			camInfo.near = near;
+			camInfo.far = far;
+			camInfo.fov = fov;
+			camInfo.distance = distance;
+			camInfo.panAngle = panAngle;
+			camInfo.tiltAngle = tiltAngle;
+			camInfo.lookAt = new Vector3D(lookAt[0], lookAt[1], lookAt[2]);
+			
+			CameraInfoManager.instance.addCameraInfo(camInfo.name, camInfo);
+			
+			if(isDefault)
+			{
+				setCamera(camInfo, camera);
+			}			
+		}
+		
+		private function setCamera(info:CameraInfo, camera:Camera3D):void
+		{
+			cameraController = null;
+			cameraController = new HoverController(camera);
+			cameraController.distance = info.distance;
+			cameraController.minTiltAngle = -15;
+			cameraController.maxTiltAngle = 90;
+			cameraController.panAngle = info.panAngle;
+			cameraController.tiltAngle = info.tiltAngle;
+			camera.lens.near = info.near;
+			camera.lens.far = info.far;
+			PerspectiveLens(camera.lens).fieldOfView = info.fov;
+			HoverController(cameraController).lookAtPosition = info.lookAt;
+			
+			setCameraInfo(cameraController);
+			m_cameraModifyUI.target = cameraController;
 		}
 		
 		private function createPrimitives(args:Array):void
@@ -1100,7 +1190,7 @@ package
 			
 			m_meshList.push(plane);
 			addToScene(plane);
-			plane.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+			plane.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
 			plane.material.lightPicker = lightPicker;
 		}
 		
@@ -1111,7 +1201,7 @@ package
 			(box.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
 			(box.material as ColorMaterial).shadowMethod.epsilon = 0.2;
 			addToScene(box);
-			box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+			box.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
 			box.material.lightPicker = lightPicker;	
 			m_meshList.push(box);
 		}
@@ -1269,8 +1359,11 @@ package
 					   "\nrot : " + o.eulers.toString() +
 					   "\nscale : " + o.scaleX + ", " + o.scaleY + ", " + o.scaleZ +
 					   "\nclas : " + getQualifiedClassName(o) +
-					   "\ntriangles : " + getObject3DInfo.getFaceCounts(o)
-					   "\nvertices : " + getObject3DInfo.getVertexCounts(o);
+					   "\ntriangles : " + getObject3DInfo.getFaceCounts(o) + 
+					   "\nvertices : " + getObject3DInfo.getVertexCounts(o) +
+					   "\nbounds size : " + (o.maxX - o.minX).toFixed(2) + ", " + (o.maxY - o.minY).toFixed(2) + ", " + (o.maxZ - o.minZ).toFixed(2)
+						;
+					   
 			}
 			
 			m_meshInfo.text = text;
@@ -1416,14 +1509,6 @@ package
 		
 		protected function onModelLoadCompleted(event:LoaderEvent):void
 		{
-			//var m:ColorMaterial = new ColorMaterial(0xffffa5);
-			//m.ambient = 0.5;
-			//m.diffuseLightSources = 0.15;
-			//m.specular = 0.75;
-			//m.specularColor = 0xff0000;
-			
-			//var md:MeshDebug = new MeshDebug();
-			
 			var i:int;
 			var mesh:Mesh;
 			var len:uint = (event.target as Loader3D).numChildren;
@@ -1432,23 +1517,7 @@ package
 			
 			this.addToScene(event.target as ObjectContainer3D);
 			
-			event.target.addEventListener(MouseEvent3D.CLICK, on3DObjeMouseDown);
-			
-			/*for(i = 0; i < len; i++)
-			{
-				mesh = (event.target as Loader3D).getChildAt(i) as Mesh;
-				mesh.mouseEnabled = true;
-				if(mesh.material is TextureMaterial)
-				{
-					//TextureMaterial(mesh.material).alphaBlending = true;
-					TextureMaterial(mesh.material).alphaThreshold = 0.5;
-				}
-				//mesh.material = m;
-				mesh.material.lightPicker = lightPicker;
-				//md.displayVertexNormals(mesh, 0x66ccff, 15000);
-				mesh.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
-				//drawWireFrame(mesh);				
-			}*/
+			event.target.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);			
 		}
 		
 		private function addObjectContainerToScene(container:ObjectContainer3D):void
@@ -1503,7 +1572,7 @@ package
 			{
 				var m:Mesh = m_meshList.pop();
 				removeFromeScene(m)				
-				m.removeEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
+				m.removeEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
 			}
 			
 			cleanLoadObject();
@@ -1596,6 +1665,11 @@ package
 			var all:Vector.<ISubGeometry> = mesh.geometry.subGeometries;
 			var g:ISubGeometry;
 			var ss:SegmentSet = new SegmentSet();
+			var sCount:int = 0;		
+			
+			data = null;
+			data = new Dictionary();
+			trace("start draw wirdFrame : " + getTimer());
 			for(var i:int = 0; i < all.length; i++)
 			{
 				g = all[i];
@@ -1614,14 +1688,27 @@ package
 					//vb = mesh.sceneTransform.transformVector(vb);
 					//vc = mesh.sceneTransform.transformVector(vc);
 					
-					ss.addSegment(new LineSegment(va, vb, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));					
-					ss.addSegment(new LineSegment(vb, vc, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));
-					ss.addSegment(new LineSegment(vc, va, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));					
+					if(!chcekLine(v1, v2))
+					{
+						ss.addSegment(new LineSegment(va, vb, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));
+						sCount++;
+					}
+					if(!chcekLine(v2, v3))
+					{
+						ss.addSegment(new LineSegment(vb, vc, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));
+						sCount++;
+					}
+					if(!chcekLine(v3, v1))
+					{
+						ss.addSegment(new LineSegment(vc, va, WireFrameConst.START_COLOR, WireFrameConst.END_COLOR, WireFrameConst.THINKNESS));
+						sCount++;
+					}
 				}
 			}
 			ss.name = "wireframe";
 			mesh.addChild(ss);
 			m_segmentSetList.push(ss);
+			trace("wireFrames : " + sCount);
 			//this.addToScene(ss);
 			
 			/*var b:BitmapData =  WireframeMapGenerator.generateSolidMap(mesh, 0xff0000, 1.5, 1, 0.85);
@@ -1629,32 +1716,85 @@ package
 			var t:TextureMaterial = new TextureMaterial(Cast.bitmapTexture(b));
 				
 			mesh.material = t;*/
+			
+			trace("end draw wirdFrame : " + getTimer());
 		}
 		
-		private var _idx:int = 0;
-		private function testDrawWireFrame(mesh:Mesh):void
-		{
-			var all:Vector.<ISubGeometry> = mesh.geometry.subGeometries;
-			var g:ISubGeometry = all[0];
-			var ss:SegmentSet = new SegmentSet();
+		private var data:Dictionary = new Dictionary();
+		private function chcekLine(v1:int, v2:int):Boolean
+		{				
+			var isHaveLine:Boolean = false;
 			
-			var v1:int = g.indexData[_idx++];
-			var v2:int = g.indexData[_idx++];
-			var v3:int = g.indexData[_idx++];
+			//檢查起點
+			var d:Array = data[v1] as Array;
+			if(d)
+			{				
+				if(d.indexOf(v2) > -1)
+					isHaveLine = true;
+				else
+				{
+					d.push(v2);
+				}				
+			}
+			else
+			{
+				data[v1] = [v2];				
+			}
 			
-			var va:Vector3D = new Vector3D(g.vertexPositionData[v1*3], g.vertexPositionData[v1*3 + 1], g.vertexPositionData[v1*3 + 2]);
-			var vb:Vector3D = new Vector3D(g.vertexPositionData[v2*3], g.vertexPositionData[v2*3 + 1], g.vertexPositionData[v2*3 + 2]);
-			var vc:Vector3D = new Vector3D(g.vertexPositionData[v3*3], g.vertexPositionData[v3*3 + 1], g.vertexPositionData[v3*3 + 2]);
+			// 檢查終點
+			var d2:Array = data[v2] as Array;
+			if(d2)
+			{
+				if(d2.indexOf(v1) > -1)
+					isHaveLine = true;
+				else
+				{
+					d2.push(v1);
+				}	
+			}
+			else
+			{
+				data[v2] = [v1];
+			}
 			
-			//va = mesh.sceneTransform.transformVector(va);
-			//vb = mesh.sceneTransform.transformVector(vb);
-			//vc = mesh.sceneTransform.transformVector(vc);
+			return isHaveLine;
 			
-			ss.addSegment(new LineSegment(va, vb, 0xff0000, 0xff0000, 2));						
-			ss.addSegment(new LineSegment(vb, vc, 0xff0000, 0xff0000, 2));
-			ss.addSegment(new LineSegment(vc, va, 0xff0000, 0xff0000, 2));	
+			/*var t:int = v1 + v2;
 			
-			mesh.addChild(ss);			
-		}	
+			if(data[t])
+			{
+				var d:Array = data[t] as Array;
+				if(d.indexOf(v1) > -1 || d.indexOf(v2) > -1)
+					return true;
+				else
+					d.push(v1, v2);
+			}
+			else
+			{
+				var a:Array = [v1, v2];
+				data[t] = a;
+			}
+			return false;*/
+			
+			
+			/*if(data[v2])
+			{
+				var d:Array = data[v2] as Array;
+				if(d.indexOf(v1) > -1)
+					return true;
+				else
+				{
+					d.push(v1);
+					return false;
+				}
+					
+			}
+			else
+			{
+				var a:Array = [v1];
+				data[v2] = a;
+				return false;
+			}*/
+		}
 	}
 }

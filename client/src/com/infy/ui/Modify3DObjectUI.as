@@ -4,6 +4,8 @@ package com.infy.ui
 	
 	import com.infy.event.ObjEvent;
 	
+	import fl.controls.Label;
+	
 	import flash.display.Sprite;
 
 	/**
@@ -16,11 +18,19 @@ package com.infy.ui
 		private var m_dx:int = 5;
 		private var m_dy:int = 5;
 		
+		private var m_title:Label = new Label();
+		
 		private var m_target:ObjectContainer3D = null;
 		
 		public function Modify3DObjectUI()
 		{
 			super();
+			
+			m_title.x = 100;
+			m_title.y = m_dy;
+			this.addChild(m_title);
+			m_dy += 20;			
+			
 			
 			addSlider(0, "x", 0, -500, 500, 1);
 			addSlider(1, "y", 0, -500, 500, 1);			
@@ -82,6 +92,8 @@ package com.infy.ui
 		public function set target(value:ObjectContainer3D):void
 		{
 			m_target = value;
+			
+			m_title.text = value.name;
 			refresh();
 		}
 

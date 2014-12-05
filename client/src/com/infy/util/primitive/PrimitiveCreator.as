@@ -45,8 +45,7 @@ package com.infy.util.primitive
 			
 			cm.smoothness = 0.1;
 			//m.diffuseMethod = cm;*/
-			
-			m.alpha = 0.4;			
+						
 			//m.lightPicker = lightPicker;
 			var box:Mesh = new Mesh(new CubeGeometry(size[0], size[1], size[2]), m);
 			box.name = objName;
