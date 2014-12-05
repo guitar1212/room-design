@@ -12,6 +12,7 @@ package com.infy.ui
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
 	
 	import flashx.textLayout.formats.Direction;
 
@@ -47,7 +48,9 @@ package com.infy.ui
 			addSlider(3, "far", 3000, 1000, 5000, 1);
 			addSlider(4, "distance", 150, 20, 1000, 1);
 			addSlider(5, "fov", 60, 16, 75, 0.5);
-						
+			addSlider(6, "look X", 0, -500, 500, 1);
+			addSlider(7, "look Y", 0, -200, 200, 1);
+			addSlider(8, "look Z", 0, -500, 500, 1);
 			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 		}
@@ -92,7 +95,7 @@ package com.infy.ui
 		public function refresh():void
 		{
 			var cam:Camera3D = m_targetCameraController.targetObject as Camera3D;
-			
+			var lookAt:Vector3D = HoverController(m_targetCameraController).lookAtPosition;
 			//ModifySliderUI(getChildAt(0)).sliderValue = HoverController(m_targetCameraController).panAngle;
 			ModifySliderUI(getChildAt(0)).sliderValue = m_targetCameraController["panAngle"];
 			ModifySliderUI(getChildAt(1)).sliderValue = HoverController(m_targetCameraController).tiltAngle;
@@ -100,6 +103,9 @@ package com.infy.ui
 			ModifySliderUI(getChildAt(3)).sliderValue = cam.lens.far;
 			ModifySliderUI(getChildAt(4)).sliderValue = HoverController(m_targetCameraController).distance;
 			ModifySliderUI(getChildAt(5)).sliderValue = PerspectiveLens(cam.lens).fieldOfView;			
+			ModifySliderUI(getChildAt(6)).sliderValue = lookAt.x;
+			ModifySliderUI(getChildAt(7)).sliderValue = lookAt.y;
+			ModifySliderUI(getChildAt(8)).sliderValue = lookAt.z;
 		}
 		
 		private function onSlideChange(title:String, value:Number):void
@@ -114,7 +120,13 @@ package com.infy.ui
 			if(title == "far") cam.lens.far = value;			
 			if(title == "distance") HoverController(m_targetCameraController).distance = value;
 			if(title == "fov") PerspectiveLens(cam.lens).fieldOfView = value;
-			
+			else
+			{
+				if(title == "look X") HoverController(m_targetCameraController).lookAtPosition.x = value;
+				if(title == "look Y") HoverController(m_targetCameraController).lookAtPosition.y = value;
+				if(title == "look Z") HoverController(m_targetCameraController).lookAtPosition.z = value;
+				HoverController(m_targetCameraController).update();
+			}
 			var event:CameraEvent = new CameraEvent(CameraEvent.CHANGE);
 			event.attribute = title;
 			event.value = value;

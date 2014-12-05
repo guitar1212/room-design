@@ -17,8 +17,7 @@ package
 	 */	
 	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW", width="1024", height="768")]
 	public class RoomDesign extends Sprite
-	{
-		
+	{		
 		[Embed(source="/../embeds/viewBG.jpg")]
 		public static var RoomBackground:Class;
 		
