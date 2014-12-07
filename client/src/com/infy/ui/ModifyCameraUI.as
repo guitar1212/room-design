@@ -13,8 +13,6 @@ package com.infy.ui
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
-	
-	import flashx.textLayout.formats.Direction;
 
 	/**
 	 * 
