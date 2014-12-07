@@ -1,8 +1,9 @@
 package com.infy.ui
 {
-	import fl.events.SliderEvent;
-	
+	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
+	
+	import fl.events.SliderEvent;
 
 	/**
 	 * 
@@ -33,16 +34,17 @@ package com.infy.ui
 			this.m_cb = cb;
 			
 			this.slider.addEventListener(SliderEvent.THUMB_DRAG, onSliderDrag);
-			this.slider.addEventListener(SliderEvent.THUMB_RELEASE, onSliderDragFinish);
-			this.slider.addEventListener(SliderEvent.THUMB_PRESS, onSliderDragStart);
+			this.slider.addEventListener(SliderEvent.CHANGE, onSliderDrag);
+			this.addEventListener(MouseEvent.MOUSE_UP, onSliderDragFinish);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onSliderDragStart);
 		}
 		
-		protected function onSliderDragStart(event:SliderEvent):void
+		protected function onSliderDragStart(event:MouseEvent):void
 		{
 			this.label.filters = [new GlowFilter(0xffff11)];
 		}
 		
-		protected function onSliderDragFinish(event:SliderEvent):void
+		protected function onSliderDragFinish(event:MouseEvent):void
 		{
 			this.label.filters = [];
 		}

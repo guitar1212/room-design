@@ -36,7 +36,7 @@ package com.infy.ui.comp
 				MovieClip(this.parent).stopDrag();
 				this.parent.alpha = 1;
 			}
-			
+			event.stopPropagation();
 		}
 		
 		protected function onMouseDown(event:Event):void
@@ -47,7 +47,7 @@ package com.infy.ui.comp
 				MovieClip(this.parent).startDrag();
 				this.parent.alpha = 0.3;
 			}
-			
+			event.stopPropagation();
 		}
 	}
 }
