@@ -4,7 +4,7 @@ package com.infy.event
 	
 	public class CameraEvent extends Event
 	{
-		public static const CHANGE:String = "change";
+		public static const CHANGE:String = "camerainfochange";
 		
 		public var attribute:String;
 		
