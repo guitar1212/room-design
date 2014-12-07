@@ -621,15 +621,15 @@ package
 			light1.name = "light_dir_1";
 			addToScene(light1);
 			
-			light2 = new DirectionalLight();
+			/*light2 = new DirectionalLight();
 			light2.direction = new Vector3D(0, -1, 0);
 			light2.color = 0xFFFFFF;
 			light2.ambient = 0.1;
 			light2.diffuse = 0.7;
 			light2.name = "light_dir_2";
-			addToScene(light2);
+			addToScene(light2);*/
 			
-			lightPicker = new StaticLightPicker([light1, light2]);
+			lightPicker = new StaticLightPicker([light1]);
 		}
 		
 		/**
@@ -1198,8 +1198,8 @@ package
 		{	
 			var box:Mesh = PrimitiveCreator.createCube(args);
 			box.castsShadows = true;
-			(box.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
-			(box.material as ColorMaterial).shadowMethod.epsilon = 0.2;
+			//(box.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
+			//(box.material as ColorMaterial).shadowMethod.epsilon = 0.2;
 			addToScene(box);
 			box.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
 			box.material.lightPicker = lightPicker;	
