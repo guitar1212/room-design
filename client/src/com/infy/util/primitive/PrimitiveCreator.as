@@ -1,5 +1,9 @@
 package com.infy.util.primitive
 {
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.util.tools.ColorUtil;
+	
 	import away3d.entities.Mesh;
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.SinglePassMaterialBase;
@@ -11,10 +15,6 @@ package com.infy.util.primitive
 	import away3d.materials.methods.SimpleShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
-	
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.util.tools.ColorUtil;
 
 	/**
 	 * 
@@ -29,18 +29,10 @@ package com.infy.util.primitive
 		
 		public static function createCube(args:Array):Mesh
 		{
-			var objName:String = args.shift();
-			var pos:Array = String(args.shift()).split(",");
-			var rotation:Array = String(args.shift()).split(",");
-			var size:Array = String(args.shift()).split(",");
-			var colorArr:Array = String(args.shift()).split(",");
-			var r:uint = colorArr[0];
-			var g:uint = colorArr[1];
-			var b:uint = colorArr[2];
-			var color:uint = ColorUtil.getHexCode(r, g, b);
-			var alpha:Number = args.shift();
-			var castShadow:Boolean = args.shift() == "Y" ? true : false;
-			var m:ColorMaterial = new ColorMaterial(color, alpha);
+			var info:PrimitiveInfo = new PrimitiveInfo();
+			info.parser(args);
+			
+			var m:ColorMaterial = new ColorMaterial(info.color, info.alpha);
 			m.specular = 0.25;
 			/*var sm:CelSpecularMethod = new CelSpecularMethod();
 			var cm:CelDiffuseMethod = new CelDiffuseMethod();
@@ -53,17 +45,16 @@ package com.infy.util.primitive
 			//m.diffuseMethod = cm;*/
 						
 			//m.lightPicker = lightPicker;
-			var box:Mesh = new Mesh(new CubeGeometry(size[0], size[1], size[2]), m);
-			box.name = objName;
-			box.x = pos[0];
-			box.y = pos[1];
-			box.z = pos[2];
-			box.rotationX = rotation[0];
-			box.rotationY = rotation[1];
-			box.rotationZ = rotation[2];
+			var box:Mesh = new Mesh(new CubeGeometry(info.size.x, info.size.y, info.size.z), m);
+			box.name = info.name;
+			box.position = info.pos;
+			box.eulers = info.rotation;
+//			box.rotationX = rotation[0];
+//			box.rotationY = rotation[1];
+//			box.rotationZ = rotation[2];
 			//addToScene(box);
 			box.mouseEnabled = true;
-			box.castsShadows = castShadow;
+			box.castsShadows = info.castShadow;
 			//box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);			
 			//m_meshList.push(box);
 			return box;
@@ -104,6 +95,13 @@ package com.infy.util.primitive
 			}
 			
 			return plane;
+		}
+		
+		public function createSphere():Mesh
+		{
+			var m:Mesh;
+			
+			return m;
 		}
 		
 		public static function get defaultCubeObjectData():String
