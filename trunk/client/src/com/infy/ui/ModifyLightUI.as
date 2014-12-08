@@ -1,7 +1,10 @@
 package com.infy.ui
 {
+	import away3d.entities.Mesh;
 	import away3d.lights.DirectionalLight;
 	import away3d.lights.LightBase;
+	import away3d.loaders.Loader3D;
+	import away3d.materials.SinglePassMaterialBase;
 	
 	import com.infy.util.tools.ColorUtil;
 	
@@ -38,9 +41,9 @@ package com.infy.ui
 			addSlider(3, "color R", 0, 0, 255, 1);
 			addSlider(4, "color G", 0, 0, 255, 1);
 			addSlider(5, "color B", 0, 0, 255, 1);
-			addSlider(6, "dir X", 0, -180, 180, 1);
-			addSlider(7, "dir Y", -1, -180, 180, 1);
-			addSlider(8, "dir Z", 0, -180, 180, 1);
+			addSlider(6, "dir X", 0, -1, 1, 0.1);
+			addSlider(7, "dir Y", -1, -1, 1, 0.1);
+			addSlider(8, "dir Z", 0, -1, 1, 0.1);
 		}
 		
 		private function refresh():void

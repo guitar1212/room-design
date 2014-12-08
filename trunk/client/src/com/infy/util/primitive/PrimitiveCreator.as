@@ -2,13 +2,18 @@ package com.infy.util.primitive
 {
 	import away3d.entities.Mesh;
 	import away3d.materials.ColorMaterial;
+	import away3d.materials.SinglePassMaterialBase;
 	import away3d.materials.methods.CelDiffuseMethod;
 	import away3d.materials.methods.CelSpecularMethod;
 	import away3d.materials.methods.FresnelEnvMapMethod;
+	import away3d.materials.methods.HardShadowMapMethod;
 	import away3d.materials.methods.ShadowMapMethodBase;
+	import away3d.materials.methods.SimpleShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
 	
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
 	import com.infy.util.tools.ColorUtil;
 
 	/**
@@ -34,6 +39,7 @@ package com.infy.util.primitive
 			var b:uint = colorArr[2];
 			var color:uint = ColorUtil.getHexCode(r, g, b);
 			var alpha:Number = args.shift();
+			var castShadow:Boolean = args.shift() == "Y" ? true : false;
 			var m:ColorMaterial = new ColorMaterial(color, alpha);
 			m.specular = 0.25;
 			/*var sm:CelSpecularMethod = new CelSpecularMethod();
@@ -57,6 +63,7 @@ package com.infy.util.primitive
 			box.rotationZ = rotation[2];
 			//addToScene(box);
 			box.mouseEnabled = true;
+			box.castsShadows = castShadow;
 			//box.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);			
 			//m_meshList.push(box);
 			return box;
@@ -74,6 +81,8 @@ package com.infy.util.primitive
 			var b:uint = colorArr[2];
 			var color:uint = r << 16 | g << 8 | b;
 			var alpha:Number = args.shift();
+			var castShadow:Boolean = args.shift() == "Y" ? true : false;
+			var reciveShadow:Boolean = args.shift() == "Y" ? true : false;
 			var m:ColorMaterial = new ColorMaterial(color, alpha);
 			
 			var plane:Mesh = new Mesh(new PlaneGeometry(size[0], size[1]), m);
@@ -85,6 +94,15 @@ package com.infy.util.primitive
 			plane.rotationY = rotation[1];
 			plane.rotationZ = rotation[2];
 			plane.mouseEnabled = true;	
+			plane.castsShadows = castShadow;
+			
+			if(reciveShadow)
+			{
+				var lightInfo:LightInfo = LightManager.instance.getLight("main_light");
+				m.shadowMethod = new HardShadowMapMethod(lightInfo.lignt);
+				(m.shadowMethod as SimpleShadowMapMethodBase).epsilon = 0.7;
+			}
+			
 			return plane;
 		}
 		

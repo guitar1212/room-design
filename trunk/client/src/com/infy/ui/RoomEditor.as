@@ -98,8 +98,8 @@ package com.infy.ui
 		
 		public function set data(context:String):void
 		{
-			m_text.text = context;
-			
+			context = context.replace(/[\r]/g, "");
+			m_text.text = context;			
 		}
 		
 		public function get data():String

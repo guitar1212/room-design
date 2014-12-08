@@ -94,6 +94,7 @@ package com.infy.util.scene
 			}
 			
 			if(!b) return;
+			o = m_itemDic[key] as SceneItem;
 			o.target = null;
 			this.removeChild(o);
 			

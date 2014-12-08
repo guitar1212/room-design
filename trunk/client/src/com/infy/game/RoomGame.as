@@ -6,6 +6,7 @@ package com.infy.game
 	import away3d.controllers.HoverController;
 	import away3d.controllers.SpringController;
 	import away3d.debug.AwayStats;
+	import away3d.lights.DirectionalLight;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.DAEParser;
 	import away3d.loaders.parsers.Max3DSParser;
@@ -16,6 +17,8 @@ package com.infy.game
 	import com.infy.constant.View3DCons;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
 	import com.infy.stage.ConfirmRoomStage;
 	import com.infy.stage.DesignRoomStage;
 	import com.infy.stage.InitialStage;
@@ -58,7 +61,9 @@ package com.infy.game
 			initStage();
 			initUI();
 			initEngine();
+			initLight();
 			
+			// InitialStage
 			StageManager.instance.changeStage(0);
 		}
 				
@@ -115,6 +120,21 @@ package com.infy.game
 			Loader3D.enableParser(OBJParser);
 			Loader3D.enableParser(DAEParser);
 			Loader3D.enableParser(Max3DSParser);
+		}
+		
+		private function initLight():void
+		{
+			// add main light (default light)
+			var light:DirectionalLight = new DirectionalLight();
+			light.ambient = 1;
+			light.diffuse = 1;
+			
+			scene.addChild(light);
+			
+			var lightInfo:LightInfo = new LightInfo();
+			lightInfo.name = LightInfo.MAIN_LIGHT;
+			lightInfo.lignt = light;
+			LightManager.instance.addLight(lightInfo);
 		}
 		
 		public function show3DView():void

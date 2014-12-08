@@ -7,6 +7,10 @@ package com.infy.room
 	 */	
 	public class RoomInfo
 	{
+		public var id:String;
+		
+		public var 
+		
 		public function RoomInfo()
 		{
 		}
