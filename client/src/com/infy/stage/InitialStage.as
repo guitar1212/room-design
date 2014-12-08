@@ -31,14 +31,18 @@ package com.infy.stage
 		{
 			super.initilaize();
 			
+			// initial stringTable
 			StringTable.initialize();
 			
+			// set step bar
 			game.ui.setStepInfo(0, StringTable.getString("UI_STEP", "STEP1"));
 			game.ui.setStepInfo(1, StringTable.getString("UI_STEP", "STEP2"));
 			game.ui.setStepInfo(2, StringTable.getString("UI_STEP", "STEP3"));
 			
+			// hide ui
 			game.ui.show(false);
 			
+			// create link
 			MessageManager.instance.initialize(HOST, METHOD);			
 			
 		}

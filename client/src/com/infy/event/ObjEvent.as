@@ -9,7 +9,7 @@ package com.infy.event
 	 */	
 	public class ObjEvent extends Event
 	{
-		public static const CHANGE:String = "change";
+		public static const CHANGE:String = "obj_change";
 		
 		public var attribute:String;
 		

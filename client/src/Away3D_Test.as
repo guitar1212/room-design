@@ -70,6 +70,7 @@ package
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.FilteredShadowMapMethod;
+	import away3d.materials.methods.HardShadowMapMethod;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.WireframeCube;
@@ -83,10 +84,13 @@ package
 	import com.infy.constant.WireFrameConst;
 	import com.infy.event.CameraEvent;
 	import com.infy.event.ObjEvent;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
 	import com.infy.ui.Modify3DObjectUI;
 	import com.infy.ui.ModifyCameraUI;
 	import com.infy.ui.ModifyLightUI;
 	import com.infy.ui.RoomEditor;
+	import com.infy.ui.RoomUI;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.scene.SceneObjectView;
 	import com.infy.util.tools.getObject3DInfo;
@@ -98,6 +102,7 @@ package
 	import fl.events.SliderEvent;
 	
 	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
@@ -169,6 +174,7 @@ package
 		private var light1:DirectionalLight;
 		private var light2:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
+		private var noShadowLightPicker:StaticLightPicker;
 		
 		//scene objects
 		private var plane:Mesh;
@@ -207,7 +213,7 @@ package
 		private var createLightBtn:Button;
 		private var saveRoomBtn:Button;
 		
-		private var billboard:Sprite3D;
+		//private var billboard:Sprite3D;
 		
 		private var m_meshInfo:TextField;
 		private var m_cameraInfo:TextField;		
@@ -225,7 +231,11 @@ package
 		
 		private var m_bLockCamera:Boolean = false;
 		
-	
+		private var m_textureSprite:Sprite = new Sprite();
+		
+		private var m_underButtonList:Array = [];
+		
+		private var m_ui:RoomUI;
 		
 		/**
 		 * Constructor
@@ -258,6 +268,9 @@ package
 			m_objeditor.x = 5;
 			m_objeditor.y = 100;
 			m_objeditor.data = PrimitiveCreator.defaultCubeObjectData;
+			
+			this.addChild(m_textureSprite);
+			
 			
 			// Input Obj Loading
 			m_pathInput = new TextInput();
@@ -345,7 +358,7 @@ package
 			// 3dObject modify UI
 			m_objModifyUI = new Modify3DObjectUI();
 			m_objModifyUI.x = 950;
-			m_objModifyUI.y = 550;
+			m_objModifyUI.y = 550;			
 			m_objModifyUI.addEventListener(ObjEvent.CHANGE, on3DObjectInfoChange);
 			this.addChild(m_objModifyUI);
 			
@@ -355,35 +368,6 @@ package
 			m_lightModifyUI.addEventListener(SliderEvent.CHANGE, onLightInfoChange)
 			this.addChild(m_lightModifyUI);
 			
-			// toggle roomeditro ui button
-			roomEditorBtn = new Button();
-			roomEditorBtn.label = "Open Room Editor";
-			roomEditorBtn.x = inputBtn.x + inputBtn.width + 5;
-			roomEditorBtn.y = m_pathInput.y;
-			roomEditorBtn.addEventListener(MouseEvent.CLICK, toggleRoomConfigEditor);
-			this.addChild(roomEditorBtn);
-			
-			// toggle wireframe button
-			wireframeBtn = new Button();
-			wireframeBtn.label = "wireFrame";
-			wireframeBtn.x = roomEditorBtn.x + roomEditorBtn.width + 5;
-			wireframeBtn.y = m_pathInput.y;
-			wireframeBtn.addEventListener(MouseEvent.CLICK, toggleWireFrame);
-			wireframeBtn.enabled = false;
-			this.addChild(wireframeBtn);
-			
-			createLightBtn = new Button();
-			createLightBtn.label = "create Light";
-			createLightBtn.x = wireframeBtn.x + wireframeBtn.width + 5;
-			createLightBtn.y = m_pathInput.y;
-			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
-			this.addChild(createLightBtn);
-			
-			// save btn
-			saveRoomBtn = new Button();
-			saveRoomBtn.label = "Save Room";
-			saveRoomBtn.addEventListener(MouseEvent.CLICK, saveRoom);
-			this.addChild(saveRoomBtn);
 			
 			// room editro ui
 			m_roomEditor = new RoomEditor();
@@ -397,6 +381,58 @@ package
 			m_mouseInfoText.selectable = false;
 			m_mouseInfoText.mouseEnabled = false;
 			this.addChild(m_mouseInfoText);
+			
+			createUnderButtons();
+		}
+		
+		private function createUnderButtons():void
+		{
+			// toggle roomeditro ui button
+			roomEditorBtn = new Button();
+			roomEditorBtn.label = "Open Room Editor";
+			roomEditorBtn.addEventListener(MouseEvent.CLICK, toggleRoomConfigEditor);
+			this.addChild(roomEditorBtn);
+			m_underButtonList.push(roomEditorBtn);
+			
+			var objEditorBtn:Button = new Button();
+			objEditorBtn.label = "Obj Editor";
+			objEditorBtn.addEventListener(MouseEvent.CLICK, toggleObjEditorEditor);
+			this.addChild(objEditorBtn);
+			m_underButtonList.push(objEditorBtn);
+			
+			// toggle wireframe button
+			wireframeBtn = new Button();
+			wireframeBtn.label = "wireFrame";
+			wireframeBtn.addEventListener(MouseEvent.CLICK, toggleWireFrame);
+			wireframeBtn.enabled = false;
+			this.addChild(wireframeBtn);
+			m_underButtonList.push(wireframeBtn);
+			
+			// create light button
+			createLightBtn = new Button();
+			createLightBtn.label = "create Light";			
+			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
+			this.addChild(createLightBtn);
+			m_underButtonList.push(createLightBtn);
+			
+			// save btn
+			saveRoomBtn = new Button();
+			saveRoomBtn.label = "Save Room";
+			saveRoomBtn.addEventListener(MouseEvent.CLICK, saveRoom);
+			this.addChild(saveRoomBtn);
+			m_underButtonList.push(saveRoomBtn);
+			
+			var cleanSceneBtn:Button = new Button();
+			cleanSceneBtn.label = "Clean Room";
+			cleanSceneBtn.addEventListener(MouseEvent.CLICK, cleanScene);
+			this.addChild(cleanSceneBtn);
+			m_underButtonList.push(cleanSceneBtn);
+			
+			var deleteObjBtn:Button = new Button();
+			deleteObjBtn.label = "Delete Obj";
+			deleteObjBtn.addEventListener(MouseEvent.CLICK, onDeleteButtonClick);
+			this.addChild(deleteObjBtn);
+			m_underButtonList.push(deleteObjBtn);
 		}
 		
 		protected function onPathInputChange(event:KeyboardEvent):void
@@ -416,6 +452,11 @@ package
 				roomEditorBtn.label = "Hide RoomEditor";
 			else
 				roomEditorBtn.label = "Open RoomEditor";
+		}
+		
+		private function toggleObjEditorEditor(event:MouseEvent):void
+		{
+			m_objeditor.visible = !m_objeditor.visible;
 		}
 		
 		protected function onCameraInfoChange(event:CameraEvent):void
@@ -618,18 +659,35 @@ package
 			light1.direction = new Vector3D(0, -1, 0);
 			light1.ambient = 1.0;
 			light1.diffuse = 1.0;
-			light1.name = "light_dir_1";
-			addToScene(light1);
+			light1.name = LightInfo.MAIN_LIGHT;
+			light1.castsShadows
+			/*light1.castsShadows = true;
+			light1.shadowMapper.depthMapSize = 2048;*/
+			//addToScene(light1);
+			addLight(light1);
 			
-			/*light2 = new DirectionalLight();
+			light2 = new DirectionalLight();
 			light2.direction = new Vector3D(0, -1, 0);
 			light2.color = 0xFFFFFF;
 			light2.ambient = 0.1;
 			light2.diffuse = 0.7;
-			light2.name = "light_dir_2";
-			addToScene(light2);*/
+			light2.name = "no_shadow_light";
+			//addToScene(light2);
+			addLight(light2);
 			
 			lightPicker = new StaticLightPicker([light1]);
+			noShadowLightPicker = new StaticLightPicker([light2]);
+			
+			
+		}
+		
+		private function addLight(light:LightBase):void
+		{
+			addToScene(light);
+			var info:LightInfo = new LightInfo();
+			info.name = light.name;
+			info.lignt = light;
+			LightManager.instance.addLight(info);
 		}
 		
 		/**
@@ -640,24 +698,24 @@ package
 			/*var p:Mesh = new Mesh(new PlaneGeometry(1000, 1000), new ColorMaterial(0xeeffff));
 			addToScene(p);*/
 			
-			billboard = new Sprite3D(planeMaterial, 50, 50);
+			/*billboard = new Sprite3D(planeMaterial, 50, 50);
 			billboard.x = 100;			
-			addToScene(billboard);
+			addToScene(billboard);*/
 			
-			var wc:WireframeCube = new WireframeCube();
+			/*var wc:WireframeCube = new WireframeCube();
 			wc.color = 0x999999;
 			wc.thickness = 1.5;
 			wc.scaleX = 3;
 			wc.scaleY = 3;
 			wc.scaleZ = 3;
-			//addToScene(wc);
+			addToScene(wc);*/
 			
-			var cg:Mesh = new Mesh(new CubeGeometry(), new ColorMaterial(0xff22ff));			
+			/*var cg:Mesh = new Mesh(new CubeGeometry(), new ColorMaterial(0xff22ff));			
 			cg.x = 100;
 			//cg.addChild(wc);
 			cg.y = 150;
 			//addToScene(cg);
-			cg.geometry.scale(3);
+			cg.geometry.scale(3);*/
 			
 			/*var cone:Mesh = new Mesh(new ConeGeometry(), new ColorMaterial(0x2d56ef));
 			cone.z = 100;
@@ -717,17 +775,14 @@ package
 		
 		protected function onMouseOut(event:MouseEvent3D):void
 		{
-			// TODO Auto-generated method stub
 			//event.target.material = cubeMaterial;
 			event.target.material.texture = Cast.bitmapTexture(FloorDiffuse);
 		}
 		
 		protected function onMouseOver(event:MouseEvent3D):void
 		{
-			// TODO Auto-generated method stub
 			//event.target.material = _activeMaterial
 			event.target.material.texture = Cast.bitmapTexture(TrinketDiffuse);
-			//trace("onMouseOver : " + event.target.name);
 		}
 		
 		/**
@@ -1031,19 +1086,16 @@ package
 			m_sceneContainer.x = stage.stageWidth - m_sceneContainer.width - 30;
 			
 			m_mouseInfoText.x = view.x;
-			m_mouseInfoText.y = view.y + view.height + 3;
+			m_mouseInfoText.y = view.y - 25;
 			
-			roomEditorBtn.x = m_mouseInfoText.x + m_mouseInfoText.width;
-			roomEditorBtn.y = m_mouseInfoText.y;
-			
-			wireframeBtn.x = roomEditorBtn.x + roomEditorBtn.width + 5;
-			wireframeBtn.y = m_mouseInfoText.y;
-			
-			createLightBtn.x = wireframeBtn.x + wireframeBtn.width + 5;
-			createLightBtn.y = m_mouseInfoText.y;
-			
-			saveRoomBtn.x = createLightBtn.x + createLightBtn.width + 5;
-			saveRoomBtn.y = m_mouseInfoText.y;
+			var dx:int = view.x;
+			for(var i:int = 0; i < m_underButtonList.length; i++)
+			{
+				var b:Button = m_underButtonList[i];
+				b.y = view.y + view.height + 3;
+				b.x = dx;
+				dx += b.width + 5;
+			}
 		}
 		
 		private function setMouseInfo():void
@@ -1067,13 +1119,15 @@ package
 		protected function onLoadRoomComplete(event:Event):void
 		{
 			var urlLoader:URLLoader = event.target as URLLoader;
+			
 			parserRoom(urlLoader.data);
 			m_roomEditor.data = urlLoader.data;
 		}
 		
 		private function parserRoom(data:String):void
 		{
-			//var lines:Array = data.split("\r\n");			
+			//var lines:Array = data.split("\r\n");
+			data = data.replace(/[\r]/g, "");
 			var lines:Array = data.split("\n");
 			lines.shift(); // skip first line;
 			for(var i:int = 0; i < lines.length; i++)
@@ -1175,7 +1229,6 @@ package
 		
 		private function createModel(args:Array):void
 		{
-			// TODO Auto Generated method stub
 			
 		}
 		
@@ -1183,10 +1236,12 @@ package
 		{	
 			var plane:Mesh = PrimitiveCreator.createPlane(args);
 			
-			// make shadow????
-			plane.castsShadows = true;
-			(plane.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
-			(plane.material as ColorMaterial).shadowMethod.epsilon = 0.2;
+			// make shadow????			
+			/*(plane.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
+			(plane.material as ColorMaterial).shadowMethod.epsilon = 1;*/
+			
+			/*(plane.material as ColorMaterial).shadowMethod = new HardShadowMapMethod(light1);
+			(plane.material as ColorMaterial).shadowMethod.epsilon = 1;*/
 			
 			m_meshList.push(plane);
 			addToScene(plane);
@@ -1196,13 +1251,13 @@ package
 		
 		private function createBox(args:Array):void
 		{	
-			var box:Mesh = PrimitiveCreator.createCube(args);
-			box.castsShadows = true;
+			var box:Mesh = PrimitiveCreator.createCube(args);			
+			
 			//(box.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
 			//(box.material as ColorMaterial).shadowMethod.epsilon = 0.2;
 			addToScene(box);
 			box.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
-			box.material.lightPicker = lightPicker;	
+			//box.material.lightPicker = noShadowLightPicker;	
 			m_meshList.push(box);
 		}
 		
@@ -1312,7 +1367,20 @@ package
 			
 			/*if(m_curSelectObject.material is TextureMaterial)
 			TextureMaterial(billboard.material).texture = TextureMaterial(m_curSelectObject.material).texture;*/			
-			billboard.material = m.material;
+			
+			//billboard.material = m.material;
+			
+			var b:BitmapData = null;
+			if(m.material is TextureMaterial)
+				b = (TextureMaterial(m.material).texture as BitmapTexture).bitmapData;
+			
+			m_textureSprite.graphics.clear();
+			if(b)
+			{
+				m_textureSprite.graphics.beginBitmapFill(b);
+				m_textureSprite.graphics.drawRect(0, 0, 128, 128);
+				m_textureSprite.graphics.endFill();
+			}
 		}
 		
 		private function selectLoader3D(l:Loader3D):void
@@ -1554,6 +1622,12 @@ package
 			
 		}
 		
+		private function onDeleteButtonClick(event:MouseEvent):void
+		{
+			if(m_curSelectObject)
+				deleteSceneObject(m_curSelectObject);
+		}
+		
 		private function deleteSceneObject(obj:ObjectContainer3D):void
 		{
 			/*if(mesh && scene.contains(mesh))
@@ -1563,9 +1637,11 @@ package
 				m_meshList.splice(idx, 1);
 			}
 			mesh = null;*/
+			
+			removeFromeScene(obj);
 		}
 		
-		private function cleanScene():void
+		private function cleanScene(event:MouseEvent = null):void
 		{
 			m_curSelectObject = null;
 			while(m_meshList.length > 0)
@@ -1606,8 +1682,26 @@ package
 		
 		private function removeFromeScene(o:ObjectContainer3D):void
 		{
-			m_sceneContainer.removeObject(o);
-			scene.removeChild(o);			
+			if(o is Loader3D)
+			{
+				var i:int = 0, len:int = o.numChildren;
+				for(i; i < len; i++)
+				{
+					var m:Mesh = o.getChildAt(i) as Mesh;
+					if(m)
+					{
+						removeFromeScene(m);
+					}	
+				}
+				m_sceneContainer.removeObject(o);
+			}	
+			else if(o is Mesh)
+			{
+				m_sceneContainer.removeObject(o);
+			}
+			
+			if(scene.contains(o))
+				scene.removeChild(o);
 		}
 		
 		private function removeWireFrame(o:ObjectContainer3D):void

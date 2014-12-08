@@ -1,6 +1,8 @@
 package com.infy.message
 {
 	import org.phprpc.PHPRPC_Client;
+	import org.phprpc.PHPRPC_Error;
+	import com.infy.message.base.UMessageBase;
 
 	/**
 	 * 
@@ -14,6 +16,10 @@ package com.infy.message
 		private var m_rpc:PHPRPC_Client = null;
 		
 		private var m_host:String;
+		
+		private var m_reciveCallback:Function = null;
+		
+		private var m_completeCB:Function = null;
 		
 		public function MessageManager()
 		{
@@ -35,10 +41,36 @@ package com.infy.message
 			m_host = host;
 		}
 		
-		public function send(msg:MessageBase):void
+		public function send(msg:UMessageBase):void
 		{
 			var mode:int = msg.mode;
 			
+		}
+		
+		private function phprpcCallback(result:*, args:Array, output:String, warring:PHPRPC_Error):void
+		{
+			if(m_reciveCallback != null)
+				m_reciveCallback(result, args, output, warring);
+			
+			if(result)
+			{
+				var data:Object = parserResult(result.toString());
+				
+				
+				
+				//MessageDispatcher.instance.dispatch(data);
+				
+				if(m_completeCB != null)
+					m_completeCB(data);
+				
+			}			
+		}
+		
+		private function parserResult(rawData:*):Object
+		{
+			var data:Object = {};
+			
+			return data;
 		}
 	}
 }

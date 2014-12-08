@@ -27,7 +27,19 @@ package com.infy.camera
 		
 		public function addCameraInfo(key:String, camInfo:CameraInfo):void
 		{
+			if(m_camInfoDic[key])
+			{
+				remvoeCameraInfo(key);
+			}
+				
 			m_camInfoDic[key] = camInfo;
+		}
+		
+		private function remvoeCameraInfo(key:String):void
+		{
+			m_camInfoDic[key] = null;
+			
+			delete m_camInfoDic[key];
 		}
 		
 		public function getCameraInfo(key:String):CameraInfo
