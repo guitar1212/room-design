@@ -86,11 +86,12 @@ package
 	import com.infy.event.ObjEvent;
 	import com.infy.light.LightInfo;
 	import com.infy.light.LightManager;
+	import com.infy.ui.CameraInfoUI;
 	import com.infy.ui.Modify3DObjectUI;
 	import com.infy.ui.ModifyCameraUI;
 	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.RoomEditor;
 	import com.infy.ui.RoomUI;
+	import com.infy.ui.TextEditorBaseUI;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.scene.SceneObjectView;
 	import com.infy.util.tools.getObject3DInfo;
@@ -110,6 +111,8 @@ package
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
@@ -226,8 +229,10 @@ package
 		private var m_objModifyUI:Modify3DObjectUI;
 		private var m_lightModifyUI:ModifyLightUI;
 		
-		private var m_objeditor:RoomEditor;
-		private var m_roomEditor:RoomEditor;
+		private var m_objeditor:TextEditorBaseUI;
+		private var m_roomEditor:TextEditorBaseUI;
+		
+		private var m_cameraInfoUI:CameraInfoUI;
 		
 		private var m_bLockCamera:Boolean = false;
 		
@@ -237,11 +242,20 @@ package
 		
 		private var m_ui:RoomUI;
 		
+		private var m_file:FileReference;
+		
 		/**
 		 * Constructor
 		 */
 		public function Away3D_Test()
 		{
+			this.addEventListener(Event.ADDED_TO_STAGE, onAddToStage);
+			
+		}
+		
+		protected function onAddToStage(event:Event):void
+		{
+			this.removeEventListener(Event.ADDED_TO_STAGE, onAddToStage);
 			init();
 		}
 		
@@ -255,15 +269,13 @@ package
 			initLights();
 			initMaterials();
 			initObjects();
-			initListeners();	
-			
-						
+			initListeners();			
 		}
 		
 		private function initUI():void
 		{
 			// OBJ Editor
-			m_objeditor = new RoomEditor(250, 350,  onCreateObject, null);			
+			m_objeditor = new TextEditorBaseUI(250, 350,  onCreateObject, null);			
 			this.addChild(m_objeditor);
 			m_objeditor.x = 5;
 			m_objeditor.y = 100;
@@ -284,12 +296,11 @@ package
 			this.addChild(m_pathInput);
 			
 			var inputBtn:Button = new Button();
-			inputBtn.label = "Enter";
+			inputBtn.label = "Load";
 			inputBtn.x = m_pathInput.x + m_pathInput.width + 5;
 			inputBtn.y = m_pathInput.y;
 			inputBtn.addEventListener(MouseEvent.CLICK, onInputEnter);			
 			this.addChild(inputBtn);
-			
 			
 			// input room config loading
 			m_roomPathInput = new TextInput();
@@ -306,6 +317,13 @@ package
 			roomPathBtn.y = m_roomPathInput.y;
 			roomPathBtn.addEventListener(MouseEvent.CLICK, loadRoomConfig);
 			this.addChild(roomPathBtn);
+			
+			var browser:Button = new Button();
+			browser.label = "Browse";
+			browser.x = roomPathBtn.x + roomPathBtn.width + 5;
+			browser.y = roomPathBtn.y;
+			browser.addEventListener(MouseEvent.CLICK, onBrowserRoomConfig);			
+			this.addChild(browser);
 			
 			// show mesh info
 			m_meshInfo = new TextField();
@@ -370,7 +388,7 @@ package
 			
 			
 			// room editro ui
-			m_roomEditor = new RoomEditor();
+			m_roomEditor = new TextEditorBaseUI();
 			m_roomEditor.x = 275;
 			m_roomEditor.y = 460;
 			m_roomEditor.visible = false;
@@ -381,6 +399,14 @@ package
 			m_mouseInfoText.selectable = false;
 			m_mouseInfoText.mouseEnabled = false;
 			this.addChild(m_mouseInfoText);
+			
+			// cameraInfo UI
+			m_cameraInfoUI = new CameraInfoUI();
+			m_cameraInfoUI.x = 5;
+			m_cameraInfoUI.y = 250;
+			m_cameraInfoUI.selectCallback = changeCamera;
+			m_cameraInfoUI.buttonCallback = onCameraUIButtonClick;
+			this.addChild(m_cameraInfoUI);
 			
 			createUnderButtons();
 		}
@@ -492,6 +518,29 @@ package
 			var type:String = String(ta[ta.length - 1]).toLocaleLowerCase();
 			
 			loadModel(path, type, [0, 0, 0], [0, 0, 0], 1);
+		}
+		
+		private function onBrowserRoomConfig(e:MouseEvent):void
+		{
+			m_file = new FileReference();
+			m_file.addEventListener(Event.SELECT, onRoomConfigFileSelect);
+			m_file.addEventListener(Event.COMPLETE, onLoadRoomConfigComplete);
+			m_file.browse([new FileFilter("RoomConfig", "*.*")]);
+			
+		}
+		
+		protected function onRoomConfigFileSelect(event:Event):void
+		{
+			var fileName:String = m_file.name;
+						
+			m_file.load();
+			
+		}
+		
+		protected function onLoadRoomConfigComplete(event:Event):void
+		{
+			// TODO Auto-generated method stub
+			parserRoom(event.target.data.toString());
 		}
 		
 		private var m_wireframeState:int = 0;
@@ -1142,9 +1191,9 @@ package
 				else if(args[0] == "camera")
 					parseCameraInfo(args);
 				/*else if(args[0] == "light")
-					parseCrameraInfo(args);
+					parseLightInfo(args);
 				else if(args[0] == "sound")
-					parseCrameraInfo(args);*/
+					parsSoundInfo(args);*/
 				else
 					createPrimitives(args);
 			}
@@ -1191,6 +1240,7 @@ package
 			camInfo.lookAt = new Vector3D(lookAt[0], lookAt[1], lookAt[2]);
 			
 			CameraInfoManager.instance.addCameraInfo(camInfo.name, camInfo);
+			m_cameraInfoUI.addCameraInfo(camInfo.name, camInfo);
 			
 			if(isDefault)
 			{
@@ -1216,6 +1266,28 @@ package
 			m_cameraModifyUI.target = cameraController;
 		}
 		
+		private function changeCamera(camName:String):void
+		{
+			var info:CameraInfo = CameraInfoManager.instance.getCameraInfo(camName);
+			if(info)
+				setCamera(info, camera);
+		}
+		
+		private function onCameraUIButtonClick(btnIndex:int):void
+		{
+			if(btnIndex == 0) // create
+			{
+				var camInfo:CameraInfo = new CameraInfo();
+				
+				var data:String = "";
+				m_cameraInfoUI.showConfirmUI(data);
+			}
+			else if(btnIndex == 1) //delete
+			{
+				
+			}
+		}
+		
 		private function createPrimitives(args:Array):void
 		{
 			var type:String = args.shift() as String;
@@ -1223,6 +1295,8 @@ package
 				createBox(args);
 			else if(type == "plane")
 				createPlane(args);
+			else if(type == "sphere")
+				createSphere(args);
 			else if(type == "model")				
 				createModel(args);
 		}
@@ -1247,6 +1321,15 @@ package
 			addToScene(plane);
 			plane.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
 			plane.material.lightPicker = lightPicker;
+		}
+		
+		private function createSphere(args:Array):void
+		{
+			var sphere:Mesh = PrimitiveCreator.createSphere(args);
+			m_meshList.push(sphere);
+			addToScene(sphere);
+			sphere.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
+			sphere.material.lightPicker = lightPicker;
 		}
 		
 		private function createBox(args:Array):void

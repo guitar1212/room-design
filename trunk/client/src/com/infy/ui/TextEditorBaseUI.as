@@ -15,7 +15,7 @@ package com.infy.ui
 	 * @long  Dec 3, 2014
 	 * 
 	 */	
-	public class RoomEditor extends MovieClip
+	public class TextEditorBaseUI extends MovieClip
 	{	
 		private var m_text:TextArea = new TextArea();
 		
@@ -29,7 +29,7 @@ package com.infy.ui
 		
 		private var m_moveBtn:MoveIcon;
 		
-		public function RoomEditor(w:Number = 650, h:Number = 200, okCB:Function = null, cancelCB:Function = null)
+		public function TextEditorBaseUI(w:Number = 650, h:Number = 200, okCB:Function = null, cancelCB:Function = null)
 		{
 			super();
 			
@@ -68,20 +68,6 @@ package com.infy.ui
 			this.addChild(m_moveBtn);
 			m_moveBtn.x = m_text.width - m_moveBtn.width;
 			m_moveBtn.y = -m_moveBtn.height;
-		}
-		
-		protected function onMouseDown(event:MouseEvent):void
-		{
-			// TODO Auto-generated method stub
-			this.alpha = 0.35;
-			this.startDrag();
-		}
-		
-		protected function onMouseUp(event:MouseEvent):void
-		{
-			this.alpha = 1;
-			this.stopDrag();
-			
 		}
 		
 		protected function onOKBtnClick(event:MouseEvent):void

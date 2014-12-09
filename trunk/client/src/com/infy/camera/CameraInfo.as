@@ -9,16 +9,16 @@ package com.infy.camera
 	 */	
 	public class CameraInfo
 	{
-		public var name:String;
-		public var type:String;
-		public var isDefault:Boolean;
-		public var near:Number;
-		public var far:Number;
-		public var fov:Number;
-		public var distance:Number;
-		public var panAngle:Number;
-		public var tiltAngle:Number;
-		public var lookAt:Vector3D;
+		public var name:String = "defaultCam";
+		public var type:String = "P";
+		public var isDefault:Boolean = true;
+		public var near:Number = 10;
+		public var far:Number = 2000;
+		public var fov:Number = 60;
+		public var distance:Number = 1000;
+		public var panAngle:Number = 15;
+		public var tiltAngle:Number = 60;
+		public var lookAt:Vector3D = new Vector3D(0, 0, 0);
 		
 		public function CameraInfo()
 		{

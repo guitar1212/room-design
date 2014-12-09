@@ -39,7 +39,7 @@ package
 			
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddToStage);
 						
-			initLayer();		
+			initLayer();
 			
 			initGame();
 			

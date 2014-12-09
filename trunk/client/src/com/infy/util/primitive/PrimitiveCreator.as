@@ -1,9 +1,5 @@
 package com.infy.util.primitive
 {
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.util.tools.ColorUtil;
-	
 	import away3d.entities.Mesh;
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.SinglePassMaterialBase;
@@ -15,6 +11,11 @@ package com.infy.util.primitive
 	import away3d.materials.methods.SimpleShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
+	import away3d.primitives.SphereGeometry;
+	
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.util.tools.ColorUtil;
 
 	/**
 	 * 
@@ -62,32 +63,19 @@ package com.infy.util.primitive
 		
 		public static function createPlane(args:Array):Mesh
 		{
-			var objName:String = args.shift();
-			var pos:Array = String(args.shift()).split(",");
-			var rotation:Array = String(args.shift()).split(",");
-			var size:Array = String(args.shift()).split(",");
-			var colorArr:Array = String(args.shift()).split(",");
-			var r:uint = colorArr[0];
-			var g:uint = colorArr[1];
-			var b:uint = colorArr[2];
-			var color:uint = r << 16 | g << 8 | b;
-			var alpha:Number = args.shift();
-			var castShadow:Boolean = args.shift() == "Y" ? true : false;
-			var reciveShadow:Boolean = args.shift() == "Y" ? true : false;
-			var m:ColorMaterial = new ColorMaterial(color, alpha);
+			var info:PrimitiveInfo = new PrimitiveInfo();
+			info.parser(args);
+						
+			var m:ColorMaterial = new ColorMaterial(info.color, info.alpha);
 			
-			var plane:Mesh = new Mesh(new PlaneGeometry(size[0], size[1]), m);
-			plane.name = objName;
-			plane.x = pos[0];
-			plane.y = pos[1];
-			plane.z = pos[2];
-			plane.rotationX = rotation[0];
-			plane.rotationY = rotation[1];
-			plane.rotationZ = rotation[2];
+			var plane:Mesh = new Mesh(new PlaneGeometry(info.size.x, info.size.y), m);
+			plane.name = info.name;
+			plane.position = info.pos;
+			plane.eulers = info.rotation;
 			plane.mouseEnabled = true;	
-			plane.castsShadows = castShadow;
+			plane.castsShadows = info.castShadow;
 			
-			if(reciveShadow)
+			if(info.reciveShadow)
 			{
 				var lightInfo:LightInfo = LightManager.instance.getLight("main_light");
 				m.shadowMethod = new HardShadowMapMethod(lightInfo.lignt);
@@ -97,11 +85,22 @@ package com.infy.util.primitive
 			return plane;
 		}
 		
-		public function createSphere():Mesh
+		public static function createSphere(args:Array):Mesh
 		{
-			var m:Mesh;
+			var info:PrimitiveInfo = new PrimitiveInfo();
+			info.parser(args);
 			
-			return m;
+			var m:ColorMaterial = new ColorMaterial(info.color, info.alpha);
+			
+			var sphere:Mesh = new Mesh(new SphereGeometry(1, 12, 12), m);
+			sphere.scaleX = info.size.x;
+			sphere.scaleY = info.size.y;
+			sphere.scaleZ = info.size.z;
+			sphere.position = info.pos;
+			sphere.eulers = info.rotation;
+			sphere.castsShadows = info.castShadow;
+			sphere.mouseEnabled = true;
+			return sphere;
 		}
 		
 		public static function get defaultCubeObjectData():String
