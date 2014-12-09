@@ -44,7 +44,11 @@ package com.infy.camera
 		
 		public function getCameraInfo(key:String):CameraInfo
 		{
-			return m_camInfoDic[key];
+			if(m_camInfoDic.hasOwnProperty(key))
+				return m_camInfoDic[key];
+			else
+				return new CameraInfo;
+				
 		}
 	}
 }
