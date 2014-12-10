@@ -90,5 +90,11 @@ package com.infy.ui
 		{
 			m_btnCB = cb;
 		}
+		
+		public function clean():void
+		{
+			m_textArea.text = "";
+			m_nameInput.text = "";
+		}
 	}
 }
