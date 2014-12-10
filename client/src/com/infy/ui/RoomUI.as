@@ -61,7 +61,7 @@ package com.infy.ui
 				m_loading = new LoadingUI();
 			
 			m_loadingProgress = value;
-			m_loading.curProgress = value;
+			//m_loading.curProgress = value;
 		}
 		
 		public function get loadingProgress():int

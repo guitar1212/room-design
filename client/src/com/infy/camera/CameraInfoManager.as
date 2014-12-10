@@ -29,13 +29,13 @@ package com.infy.camera
 		{
 			if(m_camInfoDic[key])
 			{
-				remvoeCameraInfo(key);
+				removeCameraInfo(key);
 			}
 				
 			m_camInfoDic[key] = camInfo;
 		}
 		
-		private function remvoeCameraInfo(key:String):void
+		public function removeCameraInfo(key:String):void
 		{
 			m_camInfoDic[key] = null;
 			

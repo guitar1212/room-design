@@ -13,14 +13,13 @@ package com.infy.util.primitive
 		public var castShadow:Boolean = false;
 		public var reciveShadow:Boolean = false;
 		
-		
 		public function PrimitiveInfo()
 		{
 		}
 		
 		public function parser(args:Array):void
 		{
-			var name:String = args.shift();
+			name = args.shift();
 			var posArr:Array = String(args.shift()).split(",");
 			pos.x = posArr[0]; pos.y = posArr[1]; pos.z = posArr[2];
 			var rotationArr:Array = String(args.shift()).split(",");

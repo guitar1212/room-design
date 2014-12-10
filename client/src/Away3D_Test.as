@@ -37,45 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import com.infy.camera.CameraInfo;
-	import com.infy.camera.CameraInfoManager;
-	import com.infy.constant.View3DCons;
-	import com.infy.constant.WireFrameConst;
-	import com.infy.event.CameraEvent;
-	import com.infy.event.ObjEvent;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.ui.CameraInfoUI;
-	import com.infy.ui.Modify3DObjectUI;
-	import com.infy.ui.ModifyCameraUI;
-	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.RoomUI;
-	import com.infy.ui.TextEditorBaseUI;
-	import com.infy.util.primitive.PrimitiveCreator;
-	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.getObject3DInfo;
-	import com.infy.util.zip.ZipLoader;
-	
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.geom.Vector3D;
-	import flash.net.FileFilter;
-	import flash.net.FileReference;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import flash.text.TextField;
-	import flash.ui.Keyboard;
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
-	import flash.utils.getQualifiedClassName;
-	import flash.utils.getTimer;
-	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
@@ -117,10 +78,50 @@ package
 	import away3d.textures.BitmapTexture;
 	import away3d.utils.Cast;
 	
+	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
+	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
+	import com.infy.event.CameraEvent;
+	import com.infy.event.ObjEvent;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.ui.CameraInfoUI;
+	import com.infy.ui.Modify3DObjectUI;
+	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifyLightUI;
+	import com.infy.ui.RoomUI;
+	import com.infy.ui.TextEditorBaseUI;
+	import com.infy.util.primitive.PrimitiveCreator;
+	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.getObject3DInfo;
+	import com.infy.util.zip.ZipLoader;
+	
 	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
+	import fl.core.UIComponent;
 	import fl.events.SliderEvent;
+	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.ui.Keyboard;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -365,6 +366,7 @@ package
 			m_sceneContainer.x = 1300;
 			m_sceneContainer.y = 30;
 			m_sceneContainer.itemSelectCallback = onSceneItemSelect;
+			m_sceneContainer.buttonClickCallback = onSceneObjectViewButtonResponse;
 			this.addChild(m_sceneContainer);
 			
 			// camera modify ui
@@ -408,6 +410,7 @@ package
 			m_cameraInfoUI.y = 250;
 			m_cameraInfoUI.selectCallback = changeCamera;
 			m_cameraInfoUI.buttonCallback = onCameraUIButtonClick;
+			m_cameraInfoUI.createCameraCallback = createCameraInfo;
 			this.addChild(m_cameraInfoUI);
 		}
 		
@@ -448,17 +451,17 @@ package
 			this.addChild(saveRoomBtn);
 			m_underButtonList.push(saveRoomBtn);
 			
-			var cleanSceneBtn:Button = new Button();
+			/*var cleanSceneBtn:Button = new Button();
 			cleanSceneBtn.label = "Clean Room";
 			cleanSceneBtn.addEventListener(MouseEvent.CLICK, cleanScene);
 			this.addChild(cleanSceneBtn);
-			m_underButtonList.push(cleanSceneBtn);
+			m_underButtonList.push(cleanSceneBtn);*/
 			
-			var deleteObjBtn:Button = new Button();
+			/*var deleteObjBtn:Button = new Button();
 			deleteObjBtn.label = "Delete Obj";
 			deleteObjBtn.addEventListener(MouseEvent.CLICK, onDeleteButtonClick);
 			this.addChild(deleteObjBtn);
-			m_underButtonList.push(deleteObjBtn);
+			m_underButtonList.push(deleteObjBtn);*/
 		}
 		
 		protected function onPathInputChange(event:KeyboardEvent):void
@@ -866,26 +869,29 @@ package
 		
 		protected function onMouseWheel(event:MouseEvent):void
 		{	
-			if(event.target is TextField) 
+			if(event.target is TextField || event.target is UIComponent) 
 			{
 				event.stopPropagation();
 				return;
 			}
 			
-			if(cameraController)
+			if(event.target.parent && event.target.parent is View3D)
 			{
-				if(event.delta > 0) // forward
+				if(cameraController)
 				{
-					cameraController.distance += 20;
+					if(event.delta > 0) // forward
+					{
+						cameraController.distance += 20;
+					}
+					else
+					{
+						if(cameraController.distance > 50)
+							cameraController.distance -= 20;
+					}
+					setCameraInfo(cameraController);
+					m_cameraModifyUI.refresh();
+					event.stopImmediatePropagation();
 				}
-				else
-				{
-					if(cameraController.distance > 50)
-						cameraController.distance -= 20;
-				}
-				setCameraInfo(cameraController);
-				m_cameraModifyUI.refresh();
-				event.stopImmediatePropagation();
 			}
 		}
 		
@@ -927,7 +933,7 @@ package
 					/*case Keyboard.NUMBER_9:
 						testDrawWireFrame(m_meshList[0]);
 						break;*/
-					case Keyboard.NUMBER_1:
+					/*case Keyboard.NUMBER_1:
 						var c:CameraInfo = CameraInfoManager.instance.getCameraInfo("cam01");
 						setCamera(c, camera);						
 						break;
@@ -935,7 +941,7 @@ package
 					case Keyboard.NUMBER_2:
 						var c2:CameraInfo = CameraInfoManager.instance.getCameraInfo("cam02");
 						setCamera(c2, camera);
-						break;
+						break;*/
 					
 					case Keyboard.NUMBER_9:
 						var b:BloomFilter3D = new BloomFilter3D();
@@ -1260,7 +1266,7 @@ package
 			camera.lens.near = info.near;
 			camera.lens.far = info.far;
 			PerspectiveLens(camera.lens).fieldOfView = info.fov;
-			HoverController(cameraController).lookAtPosition = info.lookAt;
+			HoverController(cameraController).lookAtPosition = info.lookAt.clone();
 			
 			setCameraInfo(cameraController);
 			m_cameraModifyUI.target = cameraController;
@@ -1278,13 +1284,21 @@ package
 			if(btnIndex == 0) // create
 			{	
 				var camInfo:CameraInfo = getCurrentCamraInfo();
-				var data:String = camInfo.toString();
-				m_cameraInfoUI.showConfirmUI(data);
+				
+				m_cameraInfoUI.showConfirmUI(camInfo);
 			}
 			else if(btnIndex == 1) //delete
 			{
-				
+				var info:CameraInfo = m_cameraInfoUI.getSelectCameraInfo();
+				CameraInfoManager.instance.removeCameraInfo(info.name);
+				m_cameraInfoUI.removeSelectCameraInfo();
 			}
+		}
+		
+		private function createCameraInfo(info:CameraInfo):void
+		{
+			CameraInfoManager.instance.addCameraInfo(info.name, info);
+			m_cameraInfoUI.addCameraInfo(info.name, info);
 		}
 		
 		private function getCurrentCamraInfo():CameraInfo
@@ -1296,11 +1310,32 @@ package
 			info.fov = PerspectiveLens(camera.lens).fieldOfView;
 			info.distance = cameraController.distance;
 			info.tiltAngle = cameraController.tiltAngle;
-			info.panAngle = cameraController.panAngle;
-			info.lookAt = cameraController.lookAtPosition;
+			info.panAngle = castPanAngle(cameraController.panAngle);
+			info.lookAt = cameraController.lookAtPosition.clone();
 			info.type = "P";
 			info.isDefault = false;
 			return info;
+		}
+		
+		private function castPanAngle(angle:int):Number
+		{
+			var panAngle:Number = angle;
+			if(angle > 360)
+			{
+				while(panAngle > 360)
+				{
+					panAngle -= 360;
+				}
+			}
+			else if(angle < 0)
+			{
+				while(angle < 0)
+				{
+					angle += 360;
+				}
+			}
+			
+			return panAngle;
 		}
 		
 		private function createPrimitives(args:Array):void
@@ -1387,6 +1422,20 @@ package
 				setLightInfo(o as LightBase);
 				lightTest(o);
 				m_lightModifyUI.target = o as LightBase;
+			}
+		}
+		
+		private function onSceneObjectViewButtonResponse(btnIndex:int):void
+		{
+			// clean
+			if(btnIndex == 0)
+			{
+				cleanScene();	
+			}
+			// delete
+			else if(btnIndex == 1)
+			{
+				onDeleteButtonClick(null);
 			}
 		}
 		
@@ -1727,15 +1776,7 @@ package
 		}
 		
 		private function deleteSceneObject(obj:ObjectContainer3D):void
-		{
-			/*if(mesh && scene.contains(mesh))
-			{
-				removeFromeScene(mesh);
-				var idx:int = m_meshList.indexOf(mesh);
-				m_meshList.splice(idx, 1);
-			}
-			mesh = null;*/
-			
+		{	
 			removeFromeScene(obj);
 		}
 		
@@ -1759,7 +1800,8 @@ package
 				var l:Loader3D = m_objList.pop();
 				removeFromeScene(l);
 				
-				m_sceneContainer.removeObject(l.name);
+				m_sceneContainer.removeItem(l);
+				//m_sceneContainer.removeObject(l.name);
 			}
 		}
 		
@@ -1768,13 +1810,13 @@ package
 			var on:String = o.name;
 			if(on == "" || on == "null")
 				on = o.assetType;
-			m_sceneContainer.addObject(on, o);
+			m_sceneContainer.addSceneObjectItem(on, o);
 			this.scene.addChild(o);
 			
 			for(var i:int = 0; i < o.numChildren; i++)
 			{
 				var c:ObjectContainer3D = o.getChildAt(i);
-				m_sceneContainer.addObject(c.name, c, 1);
+				m_sceneContainer.addSceneObjectItem(c.name, c, 1);
 			}
 		}
 		
@@ -1783,23 +1825,27 @@ package
 			if(o is Loader3D)
 			{
 				var i:int = 0, len:int = o.numChildren;
+				
 				for(i; i < len; i++)
 				{
 					var m:Mesh = o.getChildAt(i) as Mesh;
 					if(m)
 					{
-						removeFromeScene(m);
+						//removeFromeScene(m);
+						m_sceneContainer.removeItem(m);
 					}	
 				}
-				m_sceneContainer.removeObject(o);
+				m_sceneContainer.removeItem(o);
 			}	
 			else if(o is Mesh)
 			{
-				m_sceneContainer.removeObject(o);
+				m_sceneContainer.removeItem(o);
 			}
 			
-			if(scene.contains(o))
-				scene.removeChild(o);
+			/*if(scene.contains(o))
+				scene.removeChild(o);*/
+			if(o.parent)
+				o.parent.removeChild(o);
 		}
 		
 		private function removeWireFrame(o:ObjectContainer3D):void
@@ -1824,11 +1870,6 @@ package
 					removeWireFrame(c);
 				}
 			}
-		}
-		
-		private function removeMeshWireFrame(m:Mesh):void
-		{
-			
 		}
 		
 		private function drawWireFrame(obj:ObjectContainer3D):void

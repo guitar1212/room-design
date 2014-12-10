@@ -3,12 +3,12 @@ package com.infy.ui
 	import com.infy.camera.CameraInfo;
 	import com.infy.ui.comp.MoveIcon;
 	
+	import fl.controls.Button;
+	import fl.controls.List;
+	
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	
-	import fl.controls.Button;
-	import fl.controls.List;
 	
 	/**
 	 * 
@@ -27,6 +27,7 @@ package com.infy.ui
 		private var m_deleteBtn:Button = new Button();
 		
 		private var m_confirmUI:CameraInfoComfirmUI = new CameraInfoComfirmUI();
+		private var m_cameraInfo:CameraInfo;
 		
 		public function CameraInfoUI()
 		{
@@ -52,22 +53,13 @@ package com.infy.ui
 			refresh();
 		}
 		
-		protected function onButtonClick(event:MouseEvent):void
-		{	
-			var b:Button = event.target as Button;
-			if(m_clickCB == null)
-				return;
-						
-			if(b.label == "create")
-				m_clickCB(0);
-			else if(b.label == "delete")
-				m_clickCB(1);
-		}
-		
-		public function showConfirmUI(data:String):void
+		public function showConfirmUI(info:CameraInfo):void
 		{
 			m_confirmUI.clean();
-			m_confirmUI.setInfo(data);
+			
+			m_cameraInfo = info;
+			
+			m_confirmUI.setInfo(info.toString());
 			this.addChild(m_confirmUI);
 			
 			m_list.visible = false;
@@ -114,19 +106,45 @@ package com.infy.ui
 			m_list.addItem({label:label, data:camInfo})
 		}
 		
+		public function removeSelectCameraInfo():void
+		{
+			m_list.removeItemAt(m_list.selectedIndex);
+		}
+		
+		public function getSelectCameraInfo():CameraInfo
+		{
+			return m_list.selectedItem.data as CameraInfo;
+		}
+		
+		protected function onButtonClick(event:MouseEvent):void
+		{	
+			var b:Button = event.target as Button;
+			if(m_clickCB == null)
+				return;
+			
+			if(b.label == "create")
+				m_clickCB(0);
+			else if(b.label == "delete")
+				m_clickCB(1);
+		}
+		
 		private function onConfirmUIResponse(index:int):void
 		{
 			if(index == 0)
 			{
 				if(m_createCameraCB != null)
 				{
-					m_createCameraCB()
+					var n:String = m_confirmUI.getCameraInfoName();
+					if(n != "")
+						m_cameraInfo.name = n;
+					m_createCameraCB(m_cameraInfo)
 				}
 			}
 			else if(index == 1)
-			{
-				hideConfirmUI();
+			{				
 			}
+			
+			hideConfirmUI();
 		}
 	}
 }
