@@ -26,7 +26,16 @@ package com.infy.camera
 		
 		public function toString():String
 		{
-			return "";
+			return "name : " + name + "\n" +
+				   "type : " + type +"\n" +
+				   "isDefault : " + isDefault +"\n" + 
+				   "near : " + near + "\n" +
+				   "far : " + far + "\n" +
+				   "distance : " + distance +"\n" +
+				   "panAngle : " + panAngle +"\n" +
+				   "tiltAngle : " + tiltAngle +"\n" +
+				   "lookAt : " + lookAt.toString()
+				    ;
 		}
 	}
 }

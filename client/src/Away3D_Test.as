@@ -37,6 +37,45 @@ THE SOFTWARE.
 
 package
 {
+	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
+	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
+	import com.infy.event.CameraEvent;
+	import com.infy.event.ObjEvent;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.ui.CameraInfoUI;
+	import com.infy.ui.Modify3DObjectUI;
+	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifyLightUI;
+	import com.infy.ui.RoomUI;
+	import com.infy.ui.TextEditorBaseUI;
+	import com.infy.util.primitive.PrimitiveCreator;
+	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.getObject3DInfo;
+	import com.infy.util.zip.ZipLoader;
+	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.ui.Keyboard;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
+	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
@@ -78,49 +117,10 @@ package
 	import away3d.textures.BitmapTexture;
 	import away3d.utils.Cast;
 	
-	import com.infy.camera.CameraInfo;
-	import com.infy.camera.CameraInfoManager;
-	import com.infy.constant.View3DCons;
-	import com.infy.constant.WireFrameConst;
-	import com.infy.event.CameraEvent;
-	import com.infy.event.ObjEvent;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.ui.CameraInfoUI;
-	import com.infy.ui.Modify3DObjectUI;
-	import com.infy.ui.ModifyCameraUI;
-	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.RoomUI;
-	import com.infy.ui.TextEditorBaseUI;
-	import com.infy.util.primitive.PrimitiveCreator;
-	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.getObject3DInfo;
-	import com.infy.util.zip.ZipLoader;
-	
 	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
 	import fl.events.SliderEvent;
-	
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.geom.Vector3D;
-	import flash.net.FileFilter;
-	import flash.net.FileReference;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import flash.text.TextField;
-	import flash.ui.Keyboard;
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
-	import flash.utils.getQualifiedClassName;
-	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -277,12 +277,14 @@ package
 			// OBJ Editor
 			m_objeditor = new TextEditorBaseUI(250, 350,  onCreateObject, null);			
 			this.addChild(m_objeditor);
+			m_objeditor.visible = false;
 			m_objeditor.x = 5;
 			m_objeditor.y = 100;
 			m_objeditor.data = PrimitiveCreator.defaultCubeObjectData;
 			
 			this.addChild(m_textureSprite);
 			
+			createUnderButtons();
 			
 			// Input Obj Loading
 			m_pathInput = new TextInput();
@@ -407,8 +409,6 @@ package
 			m_cameraInfoUI.selectCallback = changeCamera;
 			m_cameraInfoUI.buttonCallback = onCameraUIButtonClick;
 			this.addChild(m_cameraInfoUI);
-			
-			createUnderButtons();
 		}
 		
 		private function createUnderButtons():void
@@ -1276,16 +1276,31 @@ package
 		private function onCameraUIButtonClick(btnIndex:int):void
 		{
 			if(btnIndex == 0) // create
-			{
-				var camInfo:CameraInfo = new CameraInfo();
-				
-				var data:String = "";
+			{	
+				var camInfo:CameraInfo = getCurrentCamraInfo();
+				var data:String = camInfo.toString();
 				m_cameraInfoUI.showConfirmUI(data);
 			}
 			else if(btnIndex == 1) //delete
 			{
 				
 			}
+		}
+		
+		private function getCurrentCamraInfo():CameraInfo
+		{
+			var info:CameraInfo = new CameraInfo();
+			info.name = "new cam";
+			info.near = camera.lens.near;
+			info.far = camera.lens.far;
+			info.fov = PerspectiveLens(camera.lens).fieldOfView;
+			info.distance = cameraController.distance;
+			info.tiltAngle = cameraController.tiltAngle;
+			info.panAngle = cameraController.panAngle;
+			info.lookAt = cameraController.lookAtPosition;
+			info.type = "P";
+			info.isDefault = false;
+			return info;
 		}
 		
 		private function createPrimitives(args:Array):void

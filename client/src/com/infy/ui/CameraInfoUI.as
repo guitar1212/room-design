@@ -3,12 +3,12 @@ package com.infy.ui
 	import com.infy.camera.CameraInfo;
 	import com.infy.ui.comp.MoveIcon;
 	
-	import fl.controls.Button;
-	import fl.controls.List;
-	
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
+	import fl.controls.Button;
+	import fl.controls.List;
 	
 	/**
 	 * 
@@ -21,6 +21,7 @@ package com.infy.ui
 		
 		private var m_itemChangeCB:Function = null;
 		private var m_clickCB:Function = null;
+		private var m_createCameraCB:Function = null;
 		
 		private var m_createBtn:Button = new Button();
 		private var m_deleteBtn:Button = new Button();
@@ -65,13 +66,17 @@ package com.infy.ui
 		
 		public function showConfirmUI(data:String):void
 		{
+			m_confirmUI.clean();
 			m_confirmUI.setInfo(data);
 			this.addChild(m_confirmUI);
+			
+			m_list.visible = false;
 		}
 		
 		public function hideConfirmUI():void
 		{
 			this.removeChild(m_confirmUI);	
+			m_list.visible = true;
 		}
 		
 		private function refresh():void
@@ -82,9 +87,6 @@ package com.infy.ui
 		
 		protected function onListChange(event:Event):void
 		{
-			// TODO Auto-generated method stub
-			trace(m_list.selectedIndex);
-			
 			if(m_itemChangeCB != null)
 			{
 				var item:Object = m_list.selectedItem;
@@ -102,6 +104,11 @@ package com.infy.ui
 			m_clickCB = cb;
 		}
 		
+		public function set createCameraCallback(cb:Function):void
+		{
+			m_createCameraCB = cb;
+		}
+		
 		public function addCameraInfo(label:String, camInfo:CameraInfo):void
 		{
 			m_list.addItem({label:label, data:camInfo})
@@ -111,7 +118,10 @@ package com.infy.ui
 		{
 			if(index == 0)
 			{
-				
+				if(m_createCameraCB != null)
+				{
+					m_createCameraCB()
+				}
 			}
 			else if(index == 1)
 			{
