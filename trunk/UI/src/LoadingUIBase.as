@@ -12,10 +12,10 @@
 		}
 		
 		
-		public function set curProgress(curProgress:int):void
+		public function set curProgress(curProgress:String):void
 		{
-			this["barMask"].width = 175 * (curProgress / 100);
-			this["percentTf"].text = String(curProgress) + "%";
+			//this["barMask"].width = 175 * (curProgress / 100);
+			this["percentTf"].text = curProgress;
 		}
 		
 		
@@ -23,9 +23,9 @@
 		private function initUI():void
 		{
 			this["percentTf"].mouseEnabled = false;
-			(this["barMask"] as MovieClip).cacheAsBitmap = true;
-			this["barfilter"].cacheAsBitmap = true;
-			this["barfilter"].mask = this["barMask"];
+			//(this["barMask"] as MovieClip).cacheAsBitmap = true;
+			//this["barfilter"].cacheAsBitmap = true;
+			//this["barfilter"].mask = this["barMask"];
 			
 		}
 		
