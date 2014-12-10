@@ -28,6 +28,7 @@ package com.infy.game
 	
 	import flash.display.Sprite;
 	import flash.display.Stage;
+	import flash.events.EventDispatcher;
 	import flash.ui.Keyboard;
 
 	/**
@@ -35,7 +36,7 @@ package com.infy.game
 	 * @long  Nov 26, 2014
 	 * 
 	 */	
-	public class RoomGame
+	public class RoomGame extends EventDispatcher
 	{
 		private var m_root:Sprite;
 		

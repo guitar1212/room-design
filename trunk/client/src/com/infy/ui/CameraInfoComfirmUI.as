@@ -96,5 +96,10 @@ package com.infy.ui
 			m_textArea.text = "";
 			m_nameInput.text = "";
 		}
+		
+		public function getCameraInfoName():String
+		{
+			return m_nameInput.text;
+		}
 	}
 }
