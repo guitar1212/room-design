@@ -7,10 +7,15 @@
 	
 	public class PageChooseItemBase extends MovieClip
 	{
-		public var cbItemClick:Function = null;
+		public var cbItemDown:Function = null;
+		public var cbItemUp:Function = null;
 		public var cbLabelClick:Function = null;
+		public var cbTrashClick:Function = null;
+		
 		private var m_labelArr:Array = null;
 		private var m_goodsArr:Array = null;
+		private var m_itemCount:int = 0;
+		private var m_pageMaxItem:int = 5;
 		
 		
 		public function PageChooseItemBase()
@@ -19,6 +24,7 @@
 			m_labelArr = new Array();
 			m_goodsArr = new Array();
 			initUI();
+			
 		}
 		
 		
@@ -57,6 +63,7 @@
 		public function set goodsItemVO(arr:Array):void
 		{
 			var itemLeng:int = arr.length;
+			m_itemCount = arr.length;
 			while(this["itemAnchor"].numChildren)
 			{
 				this["itemAnchor"].removeChildAt(0);
@@ -69,9 +76,11 @@
 				m_goodsArr[i].setPic(arr[i].itemIcon);
 				m_goodsArr[i].setId(arr[i].id);
 				this["itemAnchor"].addChild(m_goodsArr[i]);
-				m_goodsArr[i].cbItemClick = onItemClick;
+				m_goodsArr[i].cbItemDown = onItemDown;
+				m_goodsArr[i].cbItemUp = onItemUp;
 			}
 			
+			this["nextBtn"].visible = (m_itemCount > 5);
 			
 		}
 		
@@ -90,13 +99,20 @@
 		
 		private function initUI():void
 		{
-			
+			this["nextBtn"].addEventListener(MouseEvent.CLICK, onNextClick);
+			this["preBtn"].addEventListener(MouseEvent.CLICK, onPreClick);
+			this["preBtn"].visible = false;
 		}
 		
-		private function onItemClick(id:String):void
+		private function onItemDown(id:String):void
 		{
-			if (cbItemClick != null)
-				cbItemClick(id);
+			if (cbItemDown != null)
+				cbItemDown(id);
+		}
+		private function onItemUp(id:String):void
+		{
+			if (cbItemUp != null)
+				cbItemUp(id);
 		}
 		
 		private function onLabelClick(id:String):void
@@ -109,6 +125,21 @@
 				m_labelArr[i].isLabelChoose = (i == int(id));
 			}
 			
+		}
+		
+		private function onNextClick(e:MouseEvent):void
+		{	
+			m_pageMaxItem++;
+			this["itemAnchor"].x -= 127;
+			this["nextBtn"].visible = !(m_pageMaxItem >= m_itemCount);
+			this["preBtn"].visible = true;
+		}
+		private function onPreClick(e:MouseEvent):void
+		{
+			m_pageMaxItem--;
+			this["itemAnchor"].x += 127;
+			this["nextBtn"].visible = true;
+			this["preBtn"].visible = (m_pageMaxItem >= 6);
 		}
 
 	}

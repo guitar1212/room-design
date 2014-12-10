@@ -12,6 +12,10 @@
 		public var cbLabelClick:Function = null;
 		public var cbBtnChooseClick:Function = null;
 		public var cbLabelItemClick:Function = null;
+		public var cbGoodsItemDown:Function = null;
+		public var cbGoodsItemUp:Function = null;
+		public var cbTrashClick:Function = null;
+		
 		
 		private var m_miniViewArr:Array = null;
 		private var m_labelArr:Array = null;
@@ -164,6 +168,7 @@
 			}
 			
 		}
+		
 		/*Page2 相關接口*/
 		public function set labelItemArray(labelNameArr:Array):void
 		{
@@ -173,11 +178,14 @@
 		public function set labelItemCurChoose(index:int):void
 		{
 			this["page1"].labelCurChoose = index;
+			
 		}
 		
 		public function set goodsVOArr(arr:Array):void
 		{
 			this["page1"].goodsItemVO = arr;
+			this["page1"].cbItemDown = onGoodsItemDown;
+			this["page1"].cbItemUp = onGoodsItemUp;
 		}
 		
 		private function addSingleChild(mc:DisplayObjectContainer, child:DisplayObject = null):void
@@ -235,6 +243,17 @@
 			if(cbLabelItemClick != null)
 				cbLabelItemClick(id)
 		}
+		private function onGoodsItemDown(id:String):void
+		{
+			if(cbGoodsItemDown != null)
+				cbGoodsItemDown(id)
+		}
+		private function onGoodsItemUp(id:String):void
+		{
+			if(cbGoodsItemUp != null)
+				cbGoodsItemUp(id)
+		}
+		
 		private function onBtnChooseClick(id:String):void
 		{
 			if(cbBtnChooseClick != null)
