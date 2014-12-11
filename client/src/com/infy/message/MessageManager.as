@@ -44,7 +44,7 @@ package com.infy.message
 		public function send(msg:UMessageBase):void
 		{
 			var mode:int = msg.mode;
-			
+			m_rpc.gameserver(mode, msg, phprpcCallback);
 		}
 		
 		private function phprpcCallback(result:*, args:Array, output:String, warring:PHPRPC_Error):void

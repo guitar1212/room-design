@@ -2,6 +2,15 @@ package com.infy.stage
 {
 	import com.infy.game.RoomGame;
 	import com.infy.hotel.HotelInfo;
+	import com.infy.path.GamePath;
+	import com.infy.resource.getIcon;
+	import com.infy.room.RoomInfo;
+	
+	import flash.display.Loader;
+	import flash.events.Event;
+	import flash.net.URLRequest;
+	
+	import org.osmf.media.LoadableElementBase;
 	
 	import src.DesignViewItemVO;
 
@@ -12,6 +21,8 @@ package com.infy.stage
 	 */	
 	public class SelectRoomStage extends StageBase
 	{
+		private var m_curSelectRoomInfo:RoomInfo;
+		
 		public function SelectRoomStage(game:RoomGame)
 		{
 			super(game);
@@ -22,7 +33,7 @@ package com.infy.stage
 			super.initilaize();
 			game.ui.show(true);
 			game.ui.type = 0;
-			game.ui.loadingProgress = 0;
+			game.ui.hideLoading();
 			game.hide3DView();
 						
 			game.ui.cbMouseClick = onNextStage;
@@ -31,7 +42,7 @@ package com.infy.stage
 			
 			
 			//test
-			setRoomData(null);
+			setHotelData(game.hotelInfo);
 			game.ui.labelCurChoose = 0;
 		}
 		
@@ -44,6 +55,8 @@ package com.infy.stage
 			game.ui.cbLabelClick = null;
 			
 			game.ui.labelArray = [];
+			game.ui.viewItemVO = [];
+			game.ui.viewObject = null;
 		}
 		
 		override public function update():void
@@ -52,10 +65,17 @@ package com.infy.stage
 		}
 		
 		
-		private function setRoomData(hotelInfo:HotelInfo):void
+		private function setHotelData(hotelInfo:HotelInfo):void
 		{
-			var numRooms:int = 2;
-			game.ui.labelArray = ["二人房", "四人房"];
+			var labelArr:Array = [];
+			var roomInfo:RoomInfo;
+			for(var i:int = 0; i < hotelInfo.roomCounts; i++)
+			{
+				roomInfo = hotelInfo.roomData[i] as RoomInfo;
+				labelArr.push(roomInfo.roomName);
+			}
+			
+			game.ui.labelArray = labelArr;
 			
 			
 			onRoomSelect(0);
@@ -63,13 +83,45 @@ package com.infy.stage
 		
 		private function onRoomSelect(index:int):void
 		{
-			game.ui.roomIntroDesc = "這就是房間 " + index + " 的介紹";
+			var roomInfo:RoomInfo = game.hotelInfo.roomData[index] as RoomInfo;
+			game.ui.roomIntroDesc = roomInfo.describtion;
+			
+			game.roomID = roomInfo.id;
+			
+			// set viewpoint
+			var viweArr:Array = [];
+			for(var i:int = 0; i < roomInfo.numViewPoints; i++)
+			{
+				var vo:DesignViewItemVO = new DesignViewItemVO();
+				vo.id = roomInfo.viewPoints[i];
+				vo.itemIcon = getIcon("default");
+				viweArr.push(vo);
+			}
+			
+			game.ui.viewItemVO = viweArr;
+			
+			m_curSelectRoomInfo = roomInfo;
+			
+			// default view point
+			onViewPointClick(viweArr[0].id);
 		}
 		
-		private function onViewPointClick(index:int):void
+		private function onViewPointClick(index:String):void
 		{
-			// TODO Auto Generated method stub
+			trace("view point " + index);
 			
+			game.ui.showLoading("下載房間示意圖...");
+			var filename:String = "view";
+			var loader:Loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadViewPointComplete, false, 0, true);
+			var path:String = GamePath.ASSET_IMAGE_PATH + "view/" + filename + ".png";
+			loader.load(new URLRequest(path));
+			//game.ui.viewObject = getIcon("");
+		}
+		
+		protected function onLoadViewPointComplete(event:Event):void
+		{
+			game.ui.hideLoading();
 		}
 		
 		private function onNextStage():void

@@ -37,16 +37,17 @@ package com.infy.ui
 		
 		
 		
-		public function showLoading(progress:int = -1):void
+		public function showLoading(msg:String = ""):void
 		{
 			if(m_loading == null)
 				m_loading = new LoadingUI();
 			
 			m_loading.alpha = 0.75;
+			if(m_loading.hasOwnProperty("percentTf"))
+			{
+				m_loading["percentTf"].text = msg;
+			}
 			this.addChild(m_loading);
-			
-			if(progress > -1)
-				loadingProgress = progress;
 		}
 		
 		public function hideLoading():void

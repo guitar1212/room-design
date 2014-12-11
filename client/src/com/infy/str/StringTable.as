@@ -22,8 +22,17 @@ package com.infy.str
 			var data:Object = {};
 			data["STEP1"] = "選擇房型   Select";
 			data["STEP2"] = "設計房間   Design";
-			data["STEP3"] = "完成設計   Finish";
+			data["STEP3"] = "完成設計   Finish";			
+			m_strDic[group] = data;
 			
+			
+			group = "LABEL_TYPE";
+			data = {};
+			data["TYPE_1"] = "空間氣氛";
+			data["TYPE_2"] = "寢具家飾";
+			data["TYPE_3"] = "文創小物";
+			data["TYPE_4"] = "特色點心";
+			data["TYPE_5"] = "衛浴用品";
 			m_strDic[group] = data;
 		}
 		

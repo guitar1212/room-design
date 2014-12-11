@@ -1,7 +1,10 @@
 package com.infy.stage
 {
 	import com.infy.game.RoomGame;
+	import com.infy.hotel.HotelInfo;
 	import com.infy.message.MessageManager;
+	import com.infy.path.GamePath;
+	import com.infy.room.RoomInfo;
 	import com.infy.str.StringTable;
 	
 	/**
@@ -16,9 +19,6 @@ package com.infy.stage
 		private static const STEP_3:int = 3;
 		private static const STEP_4:int = 4;
 		private static const STEP_5_FINISH:int = 5;
-		
-		private static const HOST:String = "";
-		private static const METHOD:String = "";
 		
 		private var m_step:int = 0;
 		
@@ -43,8 +43,10 @@ package com.infy.stage
 			game.ui.show(false);
 			
 			// create link
-			MessageManager.instance.initialize(HOST, METHOD);			
-			
+			MessageManager.instance.initialize(GamePath.SERVER_PATH, GamePath.GAME_METHOD);			
+		
+			//test
+			setHotelInfo();
 		}
 		
 		override public function release():void
@@ -78,5 +80,36 @@ package com.infy.stage
 				StageManager.instance.changeStage(1);
 			}
 		}
+		
+		
+		private function setHotelInfo():void
+		{
+			
+			// test data
+			var hotelInfo:HotelInfo = new HotelInfo();
+			hotelInfo.id = "hotel_001";
+			hotelInfo.roomCounts = 2;
+			
+			var roomArr:Array = [];			
+			for(var i:int = 0; i < hotelInfo.roomCounts; i++)
+			{
+				var room:RoomInfo = new RoomInfo();
+				room.id = "room" + i;
+				room.roomName = "room" + i;
+				room.describtion = "這是第 " + i + " 個房間!";
+				room.numViewPoints = 2;			
+				room.viewPoints = [];
+				for(var j:int = 0; j < room.numViewPoints; j++)
+				{
+					room.viewPoints.push("view" + j);
+				}
+				roomArr.push(room);
+			}
+			hotelInfo.roomData = roomArr;
+			
+			game.hotelInfo = hotelInfo;
+		}
+		
+		
 	}
 }

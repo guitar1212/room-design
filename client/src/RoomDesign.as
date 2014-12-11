@@ -2,6 +2,7 @@ package
 {
 	import com.infy.game.RoomGame;
 	import com.infy.layer.LayerManager;
+	import com.infy.path.GamePath;
 	
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -38,7 +39,9 @@ package
 			this.stage.align = StageAlign.TOP_LEFT;
 			
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddToStage);
-						
+			
+			parseWebParameters();
+			
 			initLayer();
 			
 			initGame();
@@ -51,6 +54,18 @@ package
 			onResize();
 		}
 		
+		private function parseWebParameters():void
+		{
+			var params:Object = this.loaderInfo.parameters;
+			if(params.hasOwnProperty("server"))
+			{
+				GamePath.SERVER_PATH = params["server"];
+			}
+			else if(params.hasOwnProperty("assetPath"))
+			{
+				GamePath.ASSET_ROOT_PATH = params["assetPath"];
+			}
+		}		
 		
 		private function initGame():void
 		{
