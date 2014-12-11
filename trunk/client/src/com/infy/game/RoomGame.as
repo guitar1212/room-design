@@ -15,6 +15,7 @@ package com.infy.game
 	import away3d.utils.Cast;
 	
 	import com.infy.constant.View3DCons;
+	import com.infy.hotel.HotelInfo;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
 	import com.infy.light.LightInfo;
@@ -49,6 +50,8 @@ package com.infy.game
 		public var cameraController:HoverController;
 		
 		private var m_curRoomID:String;
+		
+		private var m_hotelInfo:HotelInfo;
 		
 		public function RoomGame(root:Sprite)
 		{
@@ -241,5 +244,16 @@ package com.infy.game
 					break;
 			}
 		}
+
+		public function get hotelInfo():HotelInfo
+		{
+			return m_hotelInfo;
+		}
+
+		public function set hotelInfo(value:HotelInfo):void
+		{
+			m_hotelInfo = value;
+		}
+
 	}
 }

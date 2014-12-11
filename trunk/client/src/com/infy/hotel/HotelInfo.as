@@ -11,6 +11,10 @@ package com.infy.hotel
 		
 		public var roomCounts:int = 0;
 		
+		/**
+		 *	房間資訊
+		 * @see RoomInfo 
+		 */		
 		public var roomData:Array = [];
 		
 		public function HotelInfo()

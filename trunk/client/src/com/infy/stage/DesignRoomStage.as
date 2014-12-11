@@ -3,7 +3,9 @@ package com.infy.stage
 	import com.infy.game.RoomGame;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
+	import com.infy.path.GamePath;
 	import com.infy.resource.getIcon;
+	import com.infy.str.StringTable;
 	
 	import flash.display.Bitmap;
 	import flash.display.Loader;
@@ -40,7 +42,7 @@ package com.infy.stage
 		{
 			super.initilaize();
 			game.ui.type = 1;
-			game.ui.showLoading(0);
+			game.ui.showLoading("下載房間資訊...");
 			game.ui.cbMouseClick = onNextStage;
 			game.ui.cbLabelItemClick = onLabelItemClick;
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
@@ -64,7 +66,11 @@ package com.infy.stage
 		
 		private function test():void
 		{
-			game.ui.labelItemArray = ["空間氣氛", "寢具家飾", "文創小物", "特色點心", "衛浴用品"];
+			game.ui.labelItemArray = [StringTable.getString("LABEL_TYPE", "TYPE_1"),
+									  StringTable.getString("LABEL_TYPE", "TYPE_2"),
+									  StringTable.getString("LABEL_TYPE", "TYPE_3"),
+									  StringTable.getString("LABEL_TYPE", "TYPE_4"),
+									  StringTable.getString("LABEL_TYPE", "TYPE_5")];
 			game.ui.labelItemCurChoose = 0;
 			
 			onLabelItemClick(0);
@@ -72,7 +78,7 @@ package com.infy.stage
 		
 		private function initRoom():void
 		{
-			// TODO Auto Generated method stub
+			// get room config
 			
 		}	
 		
@@ -127,9 +133,9 @@ package com.infy.stage
 			{
 				var vo:DesignViewItemVO = new DesignViewItemVO();
 				vo.id = itemArr[i];
-				var path:String = "..\\assets\\pic\\icon\\" + itemArr[i] + ".jpg";
+				var path:String = GamePath.ASSET_IMAGE_PATH + "icon/" + itemArr[i] + ".jpg";
 				var l:Loader = new Loader();
-				l.load(new URLRequest(path));			
+				l.load(new URLRequest(path));
 				
 				vo.itemIcon = l;
 				goodsVOArr.push(vo);
