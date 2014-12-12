@@ -191,18 +191,19 @@ package com.infy.game
 		
 		public function resize(stage:Stage):void
 		{
-			if(stage.stageWidth < View3DCons.WIDTH)
+			trace("game resize : width" + stage.width + ".  stageHeight : " +stage.stageHeight);
+			if(stage.width < View3DCons.WIDTH)
 			{
-				view.width = stage.stageWidth;
+				view.width = stage.width;
 				view.x = 0;
 			}
 			else
 			{
 				view.width = View3DCons.WIDTH;
-				view.x = (stage.stageWidth - View3DCons.WIDTH)/2
+				view.x = (stage.width - View3DCons.WIDTH)/2
 			}
 			
-			if(stage.stageHeight > View3DCons.HEIGHT + View3DCons.GAP_TOP)
+			if(stage.width > View3DCons.HEIGHT + View3DCons.GAP_TOP)
 			{
 				view.y = View3DCons.GAP_TOP;
 				view.height = View3DCons.HEIGHT;
