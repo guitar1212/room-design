@@ -7,6 +7,7 @@ package com.infy.stage
 	import com.infy.room.RoomInfo;
 	
 	import flash.display.Loader;
+	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.net.URLRequest;
 	
@@ -117,11 +118,13 @@ package com.infy.stage
 			var path:String = GamePath.ASSET_IMAGE_PATH + "view/" + filename + ".png";
 			loader.load(new URLRequest(path));
 			//game.ui.viewObject = getIcon("");
+			game.ui.viewObject = null;
 		}
 		
 		protected function onLoadViewPointComplete(event:Event):void
 		{
 			game.ui.hideLoading();
+			game.ui.viewObject = ((event.target) as LoaderInfo).content;
 		}
 		
 		private function onNextStage():void
