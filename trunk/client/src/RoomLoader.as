@@ -6,14 +6,18 @@ package
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.ProgressEvent;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
+	import flash.utils.setInterval;
 	
 	public class RoomLoader extends Sprite
 	{
 		private static const MAIN_SWF_NAME:String = "RoomDesign.swf";
 		
 		private var m_text:TextField = new TextField();
+		
+		private var m_loading:LoadingUI = new LoadingUI();
 		
 		public function RoomLoader()
 		{
@@ -39,28 +43,34 @@ package
 			var loader:Loader = new Loader();
 			loader.load(new URLRequest(path));
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadMainSwfComplete);
+			loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onLoadingProgress);
 			
 			showLoading();
 		}
-	
+		
+		protected function onLoadingProgress(event:ProgressEvent):void
+		{
+			var msg:String = "努力下載中......" + event.bytesLoaded.toFixed() + "KB (" + (event.bytesLoaded/event.bytesTotal*100).toFixed() + "%)";
+			m_loading.curProgress = msg;
+		}	
 		
 		protected function onLoadMainSwfComplete(event:Event):void
 		{
 			var loaderInfo:LoaderInfo = event.target as LoaderInfo;
 			this.addChild(loaderInfo.content);
 			
-			hideLoading();
+//			hideLoading();
 		}
 		
 		private function showLoading():void
 		{
-			// TODO Auto Generated method stub
-			
+			this.addChild(m_loading);
+			m_loading.curProgress = "下載中...";
 		}
 		
 		private function hideLoading():void
 		{
-			// TODO Auto Generated method stub
+			this.removeChild(m_loading);
 			
 		}
 	}
