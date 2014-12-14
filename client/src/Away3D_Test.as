@@ -37,47 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.Camera3D;
-	import away3d.cameras.lenses.PerspectiveLens;
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.Scene3D;
-	import away3d.containers.View3D;
-	import away3d.controllers.ControllerBase;
-	import away3d.controllers.FirstPersonController;
-	import away3d.controllers.HoverController;
-	import away3d.core.base.ISubGeometry;
-	import away3d.debug.AwayStats;
-	import away3d.debug.WireframeAxesGrid;
-	import away3d.entities.Mesh;
-	import away3d.entities.SegmentSet;
-	import away3d.entities.Sprite3D;
-	import away3d.events.AssetEvent;
-	import away3d.events.LoaderEvent;
-	import away3d.events.MouseEvent3D;
-	import away3d.filters.BloomFilter3D;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.LightBase;
-	import away3d.lights.LightProbe;
-	import away3d.lights.PointLight;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.misc.AssetLoaderContext;
-	import away3d.loaders.parsers.DAEParser;
-	import away3d.loaders.parsers.Max3DSParser;
-	import away3d.loaders.parsers.OBJParser;
-	import away3d.loaders.parsers.ParserBase;
-	import away3d.loaders.parsers.Parsers;
-	import away3d.materials.ColorMaterial;
-	import away3d.materials.TextureMaterial;
-	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.FilteredShadowMapMethod;
-	import away3d.materials.methods.HardShadowMapMethod;
-	import away3d.primitives.CubeGeometry;
-	import away3d.primitives.LineSegment;
-	import away3d.primitives.WireframeCube;
-	import away3d.primitives.WireframePrimitiveBase;
-	import away3d.textures.BitmapTexture;
-	import away3d.utils.Cast;
-	
 	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.constant.View3DCons;
@@ -96,14 +55,7 @@ package
 	import com.infy.util.scene.SceneObjectView;
 	import com.infy.util.tools.getObject3DInfo;
 	import com.infy.util.zip.ZipLoader;
-	
-	import fl.controls.BaseButton;
-	import fl.controls.Button;
-	import fl.controls.TextInput;
-	import fl.core.UIComponent;
-	import fl.events.SliderEvent;
-	
-	import flash.display.Bitmap;
+
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -123,12 +75,55 @@ package
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getTimer;
 	
+	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.ControllerBase;
+	import away3d.controllers.FirstPersonController;
+	import away3d.controllers.HoverController;
+	import away3d.core.base.ISubGeometry;
+	import away3d.debug.AwayStats;
+	import away3d.debug.WireframeAxesGrid;
+	import away3d.entities.Mesh;
+	import away3d.entities.SegmentSet;
+	import away3d.events.AssetEvent;
+	import away3d.events.LoaderEvent;
+	import away3d.events.MouseEvent3D;
+	import away3d.filters.BloomFilter3D;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.LightBase;
+	import away3d.lights.LightProbe;
+	import away3d.lights.PointLight;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.misc.AssetLoaderContext;
+	import away3d.loaders.parsers.DAEParser;
+	import away3d.loaders.parsers.Max3DSParser;
+	import away3d.loaders.parsers.OBJParser;
+	import away3d.loaders.parsers.ParserBase;
+	import away3d.loaders.parsers.Parsers;
+	import away3d.materials.ColorMaterial;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.primitives.LineSegment;
+	import away3d.primitives.WireframeCube;
+	import away3d.primitives.WireframePrimitiveBase;
+	import away3d.textures.BitmapTexture;
+	import away3d.utils.Cast;
+	
+	import fl.controls.BaseButton;
+	import fl.controls.Button;
+	import fl.controls.TextInput;
+	import fl.core.UIComponent;
+	import fl.events.SliderEvent;
+	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
 	{
-		//signature swf
-		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
-		private var SignatureSwf:Class;
+		// swf
+		//[Embed(source="/../embeds/signature.swf", symbol="Signature")]
+		//private var SignatureSwf:Class;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -165,8 +160,8 @@ package
 		private var cameraController:HoverController;
 		
 		//signature variables
-		private var Signature:Sprite;
-		private var SignatureBitmap:Bitmap;
+		//private var Signature:Sprite;
+		//private var SignatureBitmap:Bitmap;
 		
 		//material objects
 		private var planeMaterial:TextureMaterial;
@@ -181,11 +176,11 @@ package
 		private var noShadowLightPicker:StaticLightPicker;
 		
 		//scene objects
-		private var plane:Mesh;
+		/*private var plane:Mesh;
 		private var sphere:Mesh;
 		private var cube:Mesh;
 		private var torus:Mesh;
-		
+		*/
 		//navigation variables
 		private var move:Boolean = false;
 		private var m_shiftKeyDown:Boolean = false;
@@ -819,23 +814,23 @@ package
 			*/
 		}
 		
-		protected function onCubeMouseDown(event:MouseEvent3D):void
+		/*protected function onCubeMouseDown(event:MouseEvent3D):void
 		{
 			cube.translateLocal(new Vector3D(0, 1, 0), 5);
 			event.preventDefault();
-		}
+		}*/
 		
-		protected function onMouseOut(event:MouseEvent3D):void
+		/*protected function onMouseOut(event:MouseEvent3D):void
 		{
 			//event.target.material = cubeMaterial;
 			event.target.material.texture = Cast.bitmapTexture(FloorDiffuse);
-		}
+		}*/
 		
-		protected function onMouseOver(event:MouseEvent3D):void
+		/*protected function onMouseOver(event:MouseEvent3D):void
 		{
 			//event.target.material = _activeMaterial
 			event.target.material.texture = Cast.bitmapTexture(TrinketDiffuse);
-		}
+		}*/
 		
 		/**
 		 * Initialise the listeners
@@ -1347,12 +1342,6 @@ package
 				createPlane(args);
 			else if(type == "sphere")
 				createSphere(args);
-			else if(type == "model")				
-				createModel(args);
-		}
-		
-		private function createModel(args:Array):void
-		{
 			
 		}
 		
