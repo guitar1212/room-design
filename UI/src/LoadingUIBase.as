@@ -16,6 +16,7 @@
 		{
 			this["barMask"].width = 250 * (curProgress / 100);
 			this["percentTf"].text = curProgress + "%";
+			this["objectTf"].text = "";
 			
 		}
 		
@@ -32,7 +33,8 @@
 		
 		public function set loadObject(info:String):void
 		{
-			this["percentTf"].text = info;
+			this["objectTf"].text = info;
+			this["percentTf"].text = "";
 		}
 		
 		
