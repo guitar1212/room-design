@@ -1,0 +1,17 @@
+#Model
+#type	path	pos3	rot3	scale	light	move
+load	..\assets\obj\chair\Armchair_06_obj.obj	0,,0	-0,0,0	2.54	Y
+
+#Primitive
+#type	name	pos3	rot3	lwh	color	alpha	castShadow	reciveShadow
+plane	p1	0,0,0	0,0,0	500,500,0	200,200,200	1	N	Y
+sphere	s1	20,20,20	0,0,0	10,20,30	255,255,25	0.5	Y	N
+
+#Camera
+#keyword	name	default	type	near	far	fov	distance	panAngle	tiltAngle	lookAt
+camera	cam01	Y	P	5	1000	60	150	45	75	0,20,0
+camera	cam02	N	P	1	500	20	100	10	30	0,40,0
+
+#light
+#keyword	name	type
+light	light01	dir
