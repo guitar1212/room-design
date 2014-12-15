@@ -9,7 +9,6 @@ package com.infy.stage
 	
 	import flash.display.Bitmap;
 	import flash.display.Loader;
-	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
@@ -43,6 +42,7 @@ package com.infy.stage
 			super.initilaize();
 			game.ui.type = 1;
 			game.ui.showLoading("下載房間資訊...");
+			game.ui.loadingProgress = 100;
 			game.ui.cbMouseClick = onNextStage;
 			game.ui.cbLabelItemClick = onLabelItemClick;
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
@@ -62,6 +62,7 @@ package com.infy.stage
 			super.release();
 			game.ui.cbMouseClick = null;
 			game.ui.cbLabelItemClick = null;
+			game.ui.cbGoodsItemDown = null;
 		}
 		
 		private function test():void
@@ -78,9 +79,9 @@ package com.infy.stage
 		
 		private function initRoom():void
 		{
-			// get room config
 			
 		}	
+		
 		
 		
 		private function init3D():void

@@ -1,5 +1,8 @@
 package com.infy.ui
 {
+	import com.infy.layer.Layer;
+	import com.infy.layer.LayerManager;
+	
 	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	
@@ -43,17 +46,20 @@ package com.infy.ui
 				m_loading = new LoadingUI();
 			
 			m_loading.alpha = 0.75;
-			if(m_loading.hasOwnProperty("percentTf"))
-			{
-				m_loading["percentTf"].text = msg;
-			}
-			this.addChild(m_loading);
+			m_loading.loadObject = msg;
+			loadingProgress = 0;
+			//this.addChild(m_loading);
+			LayerManager.instance.addChildAt(m_loading, Layer.TOP);
 		}
 		
 		public function hideLoading():void
 		{
 			if(m_loading.parent)
-				this.removeChild(m_loading);
+			{
+				/*LayerManager.instance.curLayerIndex = Layer.TOP;
+				LayerManager.instance.removeChild(m_loading);*/
+				m_loading.parent.removeChild(m_loading);
+			}				
 		}
 		
 		public function set loadingProgress(value:int):void
@@ -62,7 +68,7 @@ package com.infy.ui
 				m_loading = new LoadingUI();
 			
 			m_loadingProgress = value;
-			//m_loading.curProgress = value;
+			m_loading.curProgress = value;
 		}
 		
 		public function get loadingProgress():int

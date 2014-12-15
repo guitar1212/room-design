@@ -5,6 +5,7 @@ package com.infy.util.primitive
 	public class PrimitiveInfo
 	{
 		public var name:String = "";
+		public var type:String = "";
 		public var pos:Vector3D = new Vector3D();
 		public var rotation:Vector3D = new Vector3D();
 		public var size:Vector3D = new Vector3D(1, 1, 1);
@@ -20,6 +21,7 @@ package com.infy.util.primitive
 		public function parser(args:Array):void
 		{
 			name = args.shift();
+			type = args.shift();
 			var posArr:Array = String(args.shift()).split(",");
 			pos.x = posArr[0]; pos.y = posArr[1]; pos.z = posArr[2];
 			var rotationArr:Array = String(args.shift()).split(",");

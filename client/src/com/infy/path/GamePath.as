@@ -11,7 +11,7 @@ package com.infy.path
 		
 		public static var GAME_METHOD:String = "gameserver";
 		
-		public static var ASSET_ROOT_PATH:String = "";
+		public static var ASSET_ROOT_PATH:String = "..\\assets\\";
 		
 		public function GamePath()
 		{
@@ -25,6 +25,11 @@ package com.infy.path
 		public static function get ASSET_IMAGE_PATH():String
 		{
 			return ASSET_ROOT_PATH + "/img/"
+		}
+		
+		public static function get ROOM_SETTING_PATH():String
+		{
+			return ASSET_ROOT_PATH + "/segging/room/"
 		}
 	}
 }
