@@ -1,10 +1,10 @@
 package com.infy.game
 {
 	import away3d.cameras.Camera3D;
+	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
-	import away3d.controllers.SpringController;
 	import away3d.debug.AwayStats;
 	import away3d.lights.DirectionalLight;
 	import away3d.loaders.Loader3D;
@@ -12,6 +12,7 @@ package com.infy.game
 	import away3d.loaders.parsers.Max3DSParser;
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.loaders.parsers.Parsers;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.utils.Cast;
 	
 	import com.infy.constant.View3DCons;
@@ -25,11 +26,11 @@ package com.infy.game
 	import com.infy.stage.InitialStage;
 	import com.infy.stage.SelectRoomStage;
 	import com.infy.stage.StageManager;
+	import com.infy.task.TaskManager;
 	import com.infy.ui.RoomUI;
 	
 	import flash.display.Sprite;
 	import flash.display.Stage;
-	import flash.events.EventDispatcher;
 	import flash.ui.Keyboard;
 
 	/**
@@ -37,17 +38,9 @@ package com.infy.game
 	 * @long  Nov 26, 2014
 	 * 
 	 */	
-	public class RoomGame extends EventDispatcher
-	{
-		private var m_root:Sprite;
-		
-		private var m_ui:RoomUI;
-		
-		public var scene:Scene3D;
-		public var view:View3D;
-		public var camera:Camera3D;
-		
-		public var cameraController:HoverController;
+	public class RoomGame extends GameBase
+	{	
+		private var m_ui:RoomUI;		
 		
 		private var m_curRoomID:String;
 		
@@ -55,13 +48,16 @@ package com.infy.game
 		
 		public function RoomGame(root:Sprite)
 		{
-			m_root = root;
+			super(root);
+			//m_root = root;
 			
-			initialize();
+			//initialize();
 		}
 		
-		private function initialize():void
+		override public function initialize():void
 		{			
+			super.initialize();
+			
 			initStage();
 			initUI();
 			initEngine();
@@ -132,13 +128,15 @@ package com.infy.game
 			var light:DirectionalLight = new DirectionalLight();
 			light.ambient = 1;
 			light.diffuse = 1;
-			
+						
 			scene.addChild(light);
 			
 			var lightInfo:LightInfo = new LightInfo();
 			lightInfo.name = LightInfo.MAIN_LIGHT;
 			lightInfo.lignt = light;
 			LightManager.instance.addLight(lightInfo);
+			
+			lightPicker = new StaticLightPicker([light]);
 		}
 		
 		public function show3DView():void
@@ -163,10 +161,6 @@ package com.infy.game
 			return m_ui;
 		}
 		
-		public function get root():Sprite
-		{
-			return m_root;
-		}
 		
 		public function get roomID():String
 		{
@@ -181,6 +175,7 @@ package com.infy.game
 		public function update():void
 		{
 			StageManager.instance.onUpdate();
+			TaskManager.instance.update();
 		}
 		
 		public function render():void
@@ -254,6 +249,28 @@ package com.infy.game
 		public function set hotelInfo(value:HotelInfo):void
 		{
 			m_hotelInfo = value;
+		}
+		
+		public function hidePreLoading():void
+		{
+			if(root)
+			{
+				if(root.parent)
+				{
+					var obj:Object = root.parent;
+					obj.hideLoading();
+				}
+			}
+		}
+		
+		public function addObjectToScene(obj:ObjectContainer3D):void
+		{
+			
+		}
+		
+		public function remvoeObjectFromeScene(obj:ObjectContainer3D):void
+		{
+			
 		}
 
 	}

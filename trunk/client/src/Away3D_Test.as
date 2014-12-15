@@ -37,44 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import com.infy.camera.CameraInfo;
-	import com.infy.camera.CameraInfoManager;
-	import com.infy.constant.View3DCons;
-	import com.infy.constant.WireFrameConst;
-	import com.infy.event.CameraEvent;
-	import com.infy.event.ObjEvent;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.ui.CameraInfoUI;
-	import com.infy.ui.Modify3DObjectUI;
-	import com.infy.ui.ModifyCameraUI;
-	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.RoomUI;
-	import com.infy.ui.TextEditorBaseUI;
-	import com.infy.util.primitive.PrimitiveCreator;
-	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.getObject3DInfo;
-	import com.infy.util.zip.ZipLoader;
-
-	import flash.display.BitmapData;
-	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.geom.Vector3D;
-	import flash.net.FileFilter;
-	import flash.net.FileReference;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import flash.text.TextField;
-	import flash.ui.Keyboard;
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
-	import flash.utils.getQualifiedClassName;
-	import flash.utils.getTimer;
-	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
@@ -112,18 +74,55 @@ package
 	import away3d.textures.BitmapTexture;
 	import away3d.utils.Cast;
 	
+	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
+	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
+	import com.infy.event.CameraEvent;
+	import com.infy.event.ObjEvent;
+	import com.infy.game.EditRoomGame;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.path.GamePath;
+	import com.infy.ui.CameraInfoUI;
+	import com.infy.ui.Modify3DObjectUI;
+	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifyLightUI;
+	import com.infy.ui.RoomUI;
+	import com.infy.ui.TextEditorBaseUI;
+	import com.infy.util.primitive.PrimitiveCreator;
+	import com.infy.util.primitive.PrimitiveInfo;
+	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.getObject3DInfo;
+	import com.infy.util.zip.ZipLoader;
+	
 	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
 	import fl.core.UIComponent;
 	import fl.events.SliderEvent;
 	
+	import flash.display.BitmapData;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.ui.Keyboard;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
+	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
 	{
-		// swf
-		//[Embed(source="/../embeds/signature.swf", symbol="Signature")]
-		//private var SignatureSwf:Class;
+		private var game:EditRoomGame;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -260,6 +259,8 @@ package
 		 */
 		private function init():void
 		{
+			game = new EditRoomGame(this);
+			
 			initEngine();
 			initUI();
 			initLights();
@@ -515,7 +516,7 @@ package
 			var ta:Array = path.split(".");
 			var type:String = String(ta[ta.length - 1]).toLocaleLowerCase();
 			
-			loadModel(path, type, [0, 0, 0], [0, 0, 0], 1);
+			loadModel(path, type, [0, 0, 0], [0, 0, 0], 1, [1, 1, 1]);
 		}
 		
 		private function onBrowserRoomConfig(e:MouseEvent):void
@@ -623,8 +624,6 @@ package
 		 */
 		private function initEngine():void
 		{
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
 			
 			scene = new Scene3D();
 			
@@ -1212,7 +1211,7 @@ package
 			var size:Number = args.shift();
 			
 			if(path != "" && path != "\n")
-				loadModel(path, "obj", pos, rotation, size);
+				loadModel(path, "obj", pos, rotation, size, [1, 1, 1]);
 		}
 		
 		private function parseCameraInfo(args:Array):void
@@ -1342,7 +1341,21 @@ package
 				createPlane(args);
 			else if(type == "sphere")
 				createSphere(args);
+			else if(type == "model")
+				createModel(args);
+		}
+		
+		private function createModel(args:Array):void
+		{
+			var info:PrimitiveInfo = new PrimitiveInfo();
+			info.parser(args);
 			
+			var path:String = GamePath.ASSET_MODEL_PATH + info.type + "/" + info.name  +"/" + info.name + "." + info.type;
+			
+			var pos3:Array = [info.pos.x, info.pos.y, info.pos.z];
+			var rot3:Array = [info.rotation.x, info.rotation.y, info.rotation.z];
+			var s3:Array = [info.size.x, info.size.y, info.size.z];
+			loadModel(path, info.type, pos3, rot3, 1, s3);
 		}
 		
 		private function createPlane(args:Array):void
@@ -1412,6 +1425,7 @@ package
 				lightTest(o);
 				m_lightModifyUI.target = o as LightBase;
 			}
+			this.stage.focus = stage;
 		}
 		
 		private function onSceneObjectViewButtonResponse(btnIndex:int):void
@@ -1680,7 +1694,7 @@ package
 			onCreateObject(data.toString(), fileName.split(".").pop(), p);
 		}
 		
-		private function loadModel(path:String, type:String, pos3:Array, rot3:Array, scale:Number):void
+		private function loadModel(path:String, type:String, pos3:Array, rot3:Array, scale:Number, scale3:Array):void
 		{		
 			if(type == "zip")
 			{
@@ -1700,7 +1714,9 @@ package
 				loader.x = pos3[0];
 				loader.y = pos3[1];
 				loader.z = pos3[2];
-				
+				loader.scaleX = scale3[0];
+				loader.scaleY = scale3[1];
+				loader.scaleZ = scale3[2];
 				loader.scale(scale);
 				
 				loader.mouseEnabled = true;

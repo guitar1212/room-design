@@ -11,6 +11,7 @@ package
 	import flash.text.TextField;
 	import flash.utils.setInterval;
 	
+	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW", width="1024", height="768")]
 	public class RoomLoader extends Sprite
 	{
 		private static const MAIN_SWF_NAME:String = "RoomDesign.swf";
@@ -50,25 +51,31 @@ package
 		
 		protected function onLoadingProgress(event:ProgressEvent):void
 		{
-			var msg:String = "努力下載中......" + event.bytesLoaded.toFixed() + "KB (" + (event.bytesLoaded/event.bytesTotal*100).toFixed() + "%)";
-			m_loading.curProgress = msg;
+			var persent:Number = event.bytesLoaded/event.bytesTotal*100;
+			var msg:String = "請稍等......" + (event.bytesLoaded/1024).toFixed(1) + "KB (" + persent.toFixed() + "%)";
+			m_loading.loadObject = msg;
+			m_loading.curProgress = persent;
 		}	
 		
 		protected function onLoadMainSwfComplete(event:Event):void
 		{
 			var loaderInfo:LoaderInfo = event.target as LoaderInfo;
 			this.addChild(loaderInfo.content);
-			
-//			hideLoading();
+			m_loading.loadObject = "下載完成";
+			m_loading.curProgress = 100;
+			hideLoading();
 		}
 		
 		private function showLoading():void
 		{
 			this.addChild(m_loading);
-			m_loading.curProgress = "下載中...";
+			m_loading.loadObject = "下載中...";
+			m_loading.curProgress = 0;
+			m_loading.x = (this.stage.width + m_loading.width)/2;
+			m_loading.y = 300;
 		}
 		
-		private function hideLoading():void
+		public function hideLoading():void
 		{
 			this.removeChild(m_loading);
 			

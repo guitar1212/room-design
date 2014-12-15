@@ -6,6 +6,10 @@ package com.infy.stage
 	import com.infy.path.GamePath;
 	import com.infy.room.RoomInfo;
 	import com.infy.str.StringTable;
+	import com.infy.task.Task;
+	import com.infy.task.TaskManager;
+	
+	import flash.text.engine.Kerning;
 	
 	/**
 	 * 
@@ -46,7 +50,10 @@ package com.infy.stage
 			MessageManager.instance.initialize(GamePath.SERVER_PATH, GamePath.GAME_METHOD);			
 		
 			//test
-			setHotelInfo();
+			setHotelInfo();			
+			
+			game.ui.showLoading("初始中...");
+			game.ui.loadingProgress = 50;
 		}
 		
 		override public function release():void
@@ -108,6 +115,12 @@ package com.infy.stage
 			hotelInfo.roomData = roomArr;
 			
 			game.hotelInfo = hotelInfo;
+		}
+		
+		
+		private function isNetConnect():Boolean
+		{
+			return true;
 		}
 		
 		
