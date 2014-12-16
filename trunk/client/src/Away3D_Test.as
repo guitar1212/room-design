@@ -40,13 +40,11 @@ package
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.ControllerBase;
 	import away3d.controllers.FirstPersonController;
 	import away3d.controllers.HoverController;
 	import away3d.core.base.ISubGeometry;
-	import away3d.debug.AwayStats;
 	import away3d.debug.WireframeAxesGrid;
 	import away3d.entities.Mesh;
 	import away3d.entities.SegmentSet;
@@ -64,10 +62,8 @@ package
 	import away3d.loaders.parsers.Max3DSParser;
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.loaders.parsers.ParserBase;
-	import away3d.loaders.parsers.Parsers;
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.TextureMaterial;
-	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.WireframeCube;
 	import away3d.primitives.WireframePrimitiveBase;
@@ -80,9 +76,9 @@ package
 	import com.infy.constant.WireFrameConst;
 	import com.infy.event.CameraEvent;
 	import com.infy.event.ObjEvent;
+	import com.infy.event.RoomEvent;
 	import com.infy.game.EditRoomGame;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
+	import com.infy.parser.RoomConfigParser;
 	import com.infy.path.GamePath;
 	import com.infy.ui.CameraInfoUI;
 	import com.infy.ui.Modify3DObjectUI;
@@ -124,6 +120,8 @@ package
 	{
 		private var game:EditRoomGame;
 		
+		private var roomParser:RoomConfigParser;
+		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
 		public static var TrinketDiffuse:Class;
@@ -152,11 +150,6 @@ package
 		[Embed(source="/../embeds/floor_normal.jpg")]
 		public static var FloorNormals:Class;
 		
-		//engine variables
-		private var scene:Scene3D;
-		private var camera:Camera3D;
-		private var view:View3D;
-		private var cameraController:HoverController;
 		
 		//signature variables
 		//private var Signature:Sprite;
@@ -168,11 +161,6 @@ package
 		private var cubeMaterial:TextureMaterial;
 		private var torusMaterial:TextureMaterial;
 		
-		//light objects
-		private var light1:DirectionalLight;
-		private var light2:DirectionalLight;
-		private var lightPicker:StaticLightPicker;
-		private var noShadowLightPicker:StaticLightPicker;
 		
 		//scene objects
 		/*private var plane:Mesh;
@@ -200,7 +188,6 @@ package
 		
 		private var m_segmentSetList:Vector.<SegmentSet> = new Vector.<SegmentSet>();
 		
-		private var roomPath:String = "..\\assets\\room\\room01";
 		private var m_loaderScale:Number = 1.0;
 		private var m_axis:WireframeAxesGrid = null;
 		
@@ -234,9 +221,7 @@ package
 		private var m_textureSprite:Sprite = new Sprite();
 		
 		private var m_underButtonList:Array = [];
-		
-		private var m_ui:RoomUI;
-		
+				
 		private var m_file:FileReference;
 		
 		/**
@@ -260,10 +245,9 @@ package
 		private function init():void
 		{
 			game = new EditRoomGame(this);
+			roomParser = new RoomConfigParser(game);
 			
-			initEngine();
 			initUI();
-			initLights();
 			initMaterials();
 			initObjects();
 			initListeners();			
@@ -305,7 +289,7 @@ package
 			m_roomPathInput = new TextInput();
 			m_roomPathInput.width = 300;			
 			m_roomPathInput.height = 20;
-			m_roomPathInput.text = '..\\assets\\room\\room01';
+			m_roomPathInput.text = '..\\assets\\setting\\room\\room01';
 			m_roomPathInput.x = inputBtn.x + inputBtn.width + 15;
 			m_roomPathInput.y = m_pathInput.y;			
 			this.addChild(m_roomPathInput);
@@ -314,7 +298,7 @@ package
 			roomPathBtn.label = "Get Room";
 			roomPathBtn.x = m_roomPathInput.x + m_roomPathInput.width + 5;
 			roomPathBtn.y = m_roomPathInput.y;
-			roomPathBtn.addEventListener(MouseEvent.CLICK, loadRoomConfig);
+			roomPathBtn.addEventListener(MouseEvent.CLICK, onRoomConfigBtnClick);
 			this.addChild(roomPathBtn);
 			
 			var browser:Button = new Button();
@@ -331,7 +315,7 @@ package
 			m_meshInfo.width = 200;
 			m_meshInfo.height = 200;
 			m_meshInfo.x = 10;
-			m_meshInfo.y = 570;
+			m_meshInfo.y = 500;
 			m_meshInfo.text = "mesh info :";
 			this.addChild(m_meshInfo);
 			
@@ -342,7 +326,7 @@ package
 			m_cameraInfo.width = 200;
 			m_cameraInfo.height = 200;
 			m_cameraInfo.x = 250;
-			m_cameraInfo.y = 570;
+			m_cameraInfo.y = m_meshInfo.y;
 			m_cameraInfo.text = "camera info :";
 			this.addChild(m_cameraInfo);
 			
@@ -353,7 +337,7 @@ package
 			m_lightInfo.width = 200;
 			m_lightInfo.height = 200;
 			m_lightInfo.x = 490;
-			m_lightInfo.y = 570;
+			m_lightInfo.y = m_meshInfo.y;
 			m_lightInfo.text = "light info :";
 			this.addChild(m_lightInfo);
 			
@@ -368,7 +352,7 @@ package
 			// camera modify ui
 			m_cameraModifyUI = new ModifyCameraUI();
 			m_cameraModifyUI.x = 700;
-			m_cameraModifyUI.y = 550;
+			m_cameraModifyUI.y = m_meshInfo.y;
 			m_cameraModifyUI.checkCallback = toggleCameraLocked;
 			this.addChild(m_cameraModifyUI);
 			m_cameraModifyUI.addEventListener(CameraEvent.CHANGE, onCameraInfoChange);
@@ -376,13 +360,13 @@ package
 			// 3dObject modify UI
 			m_objModifyUI = new Modify3DObjectUI();
 			m_objModifyUI.x = 950;
-			m_objModifyUI.y = 550;			
+			m_objModifyUI.y = m_meshInfo.y;			
 			m_objModifyUI.addEventListener(ObjEvent.CHANGE, on3DObjectInfoChange);
 			this.addChild(m_objModifyUI);
 			
 			m_lightModifyUI = new ModifyLightUI("Directional Light");
 			m_lightModifyUI.x = 1200;
-			m_lightModifyUI.y = 550;
+			m_lightModifyUI.y = m_meshInfo.y;
 			m_lightModifyUI.addEventListener(SliderEvent.CHANGE, onLightInfoChange)
 			this.addChild(m_lightModifyUI);
 			
@@ -410,255 +394,6 @@ package
 			this.addChild(m_cameraInfoUI);
 		}
 		
-		private function createUnderButtons():void
-		{
-			// toggle roomeditro ui button
-			roomEditorBtn = new Button();
-			roomEditorBtn.label = "Open Room Editor";
-			roomEditorBtn.addEventListener(MouseEvent.CLICK, toggleRoomConfigEditor);
-			this.addChild(roomEditorBtn);
-			m_underButtonList.push(roomEditorBtn);
-			
-			var objEditorBtn:Button = new Button();
-			objEditorBtn.label = "Obj Editor";
-			objEditorBtn.addEventListener(MouseEvent.CLICK, toggleObjEditorEditor);
-			this.addChild(objEditorBtn);
-			m_underButtonList.push(objEditorBtn);
-			
-			// toggle wireframe button
-			wireframeBtn = new Button();
-			wireframeBtn.label = "wireFrame";
-			wireframeBtn.addEventListener(MouseEvent.CLICK, toggleWireFrame);
-			wireframeBtn.enabled = false;
-			this.addChild(wireframeBtn);
-			m_underButtonList.push(wireframeBtn);
-			
-			// create light button
-			createLightBtn = new Button();
-			createLightBtn.label = "create Light";			
-			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
-			this.addChild(createLightBtn);
-			m_underButtonList.push(createLightBtn);
-			
-			// save btn
-			saveRoomBtn = new Button();
-			saveRoomBtn.label = "Save Room";
-			saveRoomBtn.addEventListener(MouseEvent.CLICK, saveRoom);
-			this.addChild(saveRoomBtn);
-			m_underButtonList.push(saveRoomBtn);
-			
-			/*var cleanSceneBtn:Button = new Button();
-			cleanSceneBtn.label = "Clean Room";
-			cleanSceneBtn.addEventListener(MouseEvent.CLICK, cleanScene);
-			this.addChild(cleanSceneBtn);
-			m_underButtonList.push(cleanSceneBtn);*/
-			
-			/*var deleteObjBtn:Button = new Button();
-			deleteObjBtn.label = "Delete Obj";
-			deleteObjBtn.addEventListener(MouseEvent.CLICK, onDeleteButtonClick);
-			this.addChild(deleteObjBtn);
-			m_underButtonList.push(deleteObjBtn);*/
-		}
-		
-		protected function onPathInputChange(event:KeyboardEvent):void
-		{
-			if(event.keyCode == Keyboard.ENTER)
-			{
-				onInputEnter(null);
-				this.stage.focus = stage;
-			}
-			
-		}
-		
-		protected function toggleRoomConfigEditor(event:MouseEvent):void
-		{
-			m_roomEditor.visible = !m_roomEditor.visible;
-			if(m_roomEditor.visible)
-				roomEditorBtn.label = "Hide RoomEditor";
-			else
-				roomEditorBtn.label = "Open RoomEditor";
-		}
-		
-		private function toggleObjEditorEditor(event:MouseEvent):void
-		{
-			m_objeditor.visible = !m_objeditor.visible;
-		}
-		
-		protected function onCameraInfoChange(event:CameraEvent):void
-		{
-			setCameraInfo(cameraController);
-		}
-		
-		protected function on3DObjectInfoChange(event:ObjEvent):void
-		{
-			if(m_curSelectObject)
-				setObjectInfo(m_curSelectObject);
-		}
-		
-		protected function onLightInfoChange(event:SliderEvent):void
-		{
-			if(m_curSelectObject is LightBase)
-				setLightInfo(m_curSelectObject as LightBase);
-		}
-		
-		private function toggleCameraLocked(lock:Boolean):void
-		{
-			m_bLockCamera = lock;
-		}
-		
-		protected function onInputEnter(event:MouseEvent):void
-		{
-			// TODO Auto-generated method stub
-			var path:String = m_pathInput.text;
-			if(path == "" || path =="\n")
-				return;
-			
-			var ta:Array = path.split(".");
-			var type:String = String(ta[ta.length - 1]).toLocaleLowerCase();
-			
-			loadModel(path, type, [0, 0, 0], [0, 0, 0], 1, [1, 1, 1]);
-		}
-		
-		private function onBrowserRoomConfig(e:MouseEvent):void
-		{
-			m_file = new FileReference();
-			m_file.addEventListener(Event.SELECT, onRoomConfigFileSelect);
-			m_file.addEventListener(Event.COMPLETE, onLoadRoomConfigComplete);
-			m_file.browse([new FileFilter("RoomConfig", "*.*")]);
-			
-		}
-		
-		protected function onRoomConfigFileSelect(event:Event):void
-		{
-			var fileName:String = m_file.name;
-						
-			m_file.load();
-			
-		}
-		
-		protected function onLoadRoomConfigComplete(event:Event):void
-		{
-			// TODO Auto-generated method stub
-			parserRoom(event.target.data.toString());
-		}
-		
-		private var m_wireframeState:int = 0;
-		private function toggleWireFrame(event:MouseEvent):void
-		{
-			if(m_curSelectObject)
-			{
-				// create wireframe
-				if(m_wireframeState == 0)
-				{
-					drawWireFrame(m_curSelectObject);
-				}
-				// only wireframe
-				else if(m_wireframeState == 1)
-				{	
-					removeWireFrame(m_curSelectObject);
-					/*var s:SegmentSet;
-					for(var i:int = 0; i < m_curSelectObject.numChildren; i++)
-					{					
-						
-						s = m_curSelectObject.getChildAt(i) as SegmentSet;
-						
-						if(s is WireframePrimitiveBase)
-							continue;
-						
-						m_curSelectObject.removeChild(s);
-						s.removeAllSegments();
-						s.dispose();
-						s = null;
-						//s.updateImplicitVisibility();
-						break;
-					}*/
-				}
-				/*else if(m_wireframeState == 2)
-				{					
-					m_curSelectObject.visible = true;
-					
-					var s:SegmentSet = m_curSelectObject.getChildAt(m_curSelectObject.numChildren - 1) as SegmentSet;
-					if(s)
-					{	
-						s.removeAllSegments();
-						m_curSelectObject.removeChild(s);
-						s.dispose();
-						s = null;
-					}
-				}*/
-				
-				m_wireframeState++;
-				if(m_wireframeState > 1)
-					m_wireframeState = 0;
-			}
-		}
-
-		private var m_lightCount:int = 0;
-		private function createLight(event:MouseEvent):void
-		{
-			var light:LightBase = new DirectionalLight();
-			DirectionalLight(light).direction = new Vector3D(0, -1, 0);
-			light.ambient = 1.0;
-			light.diffuse = 1.0;
-			light.name = "light_" + m_lightCount;
-			addToScene(light);
-			
-			var lights:Array = lightPicker.lights;
-			lights.push(light);
-			lightPicker.lights = lights;
-			
-			m_lightCount++;
-		}
-		
-		private function saveRoom(event:MouseEvent):void
-		{
-			var i:int = 0, len:int = scene.numChildren;
-			for(i; i < len; i++)
-			{
-				var c:ObjectContainer3D = scene.getChildAt(i);
-				trace(c);
-			}
-		}
-		/**
-		 * Initialise the engine
-		 */
-		private function initEngine():void
-		{
-			
-			scene = new Scene3D();
-			
-			var lens:PerspectiveLens = new PerspectiveLens();
-			lens.near = 5;
-			camera = new Camera3D(lens);
-			camera.name = "mainCamera";
-			
-			view = new View3D();
-			view.antiAlias = 4;
-			view.scene = scene;
-			view.camera = camera;
-			view.backgroundColor = View3DCons.BACKGROUND_COLOR;
-			view.width = View3DCons.WIDTH;
-			view.height = View3DCons.HEIGHT;
-			//setup controller to be used on the camera
-			/*cameraController = new HoverController(camera);
-			cameraController.distance = 150;
-			cameraController.minTiltAngle = -15;
-			cameraController.maxTiltAngle = 90;
-			cameraController.panAngle = 45;
-			cameraController.tiltAngle = 20;*/
-			
-			view.addSourceURL("srcview/index.html");
-			addChild(view);
-			
-			addChild(new AwayStats(view));
-			
-			Parsers.enableAllBundled();
-			
-			Loader3D.enableParser(OBJParser);
-			Loader3D.enableParser(DAEParser);
-			Loader3D.enableParser(Max3DSParser);
-		}
-		
 		/**
 		 * Initialise the materials
 		 */
@@ -667,73 +402,31 @@ package
 			planeMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			planeMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
 			planeMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
-			planeMaterial.lightPicker = lightPicker;
+			planeMaterial.lightPicker = game.lightPicker;
 			planeMaterial.repeat = true;
 			planeMaterial.mipmap = false;
 			
 			sphereMaterial = new TextureMaterial(Cast.bitmapTexture(BeachBallDiffuse));
 			sphereMaterial.specularMap = Cast.bitmapTexture(BeachBallSpecular);
-			sphereMaterial.lightPicker = lightPicker;
+			sphereMaterial.lightPicker = game.lightPicker;
 			
 			cubeMaterial = new TextureMaterial(Cast.bitmapTexture(TrinketDiffuse));
 			cubeMaterial.specularMap = Cast.bitmapTexture(TrinketSpecular);
 			cubeMaterial.normalMap = Cast.bitmapTexture(TrinketNormals);
-			cubeMaterial.lightPicker = lightPicker;
+			cubeMaterial.lightPicker = game.lightPicker;
 			cubeMaterial.mipmap = false;
 			
 			var weaveDiffuseTexture:BitmapTexture = Cast.bitmapTexture(WeaveDiffuse);
 			torusMaterial = new TextureMaterial(weaveDiffuseTexture);
 			torusMaterial.specularMap = weaveDiffuseTexture;
 			torusMaterial.normalMap = Cast.bitmapTexture(WeaveNormals);
-			torusMaterial.lightPicker = lightPicker;
+			torusMaterial.lightPicker = game.lightPicker;
 			torusMaterial.repeat = true;
 			
 			_activeMaterial = new ColorMaterial( 0xFF0000 );
-			_activeMaterial.lightPicker = lightPicker;
+			_activeMaterial.lightPicker = game.lightPicker;
 			_inactiveMaterial = new ColorMaterial( 0xCCCCCC );
-			_inactiveMaterial.lightPicker = lightPicker;
-			
-			var tM:TextureMaterial = new TextureMaterial();
-		}
-		
-		/**
-		 * Initialise the lights
-		 */
-		private function initLights():void
-		{
-			light1 = new DirectionalLight();
-			light1.direction = new Vector3D(0, -1, 0);
-			light1.ambient = 1.0;
-			light1.diffuse = 1.0;
-			light1.name = LightInfo.MAIN_LIGHT;
-			light1.castsShadows
-			/*light1.castsShadows = true;
-			light1.shadowMapper.depthMapSize = 2048;*/
-			//addToScene(light1);
-			addLight(light1);
-			
-			light2 = new DirectionalLight();
-			light2.direction = new Vector3D(0, -1, 0);
-			light2.color = 0xFFFFFF;
-			light2.ambient = 0.1;
-			light2.diffuse = 0.7;
-			light2.name = "no_shadow_light";
-			//addToScene(light2);
-			addLight(light2);
-			
-			lightPicker = new StaticLightPicker([light1]);
-			noShadowLightPicker = new StaticLightPicker([light2]);
-			
-			
-		}
-		
-		private function addLight(light:LightBase):void
-		{
-			addToScene(light);
-			var info:LightInfo = new LightInfo();
-			info.name = light.name;
-			info.lignt = light;
-			LightManager.instance.addLight(info);
+			_inactiveMaterial.lightPicker = game.lightPicker;
 		}
 		
 		/**
@@ -813,24 +506,6 @@ package
 			*/
 		}
 		
-		/*protected function onCubeMouseDown(event:MouseEvent3D):void
-		{
-			cube.translateLocal(new Vector3D(0, 1, 0), 5);
-			event.preventDefault();
-		}*/
-		
-		/*protected function onMouseOut(event:MouseEvent3D):void
-		{
-			//event.target.material = cubeMaterial;
-			event.target.material.texture = Cast.bitmapTexture(FloorDiffuse);
-		}*/
-		
-		/*protected function onMouseOver(event:MouseEvent3D):void
-		{
-			//event.target.material = _activeMaterial
-			event.target.material.texture = Cast.bitmapTexture(TrinketDiffuse);
-		}*/
-		
 		/**
 		 * Initialise the listeners
 		 */
@@ -848,8 +523,245 @@ package
 			
 			this.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			
+			//
+			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
+			game.addEventListener(RoomEvent.CREATE_CAMERA, onRoomCameraCreate);
+			
 			onResize();
 		}
+		
+		private function createUnderButtons():void
+		{
+			// toggle roomeditro ui button
+			roomEditorBtn = new Button();
+			roomEditorBtn.label = "Open Room Editor";
+			roomEditorBtn.addEventListener(MouseEvent.CLICK, toggleRoomConfigEditor);
+			this.addChild(roomEditorBtn);
+			m_underButtonList.push(roomEditorBtn);
+			
+			var objEditorBtn:Button = new Button();
+			objEditorBtn.label = "Obj Editor";
+			objEditorBtn.addEventListener(MouseEvent.CLICK, toggleObjEditorEditor);
+			this.addChild(objEditorBtn);
+			m_underButtonList.push(objEditorBtn);
+			
+			// toggle wireframe button
+			wireframeBtn = new Button();
+			wireframeBtn.label = "wireFrame";
+			wireframeBtn.addEventListener(MouseEvent.CLICK, toggleWireFrame);
+			wireframeBtn.enabled = false;
+			this.addChild(wireframeBtn);
+			m_underButtonList.push(wireframeBtn);
+			
+			// create light button
+			createLightBtn = new Button();
+			createLightBtn.label = "create Light";			
+			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
+			this.addChild(createLightBtn);
+			m_underButtonList.push(createLightBtn);
+			
+			// save btn
+			saveRoomBtn = new Button();
+			saveRoomBtn.label = "Save Room";
+			saveRoomBtn.addEventListener(MouseEvent.CLICK, saveRoom);
+			this.addChild(saveRoomBtn);
+			m_underButtonList.push(saveRoomBtn);
+			
+			/*var cleanSceneBtn:Button = new Button();
+			cleanSceneBtn.label = "Clean Room";
+			cleanSceneBtn.addEventListener(MouseEvent.CLICK, cleanScene);
+			this.addChild(cleanSceneBtn);
+			m_underButtonList.push(cleanSceneBtn);*/
+			
+			/*var deleteObjBtn:Button = new Button();
+			deleteObjBtn.label = "Delete Obj";
+			deleteObjBtn.addEventListener(MouseEvent.CLICK, onDeleteButtonClick);
+			this.addChild(deleteObjBtn);
+			m_underButtonList.push(deleteObjBtn);*/
+		}
+
+		private function onRoomObjectCreate(event:RoomEvent):void
+		{
+			var o:ObjectContainer3D = event.object as ObjectContainer3D;
+			
+			if(o == null) return;
+			
+			addToScene(o);
+			
+			if(o is Mesh)
+			{
+				m_meshList.push(event.object);
+				(o as Mesh).material.lightPicker = game.lightPicker;
+			}
+			else if(o is Loader3D)
+			{
+				m_objList.push(event.object);
+				addObjectContainerToScene(o);
+			}
+			
+			
+			o.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
+			//game.addObjectToScene(event.object as ObjectContainer3D);
+		}
+		
+		private function onRoomCameraCreate(event:RoomEvent):void
+		{
+			var camInfo:CameraInfo = event.object as CameraInfo;
+			createCameraInfo(camInfo);
+			
+			if(camInfo.isDefault)
+				setCamera(camInfo, game.camera);
+		}
+			
+		protected function onPathInputChange(event:KeyboardEvent):void
+		{
+			if(event.keyCode == Keyboard.ENTER)
+			{
+				onInputEnter(null);
+				this.stage.focus = stage;
+			}
+		}
+		
+		protected function toggleRoomConfigEditor(event:MouseEvent):void
+		{
+			m_roomEditor.visible = !m_roomEditor.visible;
+			if(m_roomEditor.visible)
+				roomEditorBtn.label = "Hide RoomEditor";
+			else
+				roomEditorBtn.label = "Open RoomEditor";
+		}
+		
+		private function toggleObjEditorEditor(event:MouseEvent):void
+		{
+			m_objeditor.visible = !m_objeditor.visible;
+		}
+		
+		protected function onCameraInfoChange(event:CameraEvent):void
+		{
+			setCameraInfo(game.cameraController);
+		}
+		
+		protected function on3DObjectInfoChange(event:ObjEvent):void
+		{
+			if(m_curSelectObject)
+				setObjectInfo(m_curSelectObject);
+		}
+		
+		protected function onLightInfoChange(event:SliderEvent):void
+		{
+			if(m_curSelectObject is LightBase)
+				setLightInfo(m_curSelectObject as LightBase);
+		}
+		
+		private function toggleCameraLocked(lock:Boolean):void
+		{
+			m_bLockCamera = lock;
+		}
+		
+		protected function onInputEnter(event:MouseEvent):void
+		{
+			// TODO Auto-generated method stub
+			var path:String = m_pathInput.text;
+			if(path == "" || path =="\n")
+				return;
+			
+			var ta:Array = path.split(".");
+			var type:String = String(ta[ta.length - 1]).toLocaleLowerCase();
+			
+			loadModel(path, type, [0, 0, 0], [0, 0, 0], 1, [1, 1, 1]);
+		}
+		
+		private function onBrowserRoomConfig(e:MouseEvent):void
+		{
+			m_file = new FileReference();
+			m_file.addEventListener(Event.SELECT, onRoomConfigFileSelect);
+			m_file.addEventListener(Event.COMPLETE, onLoadRoomConfigComplete);
+			m_file.browse([new FileFilter("RoomConfig", "*.*")]);
+			
+		}
+		
+		protected function onRoomConfigFileSelect(event:Event):void
+		{
+			var fileName:String = m_file.name;
+						
+			m_file.load();
+			
+		}
+		
+		protected function onLoadRoomConfigComplete(event:Event):void
+		{
+			// TODO Auto-generated method stub
+			//parserRoom(event.target.data.toString());
+			roomParser.parserRoom(event.target.data.toString());
+		}
+		
+		private var m_wireframeState:int = 0;
+		private function toggleWireFrame(event:MouseEvent):void
+		{
+			if(m_curSelectObject)
+			{
+				// create wireframe
+				if(m_wireframeState == 0)
+				{
+					drawWireFrame(m_curSelectObject);
+				}
+				// only wireframe
+				else if(m_wireframeState == 1)
+				{	
+					removeWireFrame(m_curSelectObject);					
+				}
+				
+				m_wireframeState++;
+				if(m_wireframeState > 1)
+					m_wireframeState = 0;
+			}
+		}
+
+		private var m_lightCount:int = 0;
+		private function createLight(event:MouseEvent):void
+		{
+			var light:LightBase = new DirectionalLight();
+			DirectionalLight(light).direction = new Vector3D(0, -1, 0);
+			light.ambient = 1.0;
+			light.diffuse = 1.0;
+			light.name = "light_" + m_lightCount;
+			addToScene(light);
+			
+			var lights:Array = game.lightPicker.lights;
+			lights.push(light);
+			game.lightPicker.lights = lights;
+			
+			m_lightCount++;
+		}
+		
+		private function saveRoom(event:MouseEvent):void
+		{
+			var i:int = 0, len:int = game.scene.numChildren;
+			for(i; i < len; i++)
+			{
+				var c:ObjectContainer3D = game.scene.getChildAt(i);
+				trace(c);
+			}
+		}
+		
+		
+		/*protected function onCubeMouseDown(event:MouseEvent3D):void
+		{
+			cube.translateLocal(new Vector3D(0, 1, 0), 5);
+			event.preventDefault();
+		}*/
+		
+		/*protected function onMouseOut(event:MouseEvent3D):void
+		{
+			//event.target.material = cubeMaterial;
+			event.target.material.texture = Cast.bitmapTexture(FloorDiffuse);
+		}*/
+		
+		/*protected function onMouseOver(event:MouseEvent3D):void
+		{
+			//event.target.material = _activeMaterial
+			event.target.material.texture = Cast.bitmapTexture(TrinketDiffuse);
+		}*/
 		
 		
 		protected function stageMouseClickHandler(event:MouseEvent):void
@@ -871,18 +783,18 @@ package
 			
 			if(event.target.parent && event.target.parent is View3D)
 			{
-				if(cameraController)
+				if(game.cameraController)
 				{
 					if(event.delta > 0) // forward
 					{
-						cameraController.distance += 20;
+						game.cameraController.distance += 20;
 					}
 					else
 					{
-						if(cameraController.distance > 50)
-							cameraController.distance -= 20;
+						if(game.cameraController.distance > 50)
+							game.cameraController.distance -= 20;
 					}
-					setCameraInfo(cameraController);
+					setCameraInfo(game.cameraController);
 					m_cameraModifyUI.refresh();
 					event.stopImmediatePropagation();
 				}
@@ -921,7 +833,7 @@ package
 				switch(event.keyCode)
 				{
 					case Keyboard.INSERT:					
-						loadRoom(roomPath);
+						//loadRoom(roomPath);
 						break;						
 					
 					/*case Keyboard.NUMBER_9:
@@ -939,11 +851,11 @@ package
 					
 					case Keyboard.NUMBER_9:
 						var b:BloomFilter3D = new BloomFilter3D();
-						view.filters3d = [b];
+						game.view.filters3d = [b];
 						break;
 					
 					case Keyboard.NUMBER_0:
-						view.filters3d = null;
+						game.view.filters3d = null;
 						break;
 				}
 			}
@@ -1022,9 +934,9 @@ package
 					var dx:Number = 0.3*(stage.mouseX - lastPanX);
 					var dy:Number = 0.3*(stage.mouseY - lastPanY);
 					
-					cameraController.lookAtPosition.x += dx;
-					cameraController.lookAtPosition.y += dy;
-					cameraController.update();
+					game.cameraController.lookAtPosition.x += dx;
+					game.cameraController.lookAtPosition.y += dy;
+					game.cameraController.update();
 					lastPanX = stage.mouseX;
 					lastPanY = stage.mouseY;
 					lastMouseX = stage.mouseX;
@@ -1032,10 +944,10 @@ package
 				}
 				else
 				{
-					cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-					cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;					
+					game.cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+					game.cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;					
 				}
-				setCameraInfo(cameraController);
+				setCameraInfo(game.cameraController);
 				m_cameraModifyUI.refresh();
 			}
 			
@@ -1046,7 +958,7 @@ package
 			
 			//loader.rotationY += 1;
 			
-			view.render();
+			game.view.render();
 		}
 		
 		/**
@@ -1060,10 +972,10 @@ package
 			else if(event.target is BaseButton)
 				return;
 			
-			if(cameraController)
+			if(game.cameraController)
 			{
-				lastPanAngle = cameraController.panAngle;
-				lastTiltAngle = cameraController.tiltAngle;
+				lastPanAngle = game.cameraController.panAngle;
+				lastTiltAngle = game.cameraController.tiltAngle;
 				lastMouseX = stage.mouseX;
 				lastMouseY = stage.mouseY;
 				move = true;
@@ -1106,42 +1018,42 @@ package
 		{
 			if(stage.stageWidth < View3DCons.WIDTH)
 			{
-				view.width = stage.stageWidth;
-				view.x = 0;
+				game.view.width = stage.stageWidth;
+				game.view.x = 0;
 			}
 			else
 			{
-				view.width = View3DCons.WIDTH;
-				view.x = (stage.stageWidth - View3DCons.WIDTH)/2
+				game.view.width = View3DCons.WIDTH;
+				game.view.x = (stage.stageWidth - View3DCons.WIDTH)/2
 			}
 			
 			if(stage.stageHeight > View3DCons.HEIGHT + View3DCons.GAP_TOP)
 			{
-				view.y = View3DCons.GAP_TOP;
-				view.height = View3DCons.HEIGHT;
+				game.view.y = View3DCons.GAP_TOP;
+				game.view.height = View3DCons.HEIGHT;
 				
 			}
 			else if(stage.stageHeight < View3DCons.HEIGHT)
 			{
-				view.y = 0;
-				view.height = stage.stageHeight;
+				game.view.y = 0;
+				game.view.height = stage.stageHeight;
 			}
 			else
 			{
-				view.y = (stage.stageHeight - View3DCons.HEIGHT)/2;
-				view.height = View3DCons.HEIGHT;
+				game.view.y = (stage.stageHeight - View3DCons.HEIGHT)/2;
+				game.view.height = View3DCons.HEIGHT;
 			}
 			
 			m_sceneContainer.x = stage.stageWidth - m_sceneContainer.width - 30;
 			
-			m_mouseInfoText.x = view.x;
-			m_mouseInfoText.y = view.y - 25;
+			m_mouseInfoText.x = game.view.x;
+			m_mouseInfoText.y = game.view.y - 25;
 			
-			var dx:int = view.x;
+			var dx:int = game.view.x;
 			for(var i:int = 0; i < m_underButtonList.length; i++)
 			{
 				var b:Button = m_underButtonList[i];
-				b.y = view.y + view.height + 3;
+				b.y = game.view.y + game.view.height + 3;
 				b.x = dx;
 				dx += b.width + 5;
 			}
@@ -1152,125 +1064,48 @@ package
 			m_mouseInfoText.text = "(" + stage.mouseX + ", " + stage.mouseY + ")";
 		}
 		
-		private function loadRoomConfig(event:MouseEvent = null):void
+		
+		/**
+		 *	 
+		 * @param event
+		 * 
+		 */		
+		private function onRoomConfigBtnClick(event:MouseEvent = null):void
 		{
 			var path:String = m_roomPathInput.text;
-			loadRoom(path);
+			loadRoomSetting(path);
 		}
 		
-		private function loadRoom(roomPath:String):void
+		private function loadRoomSetting(roomPath:String):void
 		{
-			var urlLoader:URLLoader = new URLLoader();			
-			urlLoader.load(new URLRequest(roomPath));
-			urlLoader.addEventListener(Event.COMPLETE, onLoadRoomComplete);			
+			roomParser.loadRoomSettingWithPaht(roomPath);			
 		}
 		
-		protected function onLoadRoomComplete(event:Event):void
-		{
-			var urlLoader:URLLoader = event.target as URLLoader;
-			
-			parserRoom(urlLoader.data);
-			m_roomEditor.data = urlLoader.data;
-		}
 		
-		private function parserRoom(data:String):void
-		{
-			//var lines:Array = data.split("\r\n");
-			data = data.replace(/[\r]/g, "");
-			var lines:Array = data.split("\n");
-			lines.shift(); // skip first line;
-			for(var i:int = 0; i < lines.length; i++)
-			{
-				var raw:String = lines[i];0
-				if(raw == "" || raw == "\n")
-					continue;
-				
-				var args:Array = raw.split("\t");
-				if(args[0] == "load")
-					parserLoadCommand(args)
-				else if(args[0] == "camera")
-					parseCameraInfo(args);
-				/*else if(args[0] == "light")
-					parseLightInfo(args);
-				else if(args[0] == "sound")
-					parsSoundInfo(args);*/
-				else
-					createPrimitives(args);
-			}
-			
-		}
-		
-		private function parserLoadCommand(args:Array):void
-		{
-			// skip first arg		
-			args.shift();
-			
-			var path:String = args.shift();
-			var pos:Array = String(args.shift()).split(",");
-			var rotation:Array = String(args.shift()).split(",");
-			var size:Number = args.shift();
-			
-			if(path != "" && path != "\n")
-				loadModel(path, "obj", pos, rotation, size, [1, 1, 1]);
-		}
-		
-		private function parseCameraInfo(args:Array):void
-		{
-			var keyword:String = args.shift() as String;
-			var cam_name:String = args.shift() as String;
-			var isDefault:Boolean = String(args.shift()) == "Y" ? true : false;
-			var type:String = args.shift();
-			var near:Number = args.shift();
-			var far:Number = args.shift();
-			var fov:Number = args.shift();
-			var distance:Number = args.shift();
-			var panAngle:Number = args.shift();
-			var tiltAngle:Number = args.shift();
-			var lookAt:Array = String(args.shift()).split(",");
-			
-			var camInfo:CameraInfo = new CameraInfo();
-			camInfo.name = cam_name;
-			camInfo.isDefault = isDefault;
-			camInfo.near = near;
-			camInfo.far = far;
-			camInfo.fov = fov;
-			camInfo.distance = distance;
-			camInfo.panAngle = panAngle;
-			camInfo.tiltAngle = tiltAngle;
-			camInfo.lookAt = new Vector3D(lookAt[0], lookAt[1], lookAt[2]);
-			
-			CameraInfoManager.instance.addCameraInfo(camInfo.name, camInfo);
-			m_cameraInfoUI.addCameraInfo(camInfo.name, camInfo);
-			
-			if(isDefault)
-			{
-				setCamera(camInfo, camera);
-			}			
-		}
 		
 		private function setCamera(info:CameraInfo, camera:Camera3D):void
 		{
-			cameraController = null;
-			cameraController = new HoverController(camera);
-			cameraController.distance = info.distance;
-			cameraController.minTiltAngle = -15;
-			cameraController.maxTiltAngle = 90;
-			cameraController.panAngle = info.panAngle;
-			cameraController.tiltAngle = info.tiltAngle;
+			game.cameraController = null;
+			game.cameraController = new HoverController(camera);
+			game.cameraController.distance = info.distance;
+			game.cameraController.minTiltAngle = -15;
+			game.cameraController.maxTiltAngle = 90;
+			game.cameraController.panAngle = info.panAngle;
+			game.cameraController.tiltAngle = info.tiltAngle;
 			camera.lens.near = info.near;
 			camera.lens.far = info.far;
 			PerspectiveLens(camera.lens).fieldOfView = info.fov;
-			HoverController(cameraController).lookAtPosition = info.lookAt.clone();
+			HoverController(game.cameraController).lookAtPosition = info.lookAt.clone();
 			
-			setCameraInfo(cameraController);
-			m_cameraModifyUI.target = cameraController;
+			setCameraInfo(game.cameraController);
+			m_cameraModifyUI.target = game.cameraController;
 		}
 		
 		private function changeCamera(camName:String):void
 		{
 			var info:CameraInfo = CameraInfoManager.instance.getCameraInfo(camName);
 			if(info)
-				setCamera(info, camera);
+				setCamera(info, game.camera);
 		}
 		
 		private function onCameraUIButtonClick(btnIndex:int):void
@@ -1284,8 +1119,11 @@ package
 			else if(btnIndex == 1) //delete
 			{
 				var info:CameraInfo = m_cameraInfoUI.getSelectCameraInfo();
-				CameraInfoManager.instance.removeCameraInfo(info.name);
-				m_cameraInfoUI.removeSelectCameraInfo();
+				if(info)
+				{
+					CameraInfoManager.instance.removeCameraInfo(info.name);
+					m_cameraInfoUI.removeSelectCameraInfo();
+				}
 			}
 		}
 		
@@ -1297,15 +1135,21 @@ package
 		
 		private function getCurrentCamraInfo():CameraInfo
 		{
+			if(game.cameraController == null)
+			{
+				game.cameraController = new HoverController(game.camera);
+				m_cameraModifyUI.target = game.cameraController;
+			}
+			
 			var info:CameraInfo = new CameraInfo();
 			info.name = "new cam";
-			info.near = camera.lens.near;
-			info.far = camera.lens.far;
-			info.fov = PerspectiveLens(camera.lens).fieldOfView;
-			info.distance = cameraController.distance;
-			info.tiltAngle = cameraController.tiltAngle;
-			info.panAngle = castPanAngle(cameraController.panAngle);
-			info.lookAt = cameraController.lookAtPosition.clone();
+			info.near = game.camera.lens.near;
+			info.far = game.camera.lens.far;
+			info.fov = PerspectiveLens(game.camera.lens).fieldOfView;
+			info.distance = game.cameraController.distance;
+			info.tiltAngle = game.cameraController.tiltAngle;
+			info.panAngle = castPanAngle(game.cameraController.panAngle);
+			info.lookAt = game.cameraController.lookAtPosition.clone();
 			info.type = "P";
 			info.isDefault = false;
 			return info;
@@ -1332,18 +1176,7 @@ package
 			return panAngle;
 		}
 		
-		private function createPrimitives(args:Array):void
-		{
-			var type:String = args.shift() as String;
-			if(type == "box")
-				createBox(args);
-			else if(type == "plane")
-				createPlane(args);
-			else if(type == "sphere")
-				createSphere(args);
-			else if(type == "model")
-				createModel(args);
-		}
+		
 		
 		private function createModel(args:Array):void
 		{
@@ -1358,43 +1191,6 @@ package
 			loadModel(path, info.type, pos3, rot3, 1, s3);
 		}
 		
-		private function createPlane(args:Array):void
-		{	
-			var plane:Mesh = PrimitiveCreator.createPlane(args);
-			
-			// make shadow????			
-			/*(plane.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
-			(plane.material as ColorMaterial).shadowMethod.epsilon = 1;*/
-			
-			/*(plane.material as ColorMaterial).shadowMethod = new HardShadowMapMethod(light1);
-			(plane.material as ColorMaterial).shadowMethod.epsilon = 1;*/
-			
-			m_meshList.push(plane);
-			addToScene(plane);
-			plane.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
-			plane.material.lightPicker = lightPicker;
-		}
-		
-		private function createSphere(args:Array):void
-		{
-			var sphere:Mesh = PrimitiveCreator.createSphere(args);
-			m_meshList.push(sphere);
-			addToScene(sphere);
-			sphere.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
-			sphere.material.lightPicker = lightPicker;
-		}
-		
-		private function createBox(args:Array):void
-		{	
-			var box:Mesh = PrimitiveCreator.createCube(args);			
-			
-			//(box.material as ColorMaterial).shadowMethod = new FilteredShadowMapMethod(light1);
-			//(box.material as ColorMaterial).shadowMethod.epsilon = 0.2;
-			addToScene(box);
-			box.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
-			//box.material.lightPicker = noShadowLightPicker;	
-			m_meshList.push(box);
-		}
 		
 		private function onSceneItemSelect(o:ObjectContainer3D):void
 		{
@@ -1581,7 +1377,6 @@ package
 					   "\nvertices : " + getObject3DInfo.getVertexCounts(o) +
 					   "\nbounds size : " + (o.maxX - o.minX).toFixed(2) + ", " + (o.maxY - o.minY).toFixed(2) + ", " + (o.maxZ - o.minZ).toFixed(2)
 						;
-					   
 			}
 			
 			m_meshInfo.text = text;
@@ -1756,7 +1551,7 @@ package
 						TextureMaterial(mesh.material).alphaThreshold = 0.5;
 					}
 					//mesh.material = m;
-					mesh.material.lightPicker = lightPicker;
+					mesh.material.lightPicker = game.lightPicker;
 					//md.displayVertexNormals(mesh, 0x66ccff, 15000);
 					//mesh.addEventListener(MouseEvent3D.MOUSE_DOWN, on3DObjeMouseDown);
 					//drawWireFrame(mesh);
@@ -1816,7 +1611,7 @@ package
 			if(on == "" || on == "null")
 				on = o.assetType;
 			m_sceneContainer.addSceneObjectItem(on, o);
-			this.scene.addChild(o);
+			game.addObjectToScene(o);
 			
 			for(var i:int = 0; i < o.numChildren; i++)
 			{

@@ -63,6 +63,8 @@ package com.infy.stage
 			game.ui.cbMouseClick = null;
 			game.ui.cbLabelItemClick = null;
 			game.ui.cbGoodsItemDown = null;
+			
+			game.ui.hideLoading();
 		}
 		
 		private function test():void

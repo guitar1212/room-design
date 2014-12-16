@@ -113,7 +113,10 @@ package com.infy.ui
 		
 		public function getSelectCameraInfo():CameraInfo
 		{
-			return m_list.selectedItem.data as CameraInfo;
+			if(m_list.selectedItem)
+				return m_list.selectedItem.data as CameraInfo;
+			else
+				return null;
 		}
 		
 		protected function onButtonClick(event:MouseEvent):void

@@ -14,6 +14,7 @@ package com.infy.ui
 	public class RoomUI extends WebDesignUI
 	{
 		private var m_loading:LoadingUI;
+		private var m_confirm:ConfirmUI;
 		private var m_loadingProgress:int = 0;
 		
 		public function RoomUI()
@@ -79,13 +80,38 @@ package com.infy.ui
 		public function resize():void
 		{
 			m_loading.x = (stage.stageWidth - 260/*m_loading.width*/)/2;
-			m_loading.y = 250;
+			m_loading.y = 280;
+			
+			if(m_confirm)
+			{
+				m_confirm.x = (stage.width - m_confirm.width)/2;
+				m_confirm.y = 280;
+			}
 		}
 			
 		
 		public function show(value:Boolean):void
 		{
 			this.visible = value;
+		}
+		
+		public function showConfirmUI(title:String, okCB:Function, cancelCB:Function):void
+		{
+			if(m_confirm == null) m_confirm = new ConfirmUI();
+			
+			m_confirm.confirmInfo = title;
+			m_confirm.cbOKClick = okCB;
+			m_confirm.cbCloseClick = cancelCB;
+			m_confirm.cbCancelClick = cancelCB;			
+			
+			LayerManager.instance.addChildAt(m_confirm, Layer.TOP);
+			resize();
+		}
+		
+		public function hideConfirmUI():void
+		{
+			LayerManager.instance.curLayerIndex = Layer.TOP;
+			LayerManager.instance.removeChild(m_confirm);
 		}
 		
 	}
