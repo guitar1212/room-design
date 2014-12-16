@@ -24,6 +24,8 @@
 		private function initUI():void
 		{
 			this["confirmInfoTf"].mouseEnabled = false;
+			this["okBtn"].mouseChildren = false;
+			this["cancelBtn"].mouseChildren = false;
 			this["closeBtn"].addEventListener(MouseEvent.CLICK,onCloseClick);
 			this["okBtn"].addEventListener(MouseEvent.CLICK,onOkClick);
 			this["cancelBtn"].addEventListener(MouseEvent.CLICK,onCancelClick);
