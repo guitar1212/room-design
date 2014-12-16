@@ -34,6 +34,11 @@ package com.infy.str
 			data["TYPE_4"] = "特色點心";
 			data["TYPE_5"] = "衛浴用品";
 			m_strDic[group] = data;
+			
+			group = "CONFIRM_UI";
+			data = {};
+			data["ABORT_DESIGN"] = "確定要放棄目前設計嗎?";
+			m_strDic[group] = data;
 		}
 		
 		public static function setString(group:String, key:String, contex:String):void

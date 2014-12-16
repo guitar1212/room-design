@@ -17,6 +17,7 @@ package com.infy.parser
 	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.event.RoomEvent;
+	import com.infy.game.GameBase;
 	import com.infy.game.RoomGame;
 	import com.infy.path.GamePath;
 	import com.infy.util.primitive.PrimitiveCreator;
@@ -33,9 +34,9 @@ package com.infy.parser
 
 	public class RoomConfigParser
 	{
-		private var m_game:RoomGame = null;
+		private var m_game:GameBase = null;
 		
-		public function RoomConfigParser(game:RoomGame)
+		public function RoomConfigParser(game:GameBase)
 		{
 			m_game = game;
 		}
@@ -45,9 +46,14 @@ package com.infy.parser
 			// get room config
 			var path:String = GamePath.ROOM_SETTING_PATH + roomID;
 			
+			loadRoomSettingWithPaht(path);
+		}
+		
+		public function loadRoomSettingWithPaht(path:String):void
+		{
 			var urlLoader:URLLoader = new URLLoader();			
 			urlLoader.load(new URLRequest(path));
-			urlLoader.addEventListener(Event.COMPLETE, onLoadRoomComplete);
+			urlLoader.addEventListener(Event.COMPLETE, onLoadRoomComplete);	
 		}
 		
 		protected function onLoadRoomComplete(event:Event):void
@@ -58,7 +64,7 @@ package com.infy.parser
 			
 		}
 		
-		private function parserRoom(data:String):void
+		public function parserRoom(data:String):void
 		{
 			data = data.replace(/[\r]/g, "");
 			var lines:Array = data.split("\n");
@@ -125,13 +131,18 @@ package com.infy.parser
 			CameraInfoManager.instance.addCameraInfo(camInfo.name, camInfo);
 			//m_cameraInfoUI.addCameraInfo(camInfo.name, camInfo);
 			
+			var event:RoomEvent = new RoomEvent(RoomEvent.CREATE_CAMERA);
+			event.objType = "camera";
+			event.object = camInfo;
+			m_game.dispatchEvent(event);
+			/*
 			if(isDefault)
 			{
 				setCamera(camInfo, m_game.camera);
-			}			
+			}	*/		
 		}
 		
-		private function setCamera(info:CameraInfo, camera:Camera3D):void
+		/*private function setCamera(info:CameraInfo, camera:Camera3D):void
 		{
 			m_game.cameraController = null;
 			m_game.cameraController = new HoverController(camera);
@@ -146,8 +157,8 @@ package com.infy.parser
 			HoverController(m_game.cameraController).lookAtPosition = info.lookAt.clone();
 			
 			//setCameraInfo(cameraController);
-			//m_cameraModifyUI.target = cameraController;
-		}
+			//m_cameraModifyUI.target = cameraController; 
+		}*/
 		
 		private function createPrimitives(args:Array):void
 		{
@@ -192,7 +203,7 @@ package com.infy.parser
 			plane.material.lightPicker = m_game.lightPicker;
 			
 			var event:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
-			event.target = plane;
+			event.object = plane;
 			event.objType = "plane";
 			m_game.dispatchEvent(event);
 		}
@@ -206,7 +217,7 @@ package com.infy.parser
 			sphere.material.lightPicker = m_game.lightPicker;
 			
 			var event:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
-			event.target = sphere;
+			event.object = sphere;
 			event.objType = "sphere";
 			m_game.dispatchEvent(event);
 		}
@@ -223,7 +234,7 @@ package com.infy.parser
 			//m_meshList.push(box);
 			
 			var event:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
-			event.target = box;
+			event.object = box;
 			event.objType = "box";
 			m_game.dispatchEvent(event);
 		}
@@ -257,7 +268,7 @@ package com.infy.parser
 				loader.mouseChildren = true;
 				
 				//addToScene(loader);
-				m_objList.push(loader);
+				//m_objList.push(loader);
 			}
 		}
 		
@@ -295,7 +306,7 @@ package com.infy.parser
 			l.addEventListener(AssetEvent.TEXTURE_COMPLETE, assetCompleteHandler);
 			m_game.addObjectToScene(l);
 			
-			m_objList.push(l);
+			//m_objList.push(l);
 		}
 		
 		protected function assetCompleteHandler(event:AssetEvent):void
@@ -333,7 +344,7 @@ package com.infy.parser
 			
 			var roomEvent:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
 			roomEvent.objType = "load_model";
-			roomEvent.target = event.target;
+			roomEvent.object = event.target as Loader3D;
 			m_game.dispatchEvent(roomEvent);			
 		}
 	}

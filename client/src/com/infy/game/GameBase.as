@@ -1,12 +1,15 @@
 package com.infy.game
 {
 	import away3d.cameras.Camera3D;
+	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
 	import flash.events.EventDispatcher;
 	
 	/**
@@ -34,12 +37,23 @@ package com.infy.game
 		
 		public function initialize():void
 		{
-			
+			root.stage.scaleMode = StageScaleMode.NO_SCALE;
+			root.stage.align = StageAlign.TOP_LEFT;
 		}
 		
 		public function get root():Sprite
 		{
 			return m_root;
+		}
+		
+		public function addObjectToScene(obj:ObjectContainer3D):void
+		{
+			scene.addChild(obj);
+		}
+		
+		public function remvoeObjectFromeScene(obj:ObjectContainer3D):void
+		{
+			scene.removeChild(obj);
 		}
 	}
 }

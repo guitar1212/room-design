@@ -1,6 +1,7 @@
 package com.infy.stage
 {
 	import com.infy.game.RoomGame;
+	import com.infy.str.StringTable;
 
 	/**
 	 * 
@@ -43,7 +44,7 @@ package com.infy.stage
 		{
 			if(index == 0)
 			{
-				StageManager.instance.changeStage(1);
+				game.ui.showConfirmUI(StringTable.getString("CONFIRM_UI", "ABORT_DESIGN"), reDesignRoom, onCloseConfirm);
 			}
 			else if(index == 1)
 			{
@@ -53,6 +54,17 @@ package com.infy.stage
 			{
 				linkOrderRoom();
 			}
+		}
+		
+		private function reDesignRoom():void
+		{
+			StageManager.instance.changeStage(1);
+			onCloseConfirm();
+		}
+		
+		private function onCloseConfirm():void
+		{
+			game.ui.hideConfirmUI();
 		}
 		
 		private function linkOrderRoom():void

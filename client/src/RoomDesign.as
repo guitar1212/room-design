@@ -34,10 +34,7 @@ package
 		}
 		
 		protected function onAddToStage(event:Event):void
-		{
-			this.stage.scaleMode = StageScaleMode.NO_SCALE;
-			this.stage.align = StageAlign.TOP_LEFT;
-			
+		{	
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddToStage);
 			
 			parseWebParameters();

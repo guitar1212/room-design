@@ -214,6 +214,7 @@ package com.infy.game
 				view.y = (stage.stageHeight - View3DCons.HEIGHT)/2;
 				view.height = View3DCons.HEIGHT;
 			}
+			
 			ui.resize();
 		}
 		
@@ -261,16 +262,6 @@ package com.infy.game
 					obj.hideLoading();
 				}
 			}
-		}
-		
-		public function addObjectToScene(obj:ObjectContainer3D):void
-		{
-			
-		}
-		
-		public function remvoeObjectFromeScene(obj:ObjectContainer3D):void
-		{
-			
 		}
 
 	}
