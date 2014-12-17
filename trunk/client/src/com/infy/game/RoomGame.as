@@ -140,8 +140,8 @@ package com.infy.game
 		}
 		
 		public function show3DView():void
-		{
-			root.addChild(view);
+		{			
+			LayerManager.instance.addChildAt(view, Layer.VIEW_3D);
 			view.visible = true;
 		}
 		
@@ -150,7 +150,7 @@ package com.infy.game
 			if(view.parent)
 			{
 				view.visible = false;
-				root.removeChild(view);
+				view.parent.removeChild(view);
 			}
 				
 		}

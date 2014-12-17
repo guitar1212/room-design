@@ -33,6 +33,8 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			this.removeEventListener(Event.ADDED_TO_STAGE, onInit);
 			
+			this.stage.addEventListener(Event.RESIZE, onResize);
+			
 			var path:String = MAIN_SWF_NAME + "?";
 			var param:Object = this.loaderInfo.parameters;
 			
@@ -47,6 +49,12 @@ package
 			loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onLoadingProgress);
 			
 			showLoading();
+		}
+		
+		protected function onResize(event:Event = null):void
+		{
+			m_loading.x = (this.stage.stageWidth - 260)/2;
+			m_loading.y = 280;
 		}
 		
 		protected function onLoadingProgress(event:ProgressEvent):void
@@ -71,8 +79,7 @@ package
 			this.addChild(m_loading);
 			m_loading.loadObject = "下載中...";
 			m_loading.curProgress = 0;
-			m_loading.x = (this.stage.width + m_loading.width)/2;
-			m_loading.y = 300;
+			onResize();
 		}
 		
 		public function hideLoading():void

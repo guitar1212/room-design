@@ -39,9 +39,9 @@ package
 			
 			parseWebParameters();
 			
-			initLayer();
-			
 			initGame();
+			
+			initLayer();
 			
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
 			this.stage.addEventListener(Event.RESIZE, onResize);

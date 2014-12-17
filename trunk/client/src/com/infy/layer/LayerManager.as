@@ -78,6 +78,13 @@ package com.infy.layer
 		{
 			m_curLayer = value;
 		}
+		
+		public function layerMouseEnable(layer:int, enable:Boolean):void
+		{
+			var l:Sprite = m_layerList[layer] as Sprite;
+			//l.mouseEnabled = enable;
+			l.mouseChildren = enable;
+		}
 
 	}
 }

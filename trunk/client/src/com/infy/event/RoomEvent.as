@@ -15,6 +15,8 @@ package com.infy.event
 		
 		public static const CREATE_CAMERA:String = "create_camera";
 		
+		public static const LOAD_COMPLETED:String = "load_completed";
+		
 		public var object:Object = null;
 		
 		public var objType:String = "";
@@ -23,7 +25,7 @@ package com.infy.event
 		
 		public function RoomEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
-			super(type, bubbles, cancelable);			
+			super(type, bubbles, cancelable);
 		}
 		
 		

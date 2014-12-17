@@ -36,6 +36,16 @@ package com.infy.parser
 	{
 		private var m_game:GameBase = null;
 		
+		private var m_loadCommand:Array = [];
+		private var m_loadCount:int = 0;
+		
+		private var m_cameraCommand:Array = [];
+		
+		private var m_primitiveCommand:Array = [];
+		
+		private var m_lightCommand:Array = [];
+		
+		
 		public function RoomConfigParser(game:GameBase)
 		{
 			m_game = game;
@@ -60,8 +70,58 @@ package com.infy.parser
 		{
 			var urlLoader:URLLoader = event.target as URLLoader;
 			
-			parserRoom(urlLoader.data);
+			perpareCommand(urlLoader.data);
+			//parserRoom(urlLoader.data);
+			startLoading();
+		}
+		
+		private function startLoading():void
+		{
+			for(var i:int = 0; i < m_loadCommand.length; i++)
+			{
+				createPrimitives(m_loadCommand[i]);
+			}
+		}
+		
+		private function perpareCommand(data:String):void
+		{
+			m_loadCommand.length = 0;
+			m_cameraCommand.length = 0;
+			m_primitiveCommand.length = 0;
+			m_lightCommand.length = 0;
 			
+			data = data.replace(/[\r]/g, "");
+			var lines:Array = data.split("\n");
+			
+			for(var i:int = 0; i < lines.length; i++)
+			{
+				var raw:String = lines[i];
+				if(raw == "" || raw == "\n")
+					continue;
+				
+				var args:Array = raw.split("\t");
+				if(args[0] == "load")
+				{
+					m_loadCommand.push(args);
+				}
+				else if(args[0] == "camera")
+				{
+					m_cameraCommand.push(args);
+				}
+				else if(args[0] == "light")
+				{
+					m_lightCommand.push(args);
+				}
+				else if(args[0] == "sound")
+				{
+				}
+				else if(args[0] == "model")
+				{
+					m_loadCommand.push(args);
+				}
+				else
+					m_primitiveCommand.push(args);
+			}
 		}
 		
 		public function parserRoom(data:String):void
@@ -134,31 +194,9 @@ package com.infy.parser
 			var event:RoomEvent = new RoomEvent(RoomEvent.CREATE_CAMERA);
 			event.objType = "camera";
 			event.object = camInfo;
-			m_game.dispatchEvent(event);
-			/*
-			if(isDefault)
-			{
-				setCamera(camInfo, m_game.camera);
-			}	*/		
+			m_game.dispatchEvent(event);			
 		}
 		
-		/*private function setCamera(info:CameraInfo, camera:Camera3D):void
-		{
-			m_game.cameraController = null;
-			m_game.cameraController = new HoverController(camera);
-			m_game.cameraController.distance = info.distance;
-			m_game.cameraController.minTiltAngle = -15;
-			m_game.cameraController.maxTiltAngle = 90;
-			m_game.cameraController.panAngle = info.panAngle;
-			m_game.cameraController.tiltAngle = info.tiltAngle;
-			camera.lens.near = info.near;
-			camera.lens.far = info.far;
-			PerspectiveLens(camera.lens).fieldOfView = info.fov;
-			HoverController(m_game.cameraController).lookAtPosition = info.lookAt.clone();
-			
-			//setCameraInfo(cameraController);
-			//m_cameraModifyUI.target = cameraController; 
-		}*/
 		
 		private function createPrimitives(args:Array):void
 		{
@@ -345,7 +383,29 @@ package com.infy.parser
 			var roomEvent:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
 			roomEvent.objType = "load_model";
 			roomEvent.object = event.target as Loader3D;
-			m_game.dispatchEvent(roomEvent);			
+			m_game.dispatchEvent(roomEvent);
+			
+			m_loadCount++;
+			if(m_loadCount >= m_loadCommand.length)
+			{
+				var e:RoomEvent = new RoomEvent(RoomEvent.LOAD_COMPLETED);
+				m_game.dispatchEvent(e);
+			
+				excutePrivimiteCommand();
+				excuteCameraCommand();
+			}
+		}
+		
+		private function excutePrivimiteCommand():void
+		{
+			for(var i:int = 0; i < m_primitiveCommand.length; i++)
+				createPrimitives(m_primitiveCommand[i]);
+		}
+		
+		private function excuteCameraCommand():void
+		{
+			for(var i:int = 0; i < m_cameraCommand.length; i++)
+				parseCameraInfo(m_cameraCommand[i]);
 		}
 	}
 }
