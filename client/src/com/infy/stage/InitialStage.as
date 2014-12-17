@@ -101,7 +101,7 @@ package com.infy.stage
 			for(var i:int = 0; i < hotelInfo.roomCounts; i++)
 			{
 				var room:RoomInfo = new RoomInfo();
-				room.id = "room" + i;
+				room.id = "room0" + (i+1);
 				room.roomName = "room" + i;
 				room.describtion = "這是第 " + i + " 個房間!";
 				room.numViewPoints = 2;			
