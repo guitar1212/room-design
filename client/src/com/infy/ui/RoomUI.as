@@ -1,5 +1,6 @@
 package com.infy.ui
 {
+	import com.infy.constant.View3DCons;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
 	
@@ -85,7 +86,7 @@ package com.infy.ui
 			if(m_confirm)
 			{
 				m_confirm.x = (stage.width - m_confirm.width)/2;
-				m_confirm.y = 280;
+				m_confirm.y = View3DCons.GAP_TOP + View3DCons.HEIGHT/2;
 			}
 		}
 			
@@ -106,12 +107,16 @@ package com.infy.ui
 			
 			LayerManager.instance.addChildAt(m_confirm, Layer.TOP);
 			resize();
+			
+			LayerManager.instance.layerMouseEnable(Layer.UI, false);
 		}
 		
 		public function hideConfirmUI():void
 		{
 			LayerManager.instance.curLayerIndex = Layer.TOP;
 			LayerManager.instance.removeChild(m_confirm);
+			
+			LayerManager.instance.layerMouseEnable(Layer.UI, true);
 		}
 		
 	}

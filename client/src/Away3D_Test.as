@@ -68,6 +68,7 @@ package
 	import away3d.primitives.WireframeCube;
 	import away3d.primitives.WireframePrimitiveBase;
 	import away3d.textures.BitmapTexture;
+	import away3d.tools.utils.Drag3D;
 	import away3d.utils.Cast;
 	
 	import com.infy.camera.CameraInfo;
@@ -121,6 +122,10 @@ package
 		private var game:EditRoomGame;
 		
 		private var roomParser:RoomConfigParser;
+		
+		private var m_objMenu:ClickMenuUI;
+		
+		private var m_loading:LoadingSimpleUI;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -255,6 +260,13 @@ package
 		
 		private function initUI():void
 		{
+			m_objMenu = new ClickMenuUI();
+			m_objMenu.menuArray = ['移動', '旋轉', '刪除'];
+			m_objMenu.cbMenuClick = onObjectMenuClick;
+			
+			m_loading = new LoadingSimpleUI();
+			
+			
 			// OBJ Editor
 			m_objeditor = new TextEditorBaseUI(250, 350,  onCreateObject, null);			
 			this.addChild(m_objeditor);
@@ -272,7 +284,7 @@ package
 			m_pathInput.width = 300;			
 			m_pathInput.height = 20;
 			//m_pathInput.text = '..\\assets\\obj\\bear2\\bear001.obj';
-			m_pathInput.text = '..\\assets\\obj\\emma\\model_mesh.obj';
+			m_pathInput.text = '..\\assets\\model\\obj\\sofa\\sofa.obj';
 			m_pathInput.x = 200;
 			m_pathInput.y = 5;
 			m_pathInput.addEventListener(KeyboardEvent.KEY_DOWN, onPathInputChange);
@@ -285,12 +297,19 @@ package
 			inputBtn.addEventListener(MouseEvent.CLICK, onInputEnter);			
 			this.addChild(inputBtn);
 			
+			var objBrowser:Button = new Button();
+			objBrowser.label = "ObjBrowser";
+			objBrowser.x = inputBtn.x;
+			objBrowser.y = m_pathInput.y + 25;
+			objBrowser.addEventListener(MouseEvent.CLICK, onBrowserRoomConfig);			
+			this.addChild(objBrowser);
+			
 			// input room config loading
 			m_roomPathInput = new TextInput();
 			m_roomPathInput.width = 300;			
 			m_roomPathInput.height = 20;
 			m_roomPathInput.text = '..\\assets\\setting\\room\\room01';
-			m_roomPathInput.x = inputBtn.x + inputBtn.width + 15;
+			m_roomPathInput.x = inputBtn.x + inputBtn.width + 45;
 			m_roomPathInput.y = m_pathInput.y;			
 			this.addChild(m_roomPathInput);
 			
@@ -526,7 +545,7 @@ package
 			//
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
 			game.addEventListener(RoomEvent.CREATE_CAMERA, onRoomCameraCreate);
-			
+			game.addEventListener(RoomEvent.LOAD_COMPLETED, onRoomObjectsLoadCompleted);
 			onResize();
 		}
 		
@@ -580,11 +599,15 @@ package
 			m_underButtonList.push(deleteObjBtn);*/
 		}
 
+		private var ground:ObjectContainer3D;
 		private function onRoomObjectCreate(event:RoomEvent):void
 		{
 			var o:ObjectContainer3D = event.object as ObjectContainer3D;
 			
 			if(o == null) return;
+			
+			if(o.name == "ground")
+				ground = o;
 			
 			addToScene(o);
 			
@@ -611,6 +634,11 @@ package
 			
 			if(camInfo.isDefault)
 				setCamera(camInfo, game.camera);
+		}
+		
+		private function onRoomObjectsLoadCompleted(event:RoomEvent):void
+		{
+			hideLoading();
 		}
 			
 		protected function onPathInputChange(event:KeyboardEvent):void
@@ -672,11 +700,17 @@ package
 		}
 		
 		private function onBrowserRoomConfig(e:MouseEvent):void
-		{
+		{		
+			m_file = null;
 			m_file = new FileReference();
-			m_file.addEventListener(Event.SELECT, onRoomConfigFileSelect);
-			m_file.addEventListener(Event.COMPLETE, onLoadRoomConfigComplete);
-			m_file.browse([new FileFilter("RoomConfig", "*.*")]);
+			m_file.addEventListener(Event.SELECT, onRoomConfigFileSelect, false, 0, true);
+			m_file.addEventListener(Event.COMPLETE, onLoadRoomConfigComplete, false, 0, true);
+			
+			var b:Button = e.target as Button;
+			if(b.label == "ObjBrowser")
+				m_file.browse([new FileFilter("OBJ", "*.obj")]);
+			else
+				m_file.browse([new FileFilter("RoomConfig", "*.*")]);
 			
 		}
 		
@@ -685,14 +719,32 @@ package
 			var fileName:String = m_file.name;
 						
 			m_file.load();
-			
+		}
+		
+		private function showLoading():void
+		{
+			//m_loading.x = (stage.stageWidth + View3DCons.WIDTH)/2;
+			m_loading.x = game.view.x + game.view.width/2 - 5;
+			m_loading.y = 250;
+			this.addChild(m_loading);
+		}
+		
+		private function hideLoading():void
+		{
+			this.removeChild(m_loading);
 		}
 		
 		protected function onLoadRoomConfigComplete(event:Event):void
 		{
 			// TODO Auto-generated method stub
 			//parserRoom(event.target.data.toString());
-			roomParser.parserRoom(event.target.data.toString());
+			if(m_file.type == ".obj")
+				onCreateObject(event.target.data.toString());
+			else
+			{
+				roomParser.parserRoom(event.target.data.toString());
+				showLoading();
+			}
 		}
 		
 		private var m_wireframeState:int = 0;
@@ -951,6 +1003,14 @@ package
 				m_cameraModifyUI.refresh();
 			}
 			
+			if(tempDragObj)
+			{
+				if(tempDragObj.object3d.scenePosition.x < (ground.maxX + ground.scenePosition.x))
+					tempDragObj.updateDrag();
+				else
+					tempDragObj.object3d.scenePosition.x = (ground.maxX + ground.scenePosition.x) - 1;
+			}
+			
 			//light1.direction = new Vector3D(Math.sin(getTimer()/10000)*150000, 1000, Math.cos(getTimer()/10000)*150000);
 			
 			//cube.roll(1);
@@ -1074,6 +1134,8 @@ package
 		{
 			var path:String = m_roomPathInput.text;
 			loadRoomSetting(path);
+			
+			showLoading();
 		}
 		
 		private function loadRoomSetting(roomPath:String):void
@@ -1222,7 +1284,10 @@ package
 				m_lightModifyUI.target = o as LightBase;
 			}
 			this.stage.focus = stage;
+			
+			showObjMenu();
 		}
+		
 		
 		private function onSceneObjectViewButtonResponse(btnIndex:int):void
 		{
@@ -1345,9 +1410,10 @@ package
 				setObjectInfo(null);
 				m_curSelectObject = null;
 				wireframeBtn.enabled = false;
+				
+				hideObjMenu();
 			}
 		}
-		
 		
 		protected function on3DObjeMouseDown(event:MouseEvent3D):void
 		{
@@ -1829,5 +1895,72 @@ package
 				return false;
 			}*/
 		}
+		
+		private var tempObj:ObjectContainer3D = null;
+		private var tempDragObj:Drag3D;
+		private function onObjectMenuClick(id:int):void
+		{
+			if(id == 0)
+			{
+				// move obj
+				if(m_curSelectObject)
+				{
+					tempObj = null;
+					tempObj = m_curSelectObject.clone() as ObjectContainer3D;
+					//tempObj.addEventListener(MouseEvent3D.MOUSE_MOVE, onMoveObject3D, false, 0, true);
+					game.addObjectToScene(tempObj);
+					tempDragObj = new Drag3D(game.view, tempObj);
+					tempDragObj.offsetCenter = true;
+					tempDragObj.debug = true;
+					if(ground)
+						tempDragObj.planeObject3d = ground;
+				}
+			}
+			else if(id == 1)
+			{
+				// rotete obj
+				if(m_curSelectObject)
+				{
+					m_curSelectObject.rotationY += 45;
+				}
+			}
+			else if(id == 2)
+			{
+				// delete obj
+				deleteSceneObject(m_curSelectObject)
+				cleanItemSelect();
+			}
+		}
+		
+		protected function onMoveObject3D(event:MouseEvent3D):void
+		{
+			if(tempObj)
+				tempObj.position = event.scenePosition;
+			
+		}
+		
+		private function showObjMenu():void
+		{
+			var dx:int;
+			var dy:int;
+			if(stage.mouseX > stage.stageWidth/2)
+				dx = stage.mouseX - 50;
+			else
+				dx = stage.mouseX + 50;
+			
+			if(stage.mouseY > stage.stageHeight/2)
+				dy = stage.mouseY - 50;
+			else
+				dy = stage.mouseY + 50;
+			
+			m_objMenu.x = dx;
+			m_objMenu.y = dy;
+			this.addChild(m_objMenu);
+		}
+		
+		private function hideObjMenu():void
+		{
+			this.removeChild(m_objMenu);
+		}	
 	}
 }
