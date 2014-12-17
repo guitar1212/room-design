@@ -4,6 +4,7 @@
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
+	import flash.display.SimpleButton;
 	
 	public class WebDesignUIBase extends MovieClip
 	{
@@ -33,7 +34,7 @@
 		
 		public function set curStep(step:int):void
 		{			
-			this["nextBtn"].visible = (step != 2);
+			(this["nextStepBtn"] as SimpleButton).visible = (step != 2);
 			this["miniAnchor"].visible = (step != 1);
 			
 			this["labelAnchor"].visible = (step == 0);
@@ -132,7 +133,7 @@
 				btn.btnName = btnNameArr[i];
 				btn.btnId = String(i);
 				m_btnArr.push(btn);
-				this["btnAnchor"].addChild(m_btnArr[i]);
+				this["btnAnchor"].addChild(m_btnArr[i] as SimpleButton);
 				m_btnArr[i].cbChooseBtnClick = onBtnChooseClick;
 			}
 			
@@ -211,7 +212,7 @@
 			}
 			this["titleTf"].mouseEnabled = false;
 			this["roomIntroTf"].mouseEnabled = false;
-			this["nextBtn"].addEventListener(MouseEvent.CLICK, onBtnClick);
+			(this["nextStepBtn"] as SimpleButton).addEventListener(MouseEvent.CLICK, onBtnClick);
 			
 		}
 		

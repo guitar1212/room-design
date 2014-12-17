@@ -4,6 +4,7 @@
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
+	import flash.display.SimpleButton;
 	
 	public class PageChooseItemBase extends MovieClip
 	{
@@ -15,8 +16,7 @@
 		private var m_labelArr:Array = null;
 		private var m_goodsArr:Array = null;
 		private var m_itemCount:int = 0;
-		private var m_pageMaxItem:int = 5;
-		
+		private var m_pageMaxItem:int = 5;		
 		
 		public function PageChooseItemBase()
 		{
@@ -74,6 +74,8 @@
 				m_goodsArr.push(goodsItem);
 				m_goodsArr[i].x = 127 * i;
 				m_goodsArr[i].setPic(arr[i].itemIcon);
+				m_goodsArr[i].setCount(arr[i].itemCount);
+				m_goodsArr[i].setItemEnable(arr[i].itemEnabled);
 				m_goodsArr[i].setId(arr[i].id);
 				this["itemAnchor"].addChild(m_goodsArr[i]);
 				m_goodsArr[i].cbItemDown = onItemDown;
@@ -99,9 +101,9 @@
 		
 		private function initUI():void
 		{
-			this["nextBtn"].addEventListener(MouseEvent.CLICK, onNextClick);
-			this["preBtn"].addEventListener(MouseEvent.CLICK, onPreClick);
-			this["preBtn"].visible = false;
+			(this["nextBtn"] as SimpleButton).addEventListener(MouseEvent.CLICK, onNextClick);
+			(this["preBtn"] as SimpleButton).addEventListener(MouseEvent.CLICK, onPreClick);
+			(this["preBtn"] as SimpleButton).visible = false;
 		}
 		
 		private function onItemDown(id:String):void
@@ -131,15 +133,15 @@
 		{	
 			m_pageMaxItem++;
 			this["itemAnchor"].x -= 127;
-			this["nextBtn"].visible = !(m_pageMaxItem >= m_itemCount);
-			this["preBtn"].visible = true;
+			(this["nextBtn"] as SimpleButton).visible = !(m_pageMaxItem >= m_itemCount);
+			(this["preBtn"] as SimpleButton).visible = true;
 		}
 		private function onPreClick(e:MouseEvent):void
 		{
 			m_pageMaxItem--;
 			this["itemAnchor"].x += 127;
-			this["nextBtn"].visible = true;
-			this["preBtn"].visible = (m_pageMaxItem >= 6);
+			(this["nextBtn"] as SimpleButton).visible = true;
+			(this["preBtn"] as SimpleButton).visible = (m_pageMaxItem >= 6);
 		}
 
 	}
