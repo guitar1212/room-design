@@ -29,7 +29,7 @@ package com.infy.path
 		
 		public static function get ROOM_SETTING_PATH():String
 		{
-			return ASSET_ROOT_PATH + "/segging/room/"
+			return ASSET_ROOT_PATH + "/setting/room/"
 		}
 	}
 }

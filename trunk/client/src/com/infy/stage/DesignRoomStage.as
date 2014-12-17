@@ -1,8 +1,10 @@
 package com.infy.stage
 {
+	import com.infy.event.RoomEvent;
 	import com.infy.game.RoomGame;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
+	import com.infy.parser.RoomConfigParser;
 	import com.infy.path.GamePath;
 	import com.infy.resource.getIcon;
 	import com.infy.str.StringTable;
@@ -32,6 +34,8 @@ package com.infy.stage
 		
 		private var m_bGoodsMoving:Boolean = false;
 		
+		private var m_roomParser:RoomConfigParser = null;
+		
 		public function DesignRoomStage(game:RoomGame)
 		{
 			super(game);
@@ -41,20 +45,30 @@ package com.infy.stage
 		{
 			super.initilaize();
 			game.ui.type = 1;
-			game.ui.showLoading("下載房間資訊...");
+			game.ui.showSimpleLoading("下載房間資訊...");
 			game.ui.loadingProgress = 100;
 			game.ui.cbMouseClick = onNextStage;
 			game.ui.cbLabelItemClick = onLabelItemClick;
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
 			
+			game.addEventListener(RoomEvent.LOAD_COMPLETED, onLoadRoomObjectCompleted);
+			
 			// show 3d view
 			game.show3DView();
+			
+			if(m_roomParser == null)
+				m_roomParser = new RoomConfigParser(game);
 			
 			initRoom();
 			init3D();
 			
 			//test
 			test();
+		}
+		
+		protected function onLoadRoomObjectCompleted(event:RoomEvent):void
+		{
+			game.ui.hideSimpleLoading();
 		}
 		
 		override public function release():void
@@ -64,7 +78,7 @@ package com.infy.stage
 			game.ui.cbLabelItemClick = null;
 			game.ui.cbGoodsItemDown = null;
 			
-			game.ui.hideLoading();
+			game.ui.hideSimpleLoading();
 		}
 		
 		private function test():void
@@ -81,7 +95,7 @@ package com.infy.stage
 		
 		private function initRoom():void
 		{
-			
+			m_roomParser.loadRoomSetting(game.roomID);
 		}	
 		
 		

@@ -4,9 +4,6 @@ package com.infy.ui
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
 	
-	import flash.display.Bitmap;
-	import flash.display.Sprite;
-	
 	/**
 	 * 
 	 * @long  Nov 26, 2014
@@ -15,6 +12,7 @@ package com.infy.ui
 	public class RoomUI extends WebDesignUI
 	{
 		private var m_loading:LoadingUI;
+		private var m_simpleLoading:LoadingSimpleUI;
 		private var m_confirm:ConfirmUI;
 		private var m_loadingProgress:int = 0;
 		
@@ -40,7 +38,22 @@ package com.infy.ui
 			curStep = _type;			
 		}
 		
+		public function showSimpleLoading(msg:String = ""):void
+		{
+			if(m_simpleLoading == null)
+				m_simpleLoading = new LoadingSimpleUI();
+			
+			m_simpleLoading.loadObject = msg;
+			LayerManager.instance.addChildAt(m_simpleLoading, Layer.TOP);
+		}
 		
+		public function hideSimpleLoading():void
+		{
+			if(m_simpleLoading.parent)
+			{
+				m_simpleLoading.parent.removeChild(m_simpleLoading);
+			}	
+		}
 		
 		public function showLoading(msg:String = ""):void
 		{
