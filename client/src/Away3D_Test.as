@@ -634,7 +634,7 @@ package
 			createCameraInfo(camInfo);
 			
 			if(camInfo.isDefault)
-				setCamera(camInfo, game.camera);
+				setCamera(camInfo);
 		}
 		
 		private function onRoomObjectsLoadCompleted(event:RoomEvent):void
@@ -1146,7 +1146,7 @@ package
 		
 		
 		
-		private function setCamera(info:CameraInfo, camera:Camera3D):void
+		private function setCamera(info:CameraInfo):void
 		{
 			game.setCamera(info);
 			
@@ -1158,7 +1158,7 @@ package
 		{
 			var info:CameraInfo = CameraInfoManager.instance.getCameraInfo(camName);
 			if(info)
-				setCamera(info, game.camera);
+				setCamera(info);
 		}
 		
 		private function onCameraUIButtonClick(btnIndex:int):void
