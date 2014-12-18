@@ -1,5 +1,11 @@
 package com.infy.stage
 {
+	import away3d.containers.ObjectContainer3D;
+	import away3d.entities.Mesh;
+	import away3d.events.MouseEvent3D;
+	import away3d.loaders.Loader3D;
+	
+	import com.infy.camera.CameraInfo;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.RoomGame;
 	import com.infy.layer.Layer;
@@ -52,6 +58,8 @@ package com.infy.stage
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
 			
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onLoadRoomObjectCompleted);
+			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
+			game.addEventListener(RoomEvent.CREATE_CAMERA, onCameraCreate);
 			
 			// show 3d view
 			game.show3DView();
@@ -64,6 +72,46 @@ package com.infy.stage
 			
 			//test
 			test();
+		}
+		
+		protected function onCameraCreate(event:RoomEvent):void
+		{
+			var camInfo:CameraInfo = event.object as CameraInfo;
+			//createCameraInfo(camInfo);
+			
+			if(camInfo.isDefault)
+				game.setCamera(camInfo);
+		}
+		
+		private function onRoomObjectCreate(event:RoomEvent):void
+		{
+			var o:ObjectContainer3D = event.object as ObjectContainer3D;
+			
+			if(o == null) return;
+			
+			/*if(o.name == "ground")
+				ground = o;*/
+			
+			game.addObjectToScene(o);
+			
+			if(o is Mesh)
+			{				
+				(o as Mesh).material.lightPicker = game.lightPicker;
+			}
+			else if(o is Loader3D)
+			{				
+				//addObjectContainerToScene(o);
+				game.prepareObjectContainer(o);
+			}
+			
+			o.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
+			//game.addObjectToScene(event.object as ObjectContainer3D);
+		}
+		
+		protected function on3DObjeMouseDown(event:MouseEvent3D):void
+		{
+			// TODO Auto-generated method stub
+			
 		}
 		
 		protected function onLoadRoomObjectCompleted(event:RoomEvent):void
