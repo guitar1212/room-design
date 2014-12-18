@@ -619,7 +619,8 @@ package
 			else if(o is Loader3D)
 			{
 				m_objList.push(event.object);
-				addObjectContainerToScene(o);
+				//addObjectContainerToScene(o);
+				game.prepareObjectContainer(o);
 			}
 			
 			
@@ -1147,17 +1148,7 @@ package
 		
 		private function setCamera(info:CameraInfo, camera:Camera3D):void
 		{
-			game.cameraController = null;
-			game.cameraController = new HoverController(camera);
-			game.cameraController.distance = info.distance;
-			game.cameraController.minTiltAngle = -15;
-			game.cameraController.maxTiltAngle = 90;
-			game.cameraController.panAngle = info.panAngle;
-			game.cameraController.tiltAngle = info.tiltAngle;
-			camera.lens.near = info.near;
-			camera.lens.far = info.far;
-			PerspectiveLens(camera.lens).fieldOfView = info.fov;
-			HoverController(game.cameraController).lookAtPosition = info.lookAt.clone();
+			game.setCamera(info);
 			
 			setCameraInfo(game.cameraController);
 			m_cameraModifyUI.target = game.cameraController;
@@ -1594,14 +1585,15 @@ package
 			var mesh:Mesh;
 			var len:uint = (event.target as Loader3D).numChildren;
 			
-			addObjectContainerToScene(event.target as ObjectContainer3D);
+			//addObjectContainerToScene(event.target as ObjectContainer3D);
+			game.prepareObjectContainer(event.target as ObjectContainer3D);
 			
 			this.addToScene(event.target as ObjectContainer3D);
 			
 			event.target.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);			
 		}
 		
-		private function addObjectContainerToScene(container:ObjectContainer3D):void
+		/*private function addObjectContainerToScene(container:ObjectContainer3D):void
 		{
 			var i:int = 0, len:int = container.numChildren;
 			for(i; i < len; i++)
@@ -1628,7 +1620,7 @@ package
 				}
 					
 			}
-		}
+		}*/
 		
 		protected function onAssetCompleted(event:AssetEvent):void
 		{

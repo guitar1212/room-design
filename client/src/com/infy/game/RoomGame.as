@@ -31,6 +31,7 @@ package com.infy.game
 	
 	import flash.display.Sprite;
 	import flash.display.Stage;
+	import flash.geom.Vector3D;
 	import flash.ui.Keyboard;
 
 	/**
@@ -128,6 +129,10 @@ package com.infy.game
 			var light:DirectionalLight = new DirectionalLight();
 			light.ambient = 1;
 			light.diffuse = 1;
+			light.direction = new Vector3D(0, -1, 0);
+			light.name = LightInfo.MAIN_LIGHT;			
+			/*light1.castsShadows = true;
+			light1.shadowMapper.depthMapSize = 2048;*/
 						
 			scene.addChild(light);
 			

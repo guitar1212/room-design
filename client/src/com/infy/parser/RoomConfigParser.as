@@ -1,9 +1,6 @@
 package com.infy.parser
 {
-	import away3d.cameras.Camera3D;
-	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
-	import away3d.controllers.HoverController;
 	import away3d.entities.Mesh;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
@@ -18,7 +15,11 @@ package com.infy.parser
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.GameBase;
-	import com.infy.game.RoomGame;
+	import com.infy.parser.command.CameraParserCommand;
+	import com.infy.parser.command.IParserCommand;
+	import com.infy.parser.command.LoadParserCommand;
+	import com.infy.parser.command.ParserCommandType;
+	import com.infy.parser.command.PrimitiveParserCommand;
 	import com.infy.path.GamePath;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
@@ -29,19 +30,17 @@ package com.infy.parser
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.ByteArray;
-	
-	import mx.utils.object_proxy;
 
 	public class RoomConfigParser
 	{
 		private var m_game:GameBase = null;
 		
-		private var m_loadCommand:Array = [];
+		private var m_loadCommand:Vector.<LoadParserCommand> = new Vector.<LoadParserCommand>();
 		private var m_loadCount:int = 0;
 		
-		private var m_cameraCommand:Array = [];
+		private var m_cameraCommand:Vector.<CameraParserCommand> = new Vector.<CameraParserCommand>();		
 		
-		private var m_primitiveCommand:Array = [];
+		private var m_primitiveCommand:Vector.<PrimitiveParserCommand> = new Vector.<PrimitiveParserCommand>();
 		
 		private var m_lightCommand:Array = [];
 		
@@ -71,17 +70,10 @@ package com.infy.parser
 			var urlLoader:URLLoader = event.target as URLLoader;
 			
 			perpareCommand(urlLoader.data);
-			//parserRoom(urlLoader.data);
-			startLoading();
+			
+			excuteLoadCommand();
 		}
 		
-		private function startLoading():void
-		{
-			for(var i:int = 0; i < m_loadCommand.length; i++)
-			{
-				createPrimitives(m_loadCommand[i]);
-			}
-		}
 		
 		private function perpareCommand(data:String):void
 		{
@@ -100,29 +92,38 @@ package com.infy.parser
 					continue;
 				
 				var args:Array = raw.split("\t");
-				if(args[0] == "load")
+				var cmd:String = args[0];
+				
+				
+				if(cmd == "load")
 				{
 					m_loadCommand.push(args);
 				}
-				else if(args[0] == "camera")
+				else if(cmd == "camera")
 				{
-					m_cameraCommand.push(args);
+					m_cameraCommand.push(new CameraParserCommand(m_game, args));
 				}
-				else if(args[0] == "light")
+				else if(cmd == "light")
 				{
 					m_lightCommand.push(args);
 				}
-				else if(args[0] == "sound")
+				else if(cmd == "sound")
 				{
 				}
-				else if(args[0] == "model")
+				else if(cmd == "model")
 				{
-					m_loadCommand.push(args);
+					var loadCmd:LoadParserCommand = new LoadParserCommand(m_game, args);
+					loadCmd.excuteMethod = loadModel;
+					m_loadCommand.push(loadCmd);
 				}
-				else
-					m_primitiveCommand.push(args);
+				else if(cmd == ParserCommandType.BOX || cmd == ParserCommandType.PLANE || cmd == ParserCommandType.SPHERE)
+				{
+					var primiCmd:PrimitiveParserCommand = new PrimitiveParserCommand(m_game, args);					
+					m_primitiveCommand.push(primiCmd);
+				}
 			}
 		}
+		
 		
 		public function parserRoom(data:String):void
 		{
@@ -139,11 +140,7 @@ package com.infy.parser
 				if(args[0] == "load")
 					parserLoadCommand(args)
 				else if(args[0] == "camera")
-					parseCameraInfo(args);
-					/*else if(args[0] == "light")
-					parseLightInfo(args);
-					else if(args[0] == "sound")
-					parsSoundInfo(args);*/
+					parseCameraInfo(args);					
 				else
 					createPrimitives(args);
 			}
@@ -396,16 +393,56 @@ package com.infy.parser
 			}
 		}
 		
+		private function excuteLoadCommand():void
+		{
+			for(var i:int = 0; i < m_loadCommand.length; i++)
+			{
+				//createPrimitives(m_loadCommand[i]);
+				m_loadCommand[i].excute();
+			}
+		}
+		
 		private function excutePrivimiteCommand():void
 		{
 			for(var i:int = 0; i < m_primitiveCommand.length; i++)
-				createPrimitives(m_primitiveCommand[i]);
+				m_primitiveCommand[i].excute();
+				//createPrimitives(m_primitiveCommand[i]);
 		}
 		
 		private function excuteCameraCommand():void
 		{
 			for(var i:int = 0; i < m_cameraCommand.length; i++)
-				parseCameraInfo(m_cameraCommand[i]);
+			{
+				m_cameraCommand[i].excute();
+				//parseCameraInfo(m_cameraCommand[i]);
+			}
+		}
+		
+		public function get data():String
+		{
+			var str:String = "";
+			var cmd:IParserCommand
+			for each(cmd in m_cameraCommand)
+			{
+				str += cmd.toString() + "\n";
+			}
+			
+			for each(cmd in m_lightCommand)
+			{
+				str += cmd.toString() + "\n";
+			}
+			
+			for each(cmd in m_primitiveCommand)
+			{
+				str += cmd.toString() + "\n";
+			}
+			
+			for each(cmd in m_loadCommand)
+			{
+				str += cmd.toString() + "\n";
+			}
+			
+			return str;
 		}
 	}
 }

@@ -19,7 +19,7 @@ package com.infy.util.primitive
 		}
 		
 		public function parser(args:Array):void
-		{
+		{			
 			name = args.shift();
 			type = args.shift();
 			var posArr:Array = String(args.shift()).split(",");
