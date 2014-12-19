@@ -35,12 +35,19 @@ package com.infy.parser.command
 				var rot3:Array = [rotation.x, rotation.y, rotation.z];
 				var s3:Array = [size.x, size.y, size.z];
 				
-				excuteMethod(path, type, pos3, rot3, 1, s3);
+				target = excuteMethod(path, type, pos3, rot3, 1, s3);
 			}
 		}
 		
 		override public function toString():String
 		{
+			if(target)
+			{
+				position = target.position;
+				rotation.x = target.rotationX;
+				rotation.y = target.rotationY;
+				rotation.z = target.rotationZ;
+			}
 			return super.toString();
 		}
 	}

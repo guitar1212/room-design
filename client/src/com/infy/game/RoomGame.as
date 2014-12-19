@@ -177,8 +177,9 @@ package com.infy.game
 			m_curRoomID = id;
 		}
 		
-		public function update():void
+		override public function update():void
 		{
+			super.update();
 			StageManager.instance.onUpdate();
 			TaskManager.instance.update();
 		}

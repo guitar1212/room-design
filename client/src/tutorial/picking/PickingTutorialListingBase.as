@@ -49,6 +49,13 @@ package tutorial.picking
 			addEventListener( Event.ENTER_FRAME, enterframeHandler );
 		}
 		
+		private function release(e:Event):void
+		{
+			stage.removeEventListener( MouseEvent.MOUSE_DOWN, stageMouseDownHandler );
+			stage.removeEventListener( MouseEvent.MOUSE_UP, stageMouseUpHandler );
+			stage.removeEventListener( MouseEvent.MOUSE_WHEEL, stageMouseWheelHandler );
+		}
+		
 		private function initStage():void {
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
@@ -97,6 +104,7 @@ package tutorial.picking
 		
 		private function addedToStageHandler( event:Event ):void {
 			removeEventListener( Event.ADDED_TO_STAGE, addedToStageHandler );
+			addEventListener(Event.REMOVED_FROM_STAGE, release);
 			initialize();
 		}
 		

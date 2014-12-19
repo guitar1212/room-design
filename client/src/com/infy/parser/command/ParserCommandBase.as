@@ -1,5 +1,7 @@
 package com.infy.parser.command
 {
+	import away3d.containers.ObjectContainer3D;
+	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Vector3D;
@@ -16,6 +18,8 @@ package com.infy.parser.command
 		private var m_excuteMethod:Function = null;
 		
 		private var m_rawData:Array = null;
+		
+		private var m_target:ObjectContainer3D = null;
 		
 		public function ParserCommandBase(dispatcher:EventDispatcher, args:Array = null)
 		{
@@ -94,5 +98,16 @@ package com.infy.parser.command
 		{
 			return m_dispatcher.dispatchEvent(event);
 		}
+
+		public function get target():ObjectContainer3D
+		{
+			return m_target;
+		}
+
+		public function set target(value:ObjectContainer3D):void
+		{
+			m_target = value;
+		}
+
 	}
 }

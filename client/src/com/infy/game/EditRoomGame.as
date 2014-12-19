@@ -5,9 +5,11 @@ package com.infy.game
 	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
 	import away3d.debug.AwayStats;
 	import away3d.lights.DirectionalLight;
 	import away3d.lights.LightBase;
+	import away3d.lights.PointLight;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.DAEParser;
 	import away3d.loaders.parsers.Max3DSParser;
@@ -30,6 +32,8 @@ package com.infy.game
 	public class EditRoomGame extends GameBase
 	{
 		public var noShadowLightPicker:StaticLightPicker;
+		
+		private var camLight:PointLight;
 		
 		public function EditRoomGame(root:Sprite)
 		{
@@ -59,13 +63,14 @@ package com.infy.game
 			view.backgroundColor = View3DCons.BACKGROUND_COLOR;
 			view.width = View3DCons.WIDTH;
 			view.height = View3DCons.HEIGHT;
+			
 			//setup controller to be used on the camera
-			/*cameraController = new HoverController(camera);
+			cameraController = new HoverController(camera);
 			cameraController.distance = 150;
 			cameraController.minTiltAngle = -15;
 			cameraController.maxTiltAngle = 90;
 			cameraController.panAngle = 45;
-			cameraController.tiltAngle = 20;*/
+			cameraController.tiltAngle = 20;
 			
 			view.addSourceURL("srcview/index.html");
 			root.addChild(view);
@@ -88,8 +93,7 @@ package com.infy.game
 			light1.name = LightInfo.MAIN_LIGHT;
 			light1.castsShadows
 			/*light1.castsShadows = true;
-			light1.shadowMapper.depthMapSize = 2048;*/
-			//addToScene(light1);
+			light1.shadowMapper.depthMapSize = 2048;*/			
 			addLight(light1);
 			
 			var light2:DirectionalLight = new DirectionalLight();
@@ -97,12 +101,15 @@ package com.infy.game
 			light2.color = 0xFFFFFF;
 			light2.ambient = 0.1;
 			light2.diffuse = 0.7;
-			light2.name = "no_shadow_light";
-			//addToScene(light2);
-			addLight(light2);
+			light2.name = "no_shadow_light";			
+			//addLight(light2);
 			
-			lightPicker = new StaticLightPicker([light1]);
+			camLight = new PointLight();
+			
+			lightPicker = new StaticLightPicker([camLight]);
 			noShadowLightPicker = new StaticLightPicker([light2]);
+			
+			
 		}
 		
 		
@@ -124,6 +131,11 @@ package com.infy.game
 		override public function remvoeObjectFromeScene(obj:ObjectContainer3D):void
 		{
 			super.remvoeObjectFromeScene(obj);
+		}
+		
+		override public function update():void
+		{
+			camLight.position = camera.position;
 		}
 	}
 }

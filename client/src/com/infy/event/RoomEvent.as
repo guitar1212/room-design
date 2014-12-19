@@ -15,6 +15,8 @@ package com.infy.event
 		
 		public static const CREATE_CAMERA:String = "create_camera";
 		
+		public static const CREATE_LIGHT:String = "create_light";
+		
 		public static const LOAD_COMPLETED:String = "load_completed";
 		
 		public var object:Object = null;
