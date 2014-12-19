@@ -85,7 +85,6 @@ package
 	import com.infy.ui.Modify3DObjectUI;
 	import com.infy.ui.ModifyCameraUI;
 	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.RoomUI;
 	import com.infy.ui.TextEditorBaseUI;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
@@ -107,7 +106,6 @@ package
 	import flash.geom.Vector3D;
 	import flash.net.FileFilter;
 	import flash.net.FileReference;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.ui.Keyboard;
@@ -372,6 +370,7 @@ package
 			m_cameraModifyUI = new ModifyCameraUI();
 			m_cameraModifyUI.x = 700;
 			m_cameraModifyUI.y = m_meshInfo.y;
+			m_cameraModifyUI.target = game.cameraController;
 			m_cameraModifyUI.checkCallback = toggleCameraLocked;
 			this.addChild(m_cameraModifyUI);
 			m_cameraModifyUI.addEventListener(CameraEvent.CHANGE, onCameraInfoChange);
@@ -743,7 +742,7 @@ package
 				onCreateObject(event.target.data.toString());
 			else
 			{
-				roomParser.parserRoom(event.target.data.toString());
+				roomParser.parserRoomConfig(event.target.data.toString());
 				showLoading();
 			}
 		}
@@ -789,12 +788,8 @@ package
 		
 		private function saveRoom(event:MouseEvent):void
 		{
-			var i:int = 0, len:int = game.scene.numChildren;
-			for(i; i < len; i++)
-			{
-				var c:ObjectContainer3D = game.scene.getChildAt(i);
-				trace(c);
-			}
+			var saveData:String = roomParser.data;
+			trace(saveData);
 		}
 		
 		
@@ -838,7 +833,7 @@ package
 			{
 				if(game.cameraController)
 				{
-					if(event.delta > 0) // forward
+					if(event.delta < 0) // forward
 					{
 						game.cameraController.distance += 20;
 					}
@@ -947,10 +942,12 @@ package
 				case Keyboard.NUMPAD_ADD:
 					m_loaderScale = 2;
 					m_curSelectObject.scale(m_loaderScale);
+					setObjectInfo(m_curSelectObject);
 					break;
 				case Keyboard.NUMPAD_SUBTRACT:
 					m_loaderScale = 0.5;
 					m_curSelectObject.scale(m_loaderScale);
+					setObjectInfo(m_curSelectObject);
 					break;	
 				
 				case Keyboard.ESCAPE:
@@ -961,7 +958,8 @@ package
 		
 		protected function onStageKeyUp(event:KeyboardEvent):void
 		{
-			m_shiftKeyDown = event.shiftKey;			
+			m_shiftKeyDown = event.shiftKey;		
+			
 		}
 		
 		private function toggleAxisShow():void
@@ -1018,8 +1016,9 @@ package
 			//sphere.rotationX += 1;
 			
 			//loader.rotationY += 1;
-			
+			game.update();
 			game.view.render();
+			
 		}
 		
 		/**
@@ -1914,6 +1913,7 @@ package
 				if(m_curSelectObject)
 				{
 					m_curSelectObject.rotationY += 45;
+					setObjectInfo(m_curSelectObject);
 				}
 			}
 			else if(id == 2)

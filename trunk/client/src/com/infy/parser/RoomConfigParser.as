@@ -17,7 +17,9 @@ package com.infy.parser
 	import com.infy.game.GameBase;
 	import com.infy.parser.command.CameraParserCommand;
 	import com.infy.parser.command.IParserCommand;
+	import com.infy.parser.command.LightParserCommand;
 	import com.infy.parser.command.LoadParserCommand;
+	import com.infy.parser.command.ParserCommandBase;
 	import com.infy.parser.command.ParserCommandType;
 	import com.infy.parser.command.PrimitiveParserCommand;
 	import com.infy.path.GamePath;
@@ -42,7 +44,7 @@ package com.infy.parser
 		
 		private var m_primitiveCommand:Vector.<PrimitiveParserCommand> = new Vector.<PrimitiveParserCommand>();
 		
-		private var m_lightCommand:Array = [];
+		private var m_lightCommand:Vector.<LightParserCommand> = new Vector.<LightParserCommand>();
 		
 		
 		public function RoomConfigParser(game:GameBase)
@@ -69,18 +71,40 @@ package com.infy.parser
 		{
 			var urlLoader:URLLoader = event.target as URLLoader;
 			
-			perpareCommand(urlLoader.data);
+			parserRoomConfig(urlLoader.data);
+		}
+		
+		public function parserRoomConfig(data:String):void
+		{
+			perpareCommand(data);
 			
 			excuteLoadCommand();
 		}
 		
-		
-		private function perpareCommand(data:String):void
+		public function cleanParserCommand():void
 		{
 			m_loadCommand.length = 0;
+			m_loadCount = 0;
 			m_cameraCommand.length = 0;
 			m_primitiveCommand.length = 0;
 			m_lightCommand.length = 0;
+		}
+		
+		public function addCommand(type:String, cmd:ParserCommandBase):void
+		{
+			if(type == ParserCommandType.CAMERA)
+				m_cameraCommand.push(cmd);
+			else if(type == ParserCommandType.LIGHT)
+				m_lightCommand.push(cmd);
+			else if(type == "privimitive")
+				m_primitiveCommand.push(cmd);
+			else if(type == ParserCommandType.MODEL)
+				m_loadCommand.push(cmd);
+		}
+		
+		private function perpareCommand(data:String):void
+		{
+			cleanParserCommand();
 			
 			data = data.replace(/[\r]/g, "");
 			var lines:Array = data.split("\n");
@@ -105,15 +129,15 @@ package com.infy.parser
 				}
 				else if(cmd == "light")
 				{
-					m_lightCommand.push(args);
+					//m_lightCommand.push(new LightParserCommand(m_game, args));
 				}
 				else if(cmd == "sound")
 				{
 				}
-				else if(cmd == "model")
+				else if(cmd == ParserCommandType.MODEL)
 				{
 					var loadCmd:LoadParserCommand = new LoadParserCommand(m_game, args);
-					loadCmd.excuteMethod = loadModel;
+					loadCmd.excuteMethod = loadObjModel;
 					m_loadCommand.push(loadCmd);
 				}
 				else if(cmd == ParserCommandType.BOX || cmd == ParserCommandType.PLANE || cmd == ParserCommandType.SPHERE)
@@ -125,7 +149,7 @@ package com.infy.parser
 		}
 		
 		
-		public function parserRoom(data:String):void
+		/*public function parserRoom(data:String):void
 		{
 			data = data.replace(/[\r]/g, "");
 			var lines:Array = data.split("\n");
@@ -144,7 +168,7 @@ package com.infy.parser
 				else
 					createPrimitives(args);
 			}
-		}
+		}*/
 		
 		private function parserLoadCommand(args:Array):void
 		{
@@ -284,27 +308,33 @@ package com.infy.parser
 			}
 			else //if(type == "obj")
 			{
-				var loader:Loader3D = new Loader3D();
-				loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
-				loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetCompleted);
-				loader.load(new URLRequest(path));			
-				loader.rotationX = rot3[0];
-				loader.rotationY = rot3[1];
-				loader.rotationZ = rot3[2];
-				loader.x = pos3[0];
-				loader.y = pos3[1];
-				loader.z = pos3[2];
-				loader.scaleX = scale3[0];
-				loader.scaleY = scale3[1];
-				loader.scaleZ = scale3[2];
-				loader.scale(scale);
 				
-				loader.mouseEnabled = true;
-				loader.mouseChildren = true;
-				
+				loadObjModel(path, type, pos3, rot3, scale, scale3);
 				//addToScene(loader);
 				//m_objList.push(loader);
 			}
+		}
+		
+		private function loadObjModel(path:String, type:String, pos3:Array, rot3:Array, scale:Number, scale3:Array):Loader3D
+		{
+			var loader:Loader3D = new Loader3D();
+			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
+			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetCompleted);
+			loader.load(new URLRequest(path));			
+			loader.rotationX = rot3[0];
+			loader.rotationY = rot3[1];
+			loader.rotationZ = rot3[2];
+			loader.x = pos3[0];
+			loader.y = pos3[1];
+			loader.z = pos3[2];
+			loader.scaleX = scale3[0];
+			loader.scaleY = scale3[1];
+			loader.scaleZ = scale3[2];
+			loader.scale(scale);
+			
+			loader.mouseEnabled = true;
+			loader.mouseChildren = true;
+			return loader;
 		}
 		
 		private function loadZipOBJComplete(fileName:String, data:ByteArray, path:String):void

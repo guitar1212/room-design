@@ -1,5 +1,6 @@
 package com.infy.parser.command
 {
+	import away3d.containers.ObjectContainer3D;
 	import away3d.entities.Mesh;
 	
 	import com.infy.event.RoomEvent;
@@ -71,6 +72,8 @@ package com.infy.parser.command
 			else if(cmd == ParserCommandType.SPHERE)
 				mesh = PrimitiveCreator.createSphere(data);
 			
+			target = mesh;			
+			
 			var event:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
 			event.object = mesh;
 			event.objType = cmd;
@@ -79,6 +82,14 @@ package com.infy.parser.command
 		
 		override public function toString():String
 		{
+			if(target)
+			{
+				position = target.position;
+				rotation.x = target.rotationX;
+				rotation.y = target.rotationY;
+				rotation.z = target.rotationZ;
+			}
+			
 			var str:String = cmd;
 			
 			str += addString(name);			

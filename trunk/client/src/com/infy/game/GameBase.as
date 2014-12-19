@@ -46,6 +46,11 @@ package com.infy.game
 			root.stage.align = StageAlign.TOP_LEFT;
 		}
 		
+		public function update():void
+		{
+			
+		}
+		
 		public function get root():Sprite
 		{
 			return m_root;
@@ -93,8 +98,13 @@ package com.infy.game
 		
 		public function setCamera(info:CameraInfo, type:String = "P"):void
 		{
-			cameraController = null;
+			if(cameraController)
+			{
+				cameraController.targetObject = null;				
+				cameraController = null;
+			}
 			cameraController = new HoverController(camera);
+			cameraController.steps = 40;
 			cameraController.distance = info.distance;
 			cameraController.minTiltAngle = -15;
 			cameraController.maxTiltAngle = 90;
