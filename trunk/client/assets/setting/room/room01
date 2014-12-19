@@ -17,10 +17,6 @@
 
 #Primitive
 #type	name	type	pos3	rot3	lwh	color	alpha	castShadow	reciveShadow
-//box	b1	pri	0,0,0	0,0,0	50,50,30	200,200,255	0.6	N	N
-//box	b2	pri	50,60,20	0,0,0	105,20,30	0,0,255	0.3	N	N
-//box	b3	pri	-80,100,30	15,56,30	105,100,40	0,152,255	N	N
-//box	b4	pri	-150,-60,-20	0,0,0	30,30,30	180,65,255	N	N
 box	wall_01	pri	0,150,235	0,0,0	480,300,10	0,236,236	0.25	N	N
 box	wall_02	pri	0,150,-235	0,0,0	480,300,10	236,0,236	1	N	N
 box	wall_03	pri	235,150,0	0,0,0	10,300,460	0,236,236	1	N	N
@@ -30,11 +26,17 @@ model	item_01	obj	25,0,63	0,45,0	1,1,1	0,0,0	1	N	N	// sofa
 model	item_02	obj	0,19,0	0,0,0	256,256,256	0,0,0	1	Y	N	//table
 model	item_03	obj	-187,0,-137	0,90,0	0.5,0.5,0.5	0,0,0	1	Y	N	//table2
 model	item_04	obj	163,0,175	0,0,0	0.0625,0.0625,0.0625	0,0,0	1	Y	N	//table3
+model	item_05	obj	-187,91,-11	0,270,0	2,2,2	255,255,255	1	Y	N
+
+#external item
+#keyword	path
+//load	..\assets\model\obj\testbox.obj	150,0,0	0,0,0	1	// MM ¸t½Ï¸Ë¹¢
 
 #Camera
 #keyword	name	default	type	near	far	fov	distance	panAngle	tiltAngle	lookAt
 camera	cam01	Y	P	5	1000	60	150	96.9	21.3	0,20,0
 camera	cam02	N	P	1	1000	60	130	248	24.8	150,20,113
+camera	cam03	N	P	5	1500	60	150	124	14.1	2.7,36.8,0
 
 #light
 #keyword	name	type
