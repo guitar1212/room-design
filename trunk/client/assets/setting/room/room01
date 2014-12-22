@@ -27,6 +27,7 @@ model	item_02	obj	0,19,0	0,0,0	256,256,256	0,0,0	1	Y	N	//table
 model	item_03	obj	-187,0,-137	0,90,0	0.5,0.5,0.5	0,0,0	1	Y	N	//table2
 model	item_04	obj	163,0,175	0,0,0	0.0625,0.0625,0.0625	0,0,0	1	Y	N	//table3
 model	item_05	obj	-187,91,-11	0,270,0	2,2,2	255,255,255	1	Y	N
+//model	item_06	dae	-150,0,163	90,270,0	10,10,10	1	N	N
 
 #external item
 #keyword	path
