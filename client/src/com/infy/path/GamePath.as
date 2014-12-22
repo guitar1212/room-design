@@ -27,6 +27,11 @@ package com.infy.path
 			return ASSET_ROOT_PATH + "/img/"
 		}
 		
+		public static function get ASSET_ICON_PATH():String
+		{
+			return ASSET_IMAGE_PATH + "icon/" 
+		}
+		
 		public static function get ROOM_SETTING_PATH():String
 		{
 			return ASSET_ROOT_PATH + "/setting/room/"

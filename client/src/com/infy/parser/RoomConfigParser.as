@@ -4,6 +4,8 @@ package com.infy.parser
 	import away3d.entities.Mesh;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
+	import away3d.library.AssetLibrary;
+	import away3d.library.assets.IAsset;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.misc.AssetLoaderContext;
 	import away3d.loaders.parsers.DAEParser;
@@ -315,26 +317,34 @@ package com.infy.parser
 			}
 		}
 		
-		private function loadObjModel(path:String, type:String, pos3:Array, rot3:Array, scale:Number, scale3:Array):Loader3D
+		private function loadObjModel(path:String, type:String, pos3:Array, rot3:Array, scale:Number, scale3:Array):ObjectContainer3D
 		{
-			var loader:Loader3D = new Loader3D();
-			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
-			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetCompleted);
-			loader.load(new URLRequest(path));			
-			loader.rotationX = rot3[0];
-			loader.rotationY = rot3[1];
-			loader.rotationZ = rot3[2];
-			loader.x = pos3[0];
-			loader.y = pos3[1];
-			loader.z = pos3[2];
-			loader.scaleX = scale3[0];
-			loader.scaleY = scale3[1];
-			loader.scaleZ = scale3[2];
-			loader.scale(scale);
-			
-			loader.mouseEnabled = true;
-			loader.mouseChildren = true;
-			return loader;
+			var asset:IAsset = AssetLibrary.getAsset(path);
+			if(asset == null)
+			{
+				var loader:Loader3D = new Loader3D(true, "main");
+				loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onModelLoadCompleted);
+				loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetCompleted);
+				loader.load(new URLRequest(path));		
+				loader.rotationX = rot3[0];
+				loader.rotationY = rot3[1];
+				loader.rotationZ = rot3[2];
+				loader.x = pos3[0];
+				loader.y = pos3[1];
+				loader.z = pos3[2];
+				loader.scaleX = scale3[0];
+				loader.scaleY = scale3[1];
+				loader.scaleZ = scale3[2];
+				loader.scale(scale);
+				
+				loader.mouseEnabled = true;
+				loader.mouseChildren = true;
+				return loader;
+			}
+			else
+			{
+				return asset as ObjectContainer3D;
+			}
 		}
 		
 		private function loadZipOBJComplete(fileName:String, data:ByteArray, path:String):void
@@ -427,7 +437,6 @@ package com.infy.parser
 		{
 			for(var i:int = 0; i < m_loadCommand.length; i++)
 			{
-				//createPrimitives(m_loadCommand[i]);
 				m_loadCommand[i].excute();
 			}
 		}
@@ -436,7 +445,6 @@ package com.infy.parser
 		{
 			for(var i:int = 0; i < m_primitiveCommand.length; i++)
 				m_primitiveCommand[i].excute();
-				//createPrimitives(m_primitiveCommand[i]);
 		}
 		
 		private function excuteCameraCommand():void
@@ -444,7 +452,6 @@ package com.infy.parser
 			for(var i:int = 0; i < m_cameraCommand.length; i++)
 			{
 				m_cameraCommand[i].excute();
-				//parseCameraInfo(m_cameraCommand[i]);
 			}
 		}
 		

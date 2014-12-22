@@ -14,6 +14,7 @@ package com.infy.ui
 		private var m_loading:LoadingUI;
 		private var m_simpleLoading:LoadingSimpleUI;
 		private var m_confirm:ConfirmUI;
+		private var m_objMenuUI:ClickMenuUI;
 		private var m_loadingProgress:int = 0;
 		
 		public function RoomUI()
@@ -25,7 +26,10 @@ package com.infy.ui
 		private function init():void
 		{	
 			curStep = 0;
-			loadingProgress = 0;			
+			loadingProgress = 0;
+			
+			m_objMenuUI = new ClickMenuUI();		
+			m_objMenuUI.menuArray = ['移動', '旋轉', '刪除'];	
 		}
 		
 		/**
@@ -65,6 +69,11 @@ package com.infy.ui
 			loadingProgress = 0;
 			//this.addChild(m_loading);
 			LayerManager.instance.addChildAt(m_loading, Layer.TOP);
+		}
+		
+		public function set loadingMessage(msg:String):void
+		{
+			m_loading.loadObject = msg;
 		}
 		
 		public function hideLoading():void
@@ -130,6 +139,24 @@ package com.infy.ui
 			LayerManager.instance.removeChild(m_confirm);
 			
 			LayerManager.instance.layerMouseEnable(Layer.UI, true);
+		}
+		
+		public function set cbItemClickMenu(cb:Function):void
+		{
+			m_objMenuUI.cbMenuClick = cb;
+		}
+		
+		public function showObjMenu(_x:int, _y:int):void
+		{
+			m_objMenuUI.x = _x;
+			m_objMenuUI.y = _y;
+			LayerManager.instance.addChildAt(m_objMenuUI, Layer.TOP);
+		}
+		
+		public function hideObjMenu():void
+		{
+			LayerManager.instance.curLayerIndex = Layer.TOP;
+			LayerManager.instance.removeChild(m_objMenuUI);
 		}
 		
 	}

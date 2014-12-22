@@ -5,11 +5,14 @@ package com.infy.stage
 	import com.infy.message.MessageManager;
 	import com.infy.path.GamePath;
 	import com.infy.room.RoomInfo;
+	import com.infy.room.RoomItemInfo;
+	import com.infy.room.RoomItemType;
 	import com.infy.str.StringTable;
 	import com.infy.task.Task;
 	import com.infy.task.TaskManager;
 	
 	import flash.text.engine.Kerning;
+	import flash.utils.getTimer;
 	
 	/**
 	 * 
@@ -25,6 +28,8 @@ package com.infy.stage
 		private static const STEP_5_FINISH:int = 5;
 		
 		private var m_step:int = 0;
+		
+		private var m_tempCont:int = 0;
 		
 		public function InitialStage(g:RoomGame)
 		{
@@ -47,13 +52,21 @@ package com.infy.stage
 			game.ui.show(false);
 			
 			// create link
-			MessageManager.instance.initialize(GamePath.SERVER_PATH, GamePath.GAME_METHOD);			
-		
+			MessageManager.instance.initialize(GamePath.SERVER_PATH, GamePath.GAME_METHOD);
+			
+			for(var i:int = 0; i < RoomItemType.TYPE_ARRAY.length; i++)
+			{
+				RoomItemType.TYPE_NAME_ARRAY.push(StringTable.getString("LABEL_TYPE", RoomItemType.TYPE_ARRAY[i]));
+			}
+				
 			//test
 			setHotelInfo();			
 			
 			game.ui.showLoading("初始中...");
-			game.ui.loadingProgress = 50;
+			game.ui.loadingProgress = 100;
+			
+			// for test
+			m_tempCont = getTimer();
 		}
 		
 		override public function release():void
@@ -64,6 +77,12 @@ package com.infy.stage
 		override public function update():void
 		{
 			super.update();
+			
+			// for test
+			var dT:int = getTimer() - m_tempCont;
+			game.ui.loadingMessage = "初始中..." + (dT/1000).toFixed(2);
+			if(dT > 3000)			
+				m_step = STEP_5_FINISH;
 			
 			if(m_step == STEP_1_NET)
 			{
@@ -106,10 +125,30 @@ package com.infy.stage
 				room.describtion = "這是第 " + i + " 個房間!";
 				room.numViewPoints = 2;			
 				room.viewPoints = [];
-				for(var j:int = 0; j < room.numViewPoints; j++)
+				var j:int = 0
+				for(j; j < room.numViewPoints; j++)
 				{
 					room.viewPoints.push("view" + j);
 				}
+				
+				room.numItems = 8;
+				for(j = 0; j < room.numItems; j++)
+				{
+					var itemInfo:RoomItemInfo = new RoomItemInfo();
+					itemInfo.id = "item01_00" + (j+1);
+					itemInfo.maxCounts = j;
+					itemInfo.usedCounts = 0;
+					if(j%2 == 0)
+						itemInfo.canUseView = ["view1"];
+					else
+						itemInfo.canUseView = ["view2"];
+					if(j%2 == 0)
+						itemInfo.type = RoomItemType.TYPE_1;
+					else
+						itemInfo.type = RoomItemType.TYPE_2;
+					room.items.push(itemInfo);	
+				}
+				
 				roomArr.push(room);
 			}
 			hotelInfo.roomData = roomArr;

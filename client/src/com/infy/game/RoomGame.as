@@ -21,6 +21,7 @@ package com.infy.game
 	import com.infy.layer.LayerManager;
 	import com.infy.light.LightInfo;
 	import com.infy.light.LightManager;
+	import com.infy.room.RoomInfo;
 	import com.infy.stage.ConfirmRoomStage;
 	import com.infy.stage.DesignRoomStage;
 	import com.infy.stage.InitialStage;
@@ -177,6 +178,18 @@ package com.infy.game
 			m_curRoomID = id;
 		}
 		
+		public function get roomInfo():RoomInfo
+		{
+			var info:RoomInfo = null;
+			for(var i:int = 0; i < hotelInfo.roomData.length; i++)
+			{
+				info = hotelInfo.roomData[i]; 
+				if(info.id == roomID)
+					break;
+			}
+			return info;
+		}
+		
 		override public function update():void
 		{
 			super.update();
@@ -270,5 +283,10 @@ package com.infy.game
 			}
 		}
 
+		public function cleanScene():void
+		{
+			// TODO Auto Generated method stub
+			
+		}
 	}
 }
