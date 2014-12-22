@@ -93,7 +93,7 @@ package com.infy.stage
 			{
 				var vo:DesignViewItemVO = new DesignViewItemVO();
 				vo.id = roomInfo.viewPoints[i];
-				vo.itemIcon = getIcon("default");
+				vo.itemIcon = getIcon(vo.id);				
 				viweArr.push(vo);
 			}
 			
@@ -110,7 +110,7 @@ package com.infy.stage
 			trace("view point " + index);
 			
 			game.ui.showLoading("下載房間示意圖...");
-			var filename:String = "view";
+			var filename:String = index;
 			var loader:Loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadViewPointComplete, false, 0, true);
 			var path:String = GamePath.ASSET_IMAGE_PATH + "view/" + filename + ".png";

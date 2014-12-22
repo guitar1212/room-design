@@ -1,5 +1,7 @@
 package com.infy.str
 {
+	import com.infy.room.RoomItemType;
+	
 	import flash.utils.Dictionary;
 
 	/**
@@ -28,11 +30,11 @@ package com.infy.str
 			
 			group = "LABEL_TYPE";
 			data = {};
-			data["TYPE_1"] = "空間氣氛";
-			data["TYPE_2"] = "寢具家飾";
-			data["TYPE_3"] = "文創小物";
-			data["TYPE_4"] = "特色點心";
-			data["TYPE_5"] = "衛浴用品";
+			data[RoomItemType.TYPE_1] = "空間氣氛";
+			data[RoomItemType.TYPE_2] = "寢具家飾";
+			data[RoomItemType.TYPE_3] = "文創小物";
+			data[RoomItemType.TYPE_4] = "特色點心";
+			data[RoomItemType.TYPE_5] = "衛浴用品";
 			m_strDic[group] = data;
 			
 			group = "CONFIRM_UI";

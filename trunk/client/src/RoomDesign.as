@@ -58,7 +58,7 @@ package
 			{
 				GamePath.SERVER_PATH = params["server"];
 			}
-			else if(params.hasOwnProperty("assetPath"))
+			if(params.hasOwnProperty("assetPath"))
 			{
 				GamePath.ASSET_ROOT_PATH = params["assetPath"];
 			}

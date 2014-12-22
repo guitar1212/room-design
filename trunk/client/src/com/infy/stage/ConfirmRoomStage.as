@@ -29,7 +29,15 @@ package com.infy.stage
 		{
 			super.release();
 			
-			game.ui.cbBtnChooseClick = null;
+			game.ui.cbBtnChooseClick = null;		
+			
+			clean();
+		}
+		
+		private function clean():void
+		{
+			// clean scene
+			game.cleanScene();
 		}
 		
 		private function setButton():void

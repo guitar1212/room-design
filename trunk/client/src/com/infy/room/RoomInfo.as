@@ -30,7 +30,18 @@ package com.infy.room
 		/**
 		 *	視角 
 		 */		
-		public var viewPoints:Array;
+		public var viewPoints:Array = [];
+		
+		/**
+		 *	物品種類數量 
+		 */		
+		public var numItems:int;
+		
+		/**
+		 *	可擺設的物品 
+		 * @see RoomItemInfo
+		 */		
+		public var items:Vector.<RoomItemInfo> = new Vector.<RoomItemInfo>();
 		
 		public function RoomInfo()
 		{

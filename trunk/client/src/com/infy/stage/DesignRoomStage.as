@@ -13,9 +13,13 @@ package com.infy.stage
 	import com.infy.parser.RoomConfigParser;
 	import com.infy.path.GamePath;
 	import com.infy.resource.getIcon;
+	import com.infy.room.RoomInfo;
+	import com.infy.room.RoomItemInfo;
+	import com.infy.room.RoomItemType;
 	import com.infy.str.StringTable;
 	
 	import flash.display.Bitmap;
+	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
@@ -36,11 +40,13 @@ package com.infy.stage
 		private var m_state:int = -1;
 		
 		private var m_selectGoodsId:String;
-		private var m_selectGoodsIcon:Bitmap = null;
+		private var m_selectGoodsIcon:DisplayObject = null;
 		
 		private var m_bGoodsMoving:Boolean = false;
 		
 		private var m_roomParser:RoomConfigParser = null;
+		
+		private var m_curView:String = "view1";
 		
 		public function DesignRoomStage(game:RoomGame)
 		{
@@ -56,6 +62,7 @@ package com.infy.stage
 			game.ui.cbMouseClick = onNextStage;
 			game.ui.cbLabelItemClick = onLabelItemClick;
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
+			game.ui.cbItemClickMenu = onObjMenuClick;
 			
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onLoadRoomObjectCompleted);
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
@@ -72,6 +79,17 @@ package com.infy.stage
 			
 			//test
 			test();
+		}
+		
+		override public function release():void
+		{
+			super.release();
+			game.ui.cbMouseClick = null;
+			game.ui.cbLabelItemClick = null;
+			game.ui.cbGoodsItemDown = null;
+			game.ui.cbItemClickMenu = null;
+			
+			game.ui.hideSimpleLoading();
 		}
 		
 		protected function onCameraCreate(event:RoomEvent):void
@@ -119,23 +137,10 @@ package com.infy.stage
 			game.ui.hideSimpleLoading();
 		}
 		
-		override public function release():void
-		{
-			super.release();
-			game.ui.cbMouseClick = null;
-			game.ui.cbLabelItemClick = null;
-			game.ui.cbGoodsItemDown = null;
-			
-			game.ui.hideSimpleLoading();
-		}
 		
 		private function test():void
 		{
-			game.ui.labelItemArray = [StringTable.getString("LABEL_TYPE", "TYPE_1"),
-									  StringTable.getString("LABEL_TYPE", "TYPE_2"),
-									  StringTable.getString("LABEL_TYPE", "TYPE_3"),
-									  StringTable.getString("LABEL_TYPE", "TYPE_4"),
-									  StringTable.getString("LABEL_TYPE", "TYPE_5")];
+			game.ui.labelItemArray = RoomItemType.TYPE_NAME_ARRAY;
 			game.ui.labelItemCurChoose = 0;
 			
 			onLabelItemClick(0);
@@ -156,7 +161,7 @@ package com.infy.stage
 		
 		private function onLabelItemClick(index:int):void
 		{
-			var type:int = 0;
+			var type:String = RoomItemType.TYPE_ARRAY[index];
 			setItems(type);
 		}
 		
@@ -173,6 +178,24 @@ package com.infy.stage
 			game.root.addEventListener(MouseEvent.MOUSE_UP, onGoodsMoveStop, false, 10);
 		}
 		
+		private function onObjMenuClick(index:int):void
+		{
+			if(index == 0)
+			{
+				// move obj
+				
+			}
+			else if(index == 1)
+			{
+				// rotete obj
+				
+			}
+			else if(index == 2)
+			{
+				// delete obj
+				
+			}
+		}
 		/*protected function onGoodsMove(event:Event):void
 		{
 			
@@ -185,42 +208,53 @@ package com.infy.stage
 			LayerManager.instance.curLayerIndex = Layer.TOP;
 			LayerManager.instance.removeChild(m_selectGoodsIcon);
 			m_bGoodsMoving = false;
-			m_selectGoodsIcon.bitmapData.dispose();
+			if(m_selectGoodsIcon is Bitmap)
+				(m_selectGoodsIcon as Bitmap).bitmapData.dispose();
 			m_selectGoodsIcon = null;
 		}
 		
-		private function setItems(type:int):void
+		/**
+		 *	 依照類別設定物品攔
+		 * @param type RoomItemType
+		 * 
+		 */		
+		private function setItems(type:String):void
 		{
 			var itemArr:Array = getItemsByType(type);
 			
-			var goodsVOArr:Array = [];
-			for(var i:int = 0; i < itemArr.length; i++)
-			{
-				var vo:DesignViewItemVO = new DesignViewItemVO();
-				vo.id = itemArr[i];
-				var path:String = GamePath.ASSET_IMAGE_PATH + "icon/" + itemArr[i] + ".jpg";
-				var l:Loader = new Loader();
-				l.load(new URLRequest(path));
-				
-				vo.itemIcon = l;
-				goodsVOArr.push(vo);
-			}
-			
-			game.ui.goodsVOArr = goodsVOArr;
+			game.ui.goodsVOArr = itemArr;
 		}
 		
-		private function getItemsByType(type:int):Array
+		private function getItemsByType(type:String):Array
 		{
-			var arr:Array = [];
+			var roomInfo:RoomInfo = game.roomInfo;
 			
-			// test
-			for(var i:int = 1; i < 8; i++)
+			var i:int = 0, len:int = roomInfo.numItems;
+			var arr:Array = [];
+			var itemInfo:RoomItemInfo;
+			for(i = 0; i < len; i++)
 			{
-				var id:String = "item01_00" + i;
-				arr.push(id);
+				itemInfo = roomInfo.items[i];
+				if(itemInfo.type != type)
+					continue;
+				
+				var vo:DesignViewItemVO = new DesignViewItemVO();
+				vo.id = itemInfo.id;
+				
+				vo.itemIcon = getIcon(itemInfo.id);
+				vo.itemCount = itemInfo.maxCounts - itemInfo.usedCounts;
+				vo.itemEnabled = itemInfo.availale(m_curView);
+				arr.push(vo);
 			}
 			
 			return arr;
+		}
+		
+		private function changeView(view:String):void
+		{
+			m_curView = view;
+			
+			
 		}
 		
 		override public function update():void
