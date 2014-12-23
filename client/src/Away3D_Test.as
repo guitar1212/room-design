@@ -75,6 +75,7 @@ package
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
+	import com.infy.editor.ui.ObjectInfoUI;
 	import com.infy.event.CameraEvent;
 	import com.infy.event.ObjEvent;
 	import com.infy.event.RoomEvent;
@@ -89,7 +90,6 @@ package
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
 	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.getObject3DInfo;
 	import com.infy.util.zip.ZipLoader;
 	
 	import fl.controls.BaseButton;
@@ -111,7 +111,6 @@ package
 	import flash.ui.Keyboard;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
-	import flash.utils.getQualifiedClassName;
 	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
@@ -124,6 +123,8 @@ package
 		private var m_objMenu:ClickMenuUI;
 		
 		private var m_loading:LoadingSimpleUI;
+		
+		private var m_objInfoUI:ObjectInfoUI;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -203,7 +204,7 @@ package
 		
 		//private var billboard:Sprite3D;
 		
-		private var m_meshInfo:TextField;
+		//private var m_meshInfo:TextField;
 		private var m_cameraInfo:TextField;		
 		private var m_lightInfo:TextField;
 		private var m_mouseInfoText:TextField;
@@ -326,15 +327,10 @@ package
 			this.addChild(browser);
 			
 			// show mesh info
-			m_meshInfo = new TextField();
-			m_meshInfo.background = true;
-			m_meshInfo.border = true;
-			m_meshInfo.width = 200;
-			m_meshInfo.height = 200;
-			m_meshInfo.x = 10;
-			m_meshInfo.y = 500;
-			m_meshInfo.text = "mesh info :";
-			this.addChild(m_meshInfo);
+			m_objInfoUI = new ObjectInfoUI();
+			m_objInfoUI.x = 10;
+			m_objInfoUI.y = 450;			
+			this.addChild(m_objInfoUI);
 			
 			// show camera info
 			m_cameraInfo = new TextField();
@@ -343,7 +339,7 @@ package
 			m_cameraInfo.width = 200;
 			m_cameraInfo.height = 200;
 			m_cameraInfo.x = 250;
-			m_cameraInfo.y = m_meshInfo.y;
+			m_cameraInfo.y = m_objInfoUI.y;
 			m_cameraInfo.text = "camera info :";
 			this.addChild(m_cameraInfo);
 			
@@ -354,7 +350,7 @@ package
 			m_lightInfo.width = 200;
 			m_lightInfo.height = 200;
 			m_lightInfo.x = 490;
-			m_lightInfo.y = m_meshInfo.y;
+			m_lightInfo.y = m_objInfoUI.y;
 			m_lightInfo.text = "light info :";
 			this.addChild(m_lightInfo);
 			
@@ -369,7 +365,7 @@ package
 			// camera modify ui
 			m_cameraModifyUI = new ModifyCameraUI();
 			m_cameraModifyUI.x = 700;
-			m_cameraModifyUI.y = m_meshInfo.y;
+			m_cameraModifyUI.y = m_objInfoUI.y;
 			m_cameraModifyUI.target = game.cameraController;
 			m_cameraModifyUI.checkCallback = toggleCameraLocked;
 			this.addChild(m_cameraModifyUI);
@@ -378,13 +374,13 @@ package
 			// 3dObject modify UI
 			m_objModifyUI = new Modify3DObjectUI();
 			m_objModifyUI.x = 950;
-			m_objModifyUI.y = m_meshInfo.y;			
+			m_objModifyUI.y = m_objInfoUI.y;			
 			m_objModifyUI.addEventListener(ObjEvent.CHANGE, on3DObjectInfoChange);
 			this.addChild(m_objModifyUI);
 			
 			m_lightModifyUI = new ModifyLightUI("Directional Light");
 			m_lightModifyUI.x = 1200;
-			m_lightModifyUI.y = m_meshInfo.y;
+			m_lightModifyUI.y = m_objInfoUI.y;
 			m_lightModifyUI.addEventListener(SliderEvent.CHANGE, onLightInfoChange)
 			this.addChild(m_lightModifyUI);
 			
@@ -881,7 +877,7 @@ package
 				switch(event.keyCode)
 				{
 					case Keyboard.INSERT:					
-						//loadRoom(roomPath);
+						//loadRoom(roomPath);						
 						break;						
 					
 					/*case Keyboard.NUMBER_9:
@@ -1000,6 +996,7 @@ package
 				}
 				setCameraInfo(game.cameraController);
 				m_cameraModifyUI.refresh();
+				hideObjMenu();
 			}
 			
 			if(tempDragObj)
@@ -1418,7 +1415,7 @@ package
 		
 		private function setObjectInfo(o:ObjectContainer3D):void
 		{
-			var text:String = "";
+			/*var text:String = "";
 			
 			if(o)
 			{
@@ -1435,7 +1432,8 @@ package
 						;
 			}
 			
-			m_meshInfo.text = text;
+			m_meshInfo.text = text;*/
+			m_objInfoUI.target = o;
 		}
 		
 		private function setCameraInfo(controller:ControllerBase):void
@@ -1952,7 +1950,8 @@ package
 		
 		private function hideObjMenu():void
 		{
-			this.removeChild(m_objMenu);
+			if(m_objMenu.parent)
+				this.removeChild(m_objMenu);
 		}	
 	}
 }
