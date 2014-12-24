@@ -134,8 +134,9 @@ package com.infy.game
 		}
 		
 		override public function update():void
-		{
+		{			
 			camLight.position = camera.position;
+			super.update();
 		}
 	}
 }

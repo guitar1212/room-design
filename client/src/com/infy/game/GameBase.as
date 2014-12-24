@@ -11,11 +11,17 @@ package com.infy.game
 	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	import com.infy.camera.CameraInfo;
+	import com.infy.constant.View3DCons;
+	import com.infy.event.GameEvent;
+	import com.infy.util.TimerManager;
 	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.EventDispatcher;
+	import flash.net.FileReference;
 	
 	/**
 	 * 
@@ -114,6 +120,37 @@ package com.infy.game
 			camera.lens.far = info.far;
 			PerspectiveLens(camera.lens).fieldOfView = info.fov;
 			HoverController(cameraController).lookAtPosition = info.lookAt.clone();
+		}
+		
+		private var m_bitmapdata:BitmapData;
+		private var m_bScreenCapture:Boolean = false;
+		public function captureScreen():void
+		{
+			if(!m_bScreenCapture)
+			{
+				m_bitmapdata = null;
+				m_bitmapdata = new BitmapData(View3DCons.WIDTH, View3DCons.HEIGHT);
+				
+				view.renderer.queueSnapshot(m_bitmapdata);
+				m_bScreenCapture = true;
+				
+				TimerManager.instance.register(onCaptureScreenFinish, 1000, 1);
+			}
+		}
+		
+		private function onCaptureScreenFinish():void
+		{
+			m_bScreenCapture = false;
+			
+			var event:GameEvent = new GameEvent(GameEvent.CAPTURE_SCREEN_COMPLETE);
+			event.bitmapData = m_bitmapdata;
+			this.dispatchEvent(event);
+		}
+		
+		public function cleanScene():void
+		{
+			// TODO Auto Generated method stub
+			
 		}
 	}
 }

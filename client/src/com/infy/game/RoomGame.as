@@ -1,7 +1,6 @@
 package com.infy.game
 {
 	import away3d.cameras.Camera3D;
-	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
@@ -281,12 +280,6 @@ package com.infy.game
 					obj.hideLoading();
 				}
 			}
-		}
-
-		public function cleanScene():void
-		{
-			// TODO Auto Generated method stub
-			
-		}
+		}		
 	}
 }
