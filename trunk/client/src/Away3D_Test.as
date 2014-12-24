@@ -71,15 +71,19 @@ package
 	import away3d.tools.utils.Drag3D;
 	import away3d.utils.Cast;
 	
+	import com.adobe.images.JPGEncoder;
 	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
+	import com.infy.editor.ui.ImageSavePanel;
 	import com.infy.editor.ui.ObjectInfoUI;
 	import com.infy.event.CameraEvent;
+	import com.infy.event.GameEvent;
 	import com.infy.event.ObjEvent;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.EditRoomGame;
+	import com.infy.game.RoomGame;
 	import com.infy.parser.RoomConfigParser;
 	import com.infy.path.GamePath;
 	import com.infy.ui.CameraInfoUI;
@@ -98,6 +102,7 @@ package
 	import fl.core.UIComponent;
 	import fl.events.SliderEvent;
 	
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -125,6 +130,8 @@ package
 		private var m_loading:LoadingSimpleUI;
 		
 		private var m_objInfoUI:ObjectInfoUI;
+		
+		private var m_saveImgPanel:ImageSavePanel;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -201,6 +208,7 @@ package
 		private var wireframeBtn:Button;
 		private var createLightBtn:Button;
 		private var saveRoomBtn:Button;
+		//private var saveCaptureBtn:Button ;
 		
 		//private var billboard:Sprite3D;
 		
@@ -265,6 +273,7 @@ package
 			
 			m_loading = new LoadingSimpleUI();
 			
+			m_saveImgPanel = new ImageSavePanel();
 			
 			// OBJ Editor
 			m_objeditor = new TextEditorBaseUI(250, 350,  onCreateObject, null);			
@@ -541,6 +550,7 @@ package
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
 			game.addEventListener(RoomEvent.CREATE_CAMERA, onRoomCameraCreate);
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onRoomObjectsLoadCompleted);
+			game.addEventListener(GameEvent.CAPTURE_SCREEN_COMPLETE, onCaptureScreenComplete);
 			onResize();
 		}
 		
@@ -581,17 +591,18 @@ package
 			this.addChild(saveRoomBtn);
 			m_underButtonList.push(saveRoomBtn);
 			
-			/*var cleanSceneBtn:Button = new Button();
-			cleanSceneBtn.label = "Clean Room";
-			cleanSceneBtn.addEventListener(MouseEvent.CLICK, cleanScene);
-			this.addChild(cleanSceneBtn);
-			m_underButtonList.push(cleanSceneBtn);*/
+			var captureBtn:Button = new Button();
+			captureBtn.label = "Capture Screen";
+			captureBtn.addEventListener(MouseEvent.CLICK, onCaptureStart);
+			this.addChild(captureBtn);
+			m_underButtonList.push(captureBtn);
 			
-			/*var deleteObjBtn:Button = new Button();
-			deleteObjBtn.label = "Delete Obj";
-			deleteObjBtn.addEventListener(MouseEvent.CLICK, onDeleteButtonClick);
-			this.addChild(deleteObjBtn);
-			m_underButtonList.push(deleteObjBtn);*/
+			/*saveCaptureBtn = new Button();
+			saveCaptureBtn.label = "Save Screen";
+			saveCaptureBtn.addEventListener(MouseEvent.CLICK, onSaveCapture);
+			saveCaptureBtn.enabled = false;
+			this.addChild(saveCaptureBtn);
+			m_underButtonList.push(saveCaptureBtn);*/
 		}
 
 		private var ground:ObjectContainer3D;
@@ -635,6 +646,14 @@ package
 		private function onRoomObjectsLoadCompleted(event:RoomEvent):void
 		{
 			hideLoading();
+		}
+		
+		private var m_captureBitmapData:BitmapData;
+		private function onCaptureScreenComplete(event:GameEvent):void
+		{
+			//saveCaptureBtn.enabled = true;
+			m_captureBitmapData = event.bitmapData;
+			m_saveImgPanel.bitmapData = m_captureBitmapData;
 		}
 			
 		protected function onPathInputChange(event:KeyboardEvent):void
@@ -788,6 +807,27 @@ package
 			trace(saveData);
 		}
 		
+		private function onCaptureStart(event:MouseEvent):void
+		{
+			game.captureScreen();
+			
+			showImageSavePanel();
+			
+			//saveCaptureBtn.enabled = false;
+		}
+		
+		/*private function onSaveCapture(event:MouseEvent):void
+		{
+			
+			if(m_captureBitmapData)
+			{
+				var f:FileReference = new FileReference();
+				var j:JPGEncoder = new JPGEncoder();
+				var ba:ByteArray = j.encode(m_captureBitmapData);
+				f.save(ba);
+			}
+		}*/
+		
 		
 		/*protected function onCubeMouseDown(event:MouseEvent3D):void
 		{
@@ -877,7 +917,8 @@ package
 				switch(event.keyCode)
 				{
 					case Keyboard.INSERT:					
-						//loadRoom(roomPath);						
+						//loadRoom(roomPath);			
+						game.captureScreen();
 						break;						
 					
 					/*case Keyboard.NUMBER_9:
@@ -1952,6 +1993,19 @@ package
 		{
 			if(m_objMenu.parent)
 				this.removeChild(m_objMenu);
-		}	
+		}
+		
+		public function showImageSavePanel():void
+		{
+			m_saveImgPanel.x = stage.mouseX;
+			m_saveImgPanel.y = stage.mouseY;
+			this.addChild(m_saveImgPanel);
+		}
+		
+		public function hideImageSavePanel():void
+		{
+			if(m_saveImgPanel.parent)
+				this.removeChild(m_saveImgPanel);
+		}
 	}
 }
