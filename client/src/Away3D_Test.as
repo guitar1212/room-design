@@ -817,6 +817,10 @@ package
 			LightManager.instance.addLight(info);
 			
 			createLight(info);
+			
+			var lightCmd:LightParserCommand = new LightParserCommand(game);
+			lightCmd.setLightInfo(info);
+			roomParser.addCommand(ParserCommandType.LIGHT, lightCmd);
 		}
 		
 		private function createLight(info:LightInfo):void
