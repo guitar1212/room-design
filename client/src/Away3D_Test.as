@@ -87,7 +87,9 @@ package
 	import com.infy.light.LightInfo;
 	import com.infy.light.LightManager;
 	import com.infy.parser.RoomConfigParser;
+	import com.infy.parser.command.CameraParserCommand;
 	import com.infy.parser.command.LightParserCommand;
+	import com.infy.parser.command.ParserCommandType;
 	import com.infy.path.GamePath;
 	import com.infy.ui.CameraInfoUI;
 	import com.infy.ui.Modify3DObjectUI;
@@ -418,7 +420,7 @@ package
 			m_cameraInfoUI.y = 250;
 			m_cameraInfoUI.selectCallback = changeCamera;
 			m_cameraInfoUI.buttonCallback = onCameraUIButtonClick;
-			m_cameraInfoUI.createCameraCallback = createCameraInfo;
+			m_cameraInfoUI.createCameraCallback = onCreateCameraBtnclick;
 			this.addChild(m_cameraInfoUI);
 		}
 		
@@ -829,6 +831,10 @@ package
 		private function saveRoom(event:MouseEvent):void
 		{
 			var saveData:String = roomParser.data;
+			
+			var f:FileReference = new FileReference();
+			f.save(saveData)
+			
 			trace(saveData);
 		}
 		
@@ -1245,7 +1251,16 @@ package
 		private function createCameraInfo(info:CameraInfo):void
 		{
 			CameraInfoManager.instance.addCameraInfo(info.name, info);
-			m_cameraInfoUI.addCameraInfo(info.name, info);
+			m_cameraInfoUI.addCameraInfo(info.name, info);			
+		}
+		
+		private function onCreateCameraBtnclick(info:CameraInfo):void
+		{
+			createCameraInfo(info);
+			
+			var cameraCmd:CameraParserCommand = new CameraParserCommand(game);
+			cameraCmd.setCameraInfo(info);
+			roomParser.addCommand(ParserCommandType.CAMERA, cameraCmd);
 		}
 		
 		private function getCurrentCamraInfo():CameraInfo

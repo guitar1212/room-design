@@ -55,11 +55,26 @@ package com.infy.parser.command
 			lookAt = new Vector3D(lookAtArr[0], lookAtArr[1], lookAtArr[2]);
 		}
 		
+		public function setCameraInfo(info:CameraInfo):void
+		{
+			name = info.name;
+			type = info.type;
+			isDefault = info.isDefault;
+			near = info.near;
+			far = info.far;
+			fov = info.fov;
+			distance = info.distance;
+			panAngle = info.panAngle;
+			tiltAngle = info.tiltAngle;
+			lookAt = info.lookAt;
+		}
+		
 		override public function excute():void
 		{	
 			super.excute();
 			var camInfo:CameraInfo = new CameraInfo();
 			camInfo.name = name;
+			camInfo.type = type;
 			camInfo.isDefault = isDefault;
 			camInfo.near = near;
 			camInfo.far = far;
