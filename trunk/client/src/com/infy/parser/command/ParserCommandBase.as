@@ -38,8 +38,7 @@ package com.infy.parser.command
 		
 		public function excute():void
 		{
-			if(m_excuteMethod != null)
-				m_excuteMethod();
+			
 		}
 		
 		public function toString():String

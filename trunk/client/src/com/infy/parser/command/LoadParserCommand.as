@@ -35,7 +35,8 @@ package com.infy.parser.command
 				var rot3:Array = [rotation.x, rotation.y, rotation.z];
 				var s3:Array = [size.x, size.y, size.z];
 				
-				target = excuteMethod(path, type, pos3, rot3, 1, s3);
+				var f:Function = excuteMethod;
+				target = f(path, type, pos3, rot3, 1, s3);
 			}
 		}
 		
