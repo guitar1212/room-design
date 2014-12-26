@@ -16,18 +16,18 @@
 
 
 #Primitive
-#type	name	type	pos3	rot3	lwh	color	alpha	castShadow	reciveShadow
-box	wall_01	pri	0,150,235	0,0,0	480,300,10	0,236,236	0.25	N	N
-box	wall_02	pri	0,150,-235	0,0,0	480,300,10	236,0,236	1	N	N
-box	wall_03	pri	235,150,0	0,0,0	10,300,460	0,236,236	1	N	N
-box	wall_04	pri	-235,150,0	0,0,0	10,300,460	0,236,236	1	N	N
-plane	ground	pri	0,0,0	0,0,0	1000,1000,0	200,200,200	1	N	Y
-model	item_01	obj	25,0,63	0,45,0	1,1,1	0,0,0	1	N	N	// sofa
-model	item_02	obj	0,19,0	0,0,0	256,256,256	0,0,0	1	Y	N	//table
-model	item_03	obj	-187,0,-137	0,90,0	0.5,0.5,0.5	0,0,0	1	Y	N	//table2
-model	item_04	obj	163,0,175	0,0,0	0.0625,0.0625,0.0625	0,0,0	1	Y	N	//table3
-model	item_05	obj	-187,91,-11	0,270,0	2,2,2	255,255,255	1	Y	N
-//model	item_06	dae	-150,0,163	90,270,0	10,10,10	1	N	N
+#type	name	type	pos3	rot3	lwh	color	alpha	castShadow	reciveShadow	shadowLight	epsilon
+box	wall_01	pri	0,150,235	0,0,0	480,300,10	0,236,236	0.25	N	N	main_light	0
+box	wall_02	pri	0,150,-235	0,0,0	480,300,10	236,0,236	1	N	N	null	0
+box	wall_03	pri	235,150,0	0,0,0	10,300,460	0,236,236	1	N	N	null	0
+box	wall_04	pri	-235,150,0	0,0,0	10,300,460	0,236,236	1	N	N	null	0
+plane	ground	pri	0,0,0	0,0,0	1000,1000,0	200,200,200	1	N	Y	main_light	1.0
+model	item_01	obj	25,0,63	0,45,0	1,1,1	0,0,0	1	N	N	null	0	// sofa
+model	item_02	obj	0,19,0	0,0,0	256,256,256	0,0,0	1	Y	N	null	0	//table
+model	item_03	obj	-187,0,-137	0,90,0	0.5,0.5,0.5	0,0,0	1	Y	N	null	0	//table2
+model	item_04	obj	163,0,175	0,0,0	0.0625,0.0625,0.0625	0,0,0	1	Y	N	null	0	//table3
+model	item_05	obj	-187,91,-11	0,270,0	2,2,2	255,255,255	1	Y	N	null	0
+//model	item_06	dae	-150,0,163	90,270,0	10,10,10	1	N	N	null	0
 
 #external item
 #keyword	path
@@ -40,5 +40,5 @@ camera	cam02	N	P	1	1000	60	130	248	24.8	150,20,113
 camera	cam03	N	P	5	1500	60	150	124	14.1	2.7,36.8,0
 
 #light
-#keyword	name	type
-light	light01	dir
+#keyword	name	type	color	ambient	ambientColor	diffuse	specular	castShadows	direction	falloff	radius	addToLightPicker
+light	main_light	dir	255,255,255	1	255,255,255	1	0.5	N	0,-1,0	0	0	Y
