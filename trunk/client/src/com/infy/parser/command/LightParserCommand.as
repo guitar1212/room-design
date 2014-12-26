@@ -81,8 +81,8 @@ package com.infy.parser.command
 		
 		override public function toString():String
 		{
-			var str:String = "";
-			str += addString(ParserCommandType.LIGHT);
+			var str:String = ParserCommandType.LIGHT;
+			
 			str += addString(name);
 			str += addString(type);
 			str += addVector3D(color);

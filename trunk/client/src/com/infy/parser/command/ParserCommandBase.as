@@ -24,9 +24,12 @@ package com.infy.parser.command
 		public function ParserCommandBase(dispatcher:EventDispatcher, args:Array = null)
 		{
 			m_dispatcher = dispatcher;
-			m_rawData = args.concat();
+			
 			if(args)
+			{
+				m_rawData = args.concat();			
 				parser(args);
+			}
 		}
 		
 		public function parser(args:Array):void
