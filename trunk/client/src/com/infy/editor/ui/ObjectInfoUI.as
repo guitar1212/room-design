@@ -21,7 +21,7 @@ package com.infy.editor.ui
 		
 		private var m_attributeList:Array = ["name", "type", "x", "y", "z", "rotX", "rotY", "rotZ", "scaleX", "scaleY", "scaleZ", "triangles", "vertices", "texture"];
 		
-		public function ObjectInfoUI(w:int=200, h:int=300)
+		public function ObjectInfoUI(w:int=200, h:int=320)
 		{
 			super(w, h);
 			

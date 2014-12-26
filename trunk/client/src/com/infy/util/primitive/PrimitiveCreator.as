@@ -1,6 +1,7 @@
 package com.infy.util.primitive
 {
 	import away3d.entities.Mesh;
+	import away3d.lights.LightBase;
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.SinglePassMaterialBase;
 	import away3d.materials.methods.CelDiffuseMethod;
@@ -77,9 +78,12 @@ package com.infy.util.primitive
 			
 			if(info.reciveShadow)
 			{
-				var lightInfo:LightInfo = LightManager.instance.getLight("main_light");
-				m.shadowMethod = new HardShadowMapMethod(lightInfo.lignt);
-				(m.shadowMethod as SimpleShadowMapMethodBase).epsilon = 0.7;
+				var lightInfo:LightInfo = LightManager.instance.getLight(info.shadowLight);
+				if(lightInfo)
+				{
+					m.shadowMethod = new HardShadowMapMethod(lightInfo.light);
+					(m.shadowMethod as SimpleShadowMapMethodBase).epsilon = info.epsilon;
+				}
 			}
 			
 			return plane;

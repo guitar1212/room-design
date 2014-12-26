@@ -126,22 +126,24 @@ package com.infy.game
 		private function initLight():void
 		{
 			// add main light (default light)
-			var light:DirectionalLight = new DirectionalLight();
+			/*var light:DirectionalLight = new DirectionalLight();
 			light.ambient = 1;
 			light.diffuse = 1;
 			light.direction = new Vector3D(0, -1, 0);
 			light.name = LightInfo.MAIN_LIGHT;			
-			/*light1.castsShadows = true;
-			light1.shadowMapper.depthMapSize = 2048;*/
+			//light.castsShadows = true;
+			//light.shadowMapper.depthMapSize = 2048;
 						
-			scene.addChild(light);
+			this.addObjectToScene(light)			
 			
 			var lightInfo:LightInfo = new LightInfo();
 			lightInfo.name = LightInfo.MAIN_LIGHT;
-			lightInfo.lignt = light;
+			lightInfo.light = light;
 			LightManager.instance.addLight(lightInfo);
 			
-			lightPicker = new StaticLightPicker([light]);
+			lightPicker = new StaticLightPicker([light]);*/
+			lightPicker = new StaticLightPicker([])
+			
 		}
 		
 		public function show3DView():void

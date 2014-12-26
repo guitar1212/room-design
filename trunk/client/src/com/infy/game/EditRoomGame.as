@@ -18,6 +18,8 @@ package com.infy.game
 	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	import com.infy.constant.View3DCons;
+	import com.infy.event.GameEvent;
+	import com.infy.event.RoomEvent;
 	import com.infy.light.LightInfo;
 	import com.infy.light.LightManager;
 	
@@ -33,7 +35,7 @@ package com.infy.game
 	{
 		public var noShadowLightPicker:StaticLightPicker;
 		
-		private var camLight:PointLight;
+		//private var camLight:PointLight;
 		
 		public function EditRoomGame(root:Sprite)
 		{
@@ -86,15 +88,15 @@ package com.infy.game
 		
 		private function initLights():void
 		{
-			var light1:DirectionalLight = new DirectionalLight();
+			/*var light1:DirectionalLight = new DirectionalLight();
 			light1.direction = new Vector3D(0, -1, 0);
 			light1.ambient = 1.0;
 			light1.diffuse = 1.0;
 			light1.name = LightInfo.MAIN_LIGHT;
 			light1.castsShadows
-			/*light1.castsShadows = true;
-			light1.shadowMapper.depthMapSize = 2048;*/			
-			addLight(light1);
+			//light1.castsShadows = true;
+			//light1.shadowMapper.depthMapSize = 2048;			
+			addLight(light1)*/;
 			
 			var light2:DirectionalLight = new DirectionalLight();
 			light2.direction = new Vector3D(0, -1, 0);
@@ -104,12 +106,8 @@ package com.infy.game
 			light2.name = "no_shadow_light";			
 			//addLight(light2);
 			
-			camLight = new PointLight();
-			
-			lightPicker = new StaticLightPicker([camLight]);
+			lightPicker = new StaticLightPicker([]);
 			noShadowLightPicker = new StaticLightPicker([light2]);
-			
-			
 		}
 		
 		
@@ -117,10 +115,15 @@ package com.infy.game
 		{
 			var info:LightInfo = new LightInfo();
 			info.name = light.name;
-			info.lignt = light;
+			
 			LightManager.instance.addLight(info);
 			
-			scene.addChild(light);
+			//scene.addChild(light);
+			
+			var e:RoomEvent = new RoomEvent(RoomEvent.CREATE_LIGHT);
+			e.object = info;
+			e.objType = "light";
+			this.dispatchEvent(e);
 		}
 		
 		override public function addObjectToScene(obj:ObjectContainer3D):void
@@ -135,7 +138,7 @@ package com.infy.game
 		
 		override public function update():void
 		{			
-			camLight.position = camera.position;
+			//camLight.position = camera.position;
 			super.update();
 		}
 	}

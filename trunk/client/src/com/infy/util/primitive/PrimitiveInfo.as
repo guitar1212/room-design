@@ -13,6 +13,8 @@ package com.infy.util.primitive
 		public var alpha:Number = 1.0;
 		public var castShadow:Boolean = false;
 		public var reciveShadow:Boolean = false;
+		public var shadowLight:String = "null";
+		public var epsilon:Number = 0.7;
 		
 		public function PrimitiveInfo()
 		{
@@ -33,6 +35,8 @@ package com.infy.util.primitive
 			alpha = args.shift();
 			castShadow = args.shift() == "Y" ? true : false;
 			reciveShadow = args.shift() == "Y" ? true : false;
+			shadowLight = args.shift();
+			epsilon = args.shift();
 		}
 		
 		public function get color():uint

@@ -1,6 +1,8 @@
 package com.infy.stage
 {
+	import com.infy.camera.CameraInfoManager;
 	import com.infy.game.RoomGame;
+	import com.infy.light.LightManager;
 	import com.infy.str.StringTable;
 
 	/**
@@ -38,6 +40,10 @@ package com.infy.stage
 		{
 			// clean scene
 			game.cleanScene();
+			
+			LightManager.instance.clean();
+			
+			CameraInfoManager.instance.clean();
 		}
 		
 		private function setButton():void

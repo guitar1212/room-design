@@ -84,7 +84,10 @@ package
 	import com.infy.event.RoomEvent;
 	import com.infy.game.EditRoomGame;
 	import com.infy.game.RoomGame;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
 	import com.infy.parser.RoomConfigParser;
+	import com.infy.parser.command.LightParserCommand;
 	import com.infy.path.GamePath;
 	import com.infy.ui.CameraInfoUI;
 	import com.infy.ui.Modify3DObjectUI;
@@ -94,6 +97,7 @@ package
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
 	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.ColorUtil;
 	import com.infy.util.zip.ZipLoader;
 	
 	import fl.controls.BaseButton;
@@ -108,6 +112,7 @@ package
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.geom.Vector3D;
 	import flash.net.FileFilter;
 	import flash.net.FileReference;
@@ -338,7 +343,7 @@ package
 			// show mesh info
 			m_objInfoUI = new ObjectInfoUI();
 			m_objInfoUI.x = 10;
-			m_objInfoUI.y = 450;			
+			m_objInfoUI.y = 470;			
 			this.addChild(m_objInfoUI);
 			
 			// show camera info
@@ -549,6 +554,7 @@ package
 			//
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
 			game.addEventListener(RoomEvent.CREATE_CAMERA, onRoomCameraCreate);
+			game.addEventListener(RoomEvent.CREATE_LIGHT, onRoomLightCreate);
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onRoomObjectsLoadCompleted);
 			game.addEventListener(GameEvent.CAPTURE_SCREEN_COMPLETE, onCaptureScreenComplete);
 			onResize();
@@ -580,7 +586,7 @@ package
 			// create light button
 			createLightBtn = new Button();
 			createLightBtn.label = "create Light";			
-			createLightBtn.addEventListener(MouseEvent.CLICK, createLight);			
+			createLightBtn.addEventListener(MouseEvent.CLICK, onCreateLightBtnClick);			
 			this.addChild(createLightBtn);
 			m_underButtonList.push(createLightBtn);
 			
@@ -641,6 +647,12 @@ package
 			
 			if(camInfo.isDefault)
 				setCamera(camInfo);
+		}
+		
+		private function onRoomLightCreate(event:RoomEvent):void
+		{
+			var lightInfo:LightInfo = event.object as LightInfo;
+			createLight(lightInfo);	
 		}
 		
 		private function onRoomObjectsLoadCompleted(event:RoomEvent):void
@@ -785,9 +797,9 @@ package
 		}
 
 		private var m_lightCount:int = 0;
-		private function createLight(event:MouseEvent):void
+		private function onCreateLightBtnClick(event:MouseEvent):void
 		{
-			var light:LightBase = new DirectionalLight();
+			/*var light:LightBase = new DirectionalLight();
 			DirectionalLight(light).direction = new Vector3D(0, -1, 0);
 			light.ambient = 1.0;
 			light.diffuse = 1.0;
@@ -796,10 +808,23 @@ package
 			
 			var lights:Array = game.lightPicker.lights;
 			lights.push(light);
-			game.lightPicker.lights = lights;
+			game.lightPicker.lights = lights;*/
+			
+			var info:LightInfo = new LightInfo();
+			
+			LightManager.instance.addLight(info);
+			
+			createLight(info);
+		}
+		
+		private function createLight(info:LightInfo):void
+		{
+			var light:LightBase = game.createLight(info);
+			addToScene(light);
 			
 			m_lightCount++;
 		}
+		
 		
 		private function saveRoom(event:MouseEvent):void
 		{
@@ -1687,6 +1712,20 @@ package
 			}
 			
 			cleanLoadObject();
+			
+			game.cleanScene();
+			
+			m_cameraInfoUI.clean();
+			
+			CameraInfoManager.instance.clean();
+			
+			var i:int = 0, len:int = LightManager.instance.numLights;
+			for(i; i < len; i++)
+			{
+				var light:LightInfo = LightManager.instance.getLightInfoByIndex(i);
+				m_sceneContainer.removeItem(light.light);
+			}
+			LightManager.instance.clean();
 		}
 		
 		private function cleanLoadObject():void
