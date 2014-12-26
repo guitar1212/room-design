@@ -7,12 +7,17 @@ package com.infy.game
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
 	import away3d.entities.Mesh;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.LightBase;
+	import away3d.lights.PointLight;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	import com.infy.camera.CameraInfo;
 	import com.infy.constant.View3DCons;
 	import com.infy.event.GameEvent;
+	import com.infy.light.LightInfo;
+	import com.infy.parser.command.LightParserCommand;
 	import com.infy.util.TimerManager;
 	
 	import flash.display.Bitmap;
@@ -101,6 +106,42 @@ package com.infy.game
 			}
 		}
 		
+		public function createLight(lightInfo:LightInfo):LightBase
+		{
+			var type:String = lightInfo.type;
+			var light:LightBase;
+			if(type == LightParserCommand.TYPE_DIRECTION)
+			{
+				light = new DirectionalLight();
+				(light as DirectionalLight).direction = lightInfo.direction;
+				
+			}
+			else if(type == LightParserCommand.TYPE_POINT)
+			{
+				light = new PointLight();
+				(light as PointLight).radius = lightInfo.radius;
+				(light as PointLight).fallOff = lightInfo.fallOff;
+			}
+			
+			light.name = lightInfo.name;
+			light.ambient = lightInfo.ambient;
+			light.ambientColor = lightInfo.color;
+			light.diffuse = lightInfo.diffuse;
+			light.specular = lightInfo.specular;
+			light.color = lightInfo.color;
+			light.castsShadows = lightInfo.castsShadows;
+			
+			if(lightInfo.addToLightPicker)
+			{
+				var a:Array = lightPicker.lights;
+				a.push(light);
+				lightPicker.lights = a;
+			}
+			
+			lightInfo.light = light;
+			
+			return light;
+		}
 		
 		public function setCamera(info:CameraInfo, type:String = "P"):void
 		{
@@ -134,7 +175,7 @@ package com.infy.game
 				view.renderer.queueSnapshot(m_bitmapdata);
 				m_bScreenCapture = true;
 				
-				TimerManager.instance.register(onCaptureScreenFinish, 1000, 1);
+				TimerManager.instance.register(onCaptureScreenFinish, 500, 1);
 			}
 		}
 		
@@ -149,8 +190,12 @@ package com.infy.game
 		
 		public function cleanScene():void
 		{
-			// TODO Auto Generated method stub
+			while(scene.numChildren > 0)
+			{
+				scene.removeChildAt(0);
+			}
 			
+			this.lightPicker.lights = [];
 		}
 	}
 }

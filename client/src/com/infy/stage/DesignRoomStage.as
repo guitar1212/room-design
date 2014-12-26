@@ -3,6 +3,7 @@ package com.infy.stage
 	import away3d.containers.ObjectContainer3D;
 	import away3d.entities.Mesh;
 	import away3d.events.MouseEvent3D;
+	import away3d.lights.LightBase;
 	import away3d.loaders.Loader3D;
 	
 	import com.infy.camera.CameraInfo;
@@ -10,6 +11,7 @@ package com.infy.stage
 	import com.infy.game.RoomGame;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
+	import com.infy.light.LightInfo;
 	import com.infy.parser.RoomConfigParser;
 	import com.infy.path.GamePath;
 	import com.infy.resource.getIcon;
@@ -66,6 +68,7 @@ package com.infy.stage
 			
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onLoadRoomObjectCompleted);
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
+			game.addEventListener(RoomEvent.CREATE_LIGHT, onLightCreate);
 			game.addEventListener(RoomEvent.CREATE_CAMERA, onCameraCreate);
 			
 			// show 3d view
@@ -124,6 +127,14 @@ package com.infy.stage
 			
 			o.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
 			//game.addObjectToScene(event.object as ObjectContainer3D);
+		}
+		
+		private function onLightCreate(event:RoomEvent):void
+		{
+			var lightInfo:LightInfo = event.object as LightInfo;
+			
+			var light:LightBase = game.createLight(lightInfo);
+			game.addObjectToScene(light);
 		}
 		
 		protected function on3DObjeMouseDown(event:MouseEvent3D):void

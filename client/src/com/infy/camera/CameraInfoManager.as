@@ -13,6 +13,7 @@ package com.infy.camera
 		
 		private var m_camInfoDic:Dictionary = new Dictionary();
 		
+		
 		public function CameraInfoManager()
 		{
 		}
@@ -49,6 +50,12 @@ package com.infy.camera
 			else
 				return new CameraInfo;
 				
+		}
+		
+		public function clean():void
+		{
+			m_camInfoDic = null;
+			m_camInfoDic = new Dictionary();
 		}
 	}
 }

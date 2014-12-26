@@ -80,6 +80,7 @@ package com.infy.parser
 		{
 			perpareCommand(data);
 			
+			excuteLightCommand();
 			excuteLoadCommand();
 		}
 		
@@ -131,7 +132,7 @@ package com.infy.parser
 				}
 				else if(cmd == "light")
 				{
-					//m_lightCommand.push(new LightParserCommand(m_game, args));
+					m_lightCommand.push(new LightParserCommand(m_game, args));
 				}
 				else if(cmd == "sound")
 				{
@@ -452,6 +453,14 @@ package com.infy.parser
 			for(var i:int = 0; i < m_cameraCommand.length; i++)
 			{
 				m_cameraCommand[i].excute();
+			}
+		}
+		
+		private function excuteLightCommand():void
+		{
+			for(var i:int = 0; i < m_lightCommand.length; i++)
+			{
+				m_lightCommand[i].excute();
 			}
 		}
 		

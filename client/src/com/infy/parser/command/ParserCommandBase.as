@@ -108,6 +108,22 @@ package com.infy.parser.command
 		{
 			m_target = value;
 		}
+		
+		public function toVector3D(args:String):Vector3D
+		{
+			var a:Array = toArray(args);
+			return new Vector3D(a[0], a[1], a[2]);
+		}
+		
+		public function toArray(args:String):Array
+		{
+			return args.split(",");
+		}
+		
+		public function toBoolean(args:String):Boolean
+		{
+			return args == "Y";
+		}
 
 	}
 }

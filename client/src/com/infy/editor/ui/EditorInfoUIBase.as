@@ -37,8 +37,9 @@ package com.infy.editor.ui
 			this.addChild(m_datagrid);
 			
 			m_datagrid.addEventListener(DataGridEvent.ITEM_FOCUS_OUT, onFoucsOut);
-			
-			this.addChild(new MoveIcon());
+			var moveIcon:MoveIcon = new MoveIcon();
+			moveIcon.y = -moveIcon.height/2;
+			this.addChild(moveIcon);
 		}
 		
 		protected function onFoucsOut(event:DataGridEvent):void

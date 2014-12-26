@@ -38,6 +38,10 @@ package com.infy.parser.command
 		
 		public var reciveShadow:Boolean;
 		
+		public var shadowLight:String;
+		
+		public var epsilon:Number;
+		
 		public function PrimitiveParserCommand(dispatcher:EventDispatcher, args:Array=null)
 		{
 			super(dispatcher, args);
@@ -58,6 +62,8 @@ package com.infy.parser.command
 			alpha = info.alpha;
 			castShadow = info.castShadow;
 			reciveShadow = info.reciveShadow;
+			shadowLight = info.shadowLight;
+			epsilon = info.epsilon;
 		}
 		
 		override public function excute():void
@@ -101,7 +107,8 @@ package com.infy.parser.command
 			str += addNumber(alpha);
 			str += addBoolean(castShadow);
 			str += addBoolean(reciveShadow);
-			
+			str += addString(shadowLight);
+			str += addNumber(epsilon);
 			return str;
 		}
 	}

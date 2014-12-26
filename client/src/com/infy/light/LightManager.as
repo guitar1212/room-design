@@ -13,6 +13,7 @@ package com.infy.light
 		
 		private var m_lightList:Vector.<LightInfo> = new Vector.<LightInfo>();
 		
+		
 		public function LightManager()
 		{
 		}
@@ -23,6 +24,11 @@ package com.infy.light
 				m_instance = new LightManager();
 			
 			return m_instance;
+		}
+		
+		public function get numLights():int
+		{
+			return m_lightList.length;
 		}
 		
 		public function addLight(light:LightInfo):void
@@ -44,6 +50,19 @@ package com.infy.light
 			}
 			
 			return null;
+		}
+		
+		
+		public function clean():void
+		{
+			var i:int = 0, len:int = m_lightList.length;
+			for(i; i < len; i++)
+			{
+				var info:LightInfo = m_lightList[i];
+				info.light = null;
+			}
+			
+			m_lightList.length = 0;
 		}
 	}
 }

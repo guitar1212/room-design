@@ -149,5 +149,10 @@ package com.infy.ui
 			
 			hideConfirmUI();
 		}
+		
+		public function clean():void
+		{
+			m_list.removeAll();
+		}
 	}
 }
