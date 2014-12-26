@@ -97,5 +97,23 @@ package com.infy.parser.command
 			str += addBoolean(addToLightPicker);
 			return str;
 		}
+		
+		public function setLightInfo(info:LightInfo):void
+		{
+			name = info.name;
+			type = info.type;
+			var c:Array = ColorUtil.getRGB(info.color);
+			color = new Vector3D(c[0], c[1], c[2]);
+			ambient = info.ambient;
+			var ac:Array = ColorUtil.getRGB(info.ambientColor);
+			ambientColor = new Vector3D(ac[0], ac[1], ac[2]);
+			diffuse = info.diffuse;
+			specular = info.specular;
+			castShadows = info.castsShadows;
+			direction = info.direction;
+			falloff = info.fallOff;
+			radius = info.radius;
+			addToLightPicker = info.addToLightPicker;
+		}
 	}
 }
