@@ -1,11 +1,5 @@
 package com.infy.stage
 {
-	import away3d.containers.ObjectContainer3D;
-	import away3d.entities.Mesh;
-	import away3d.events.MouseEvent3D;
-	import away3d.lights.LightBase;
-	import away3d.loaders.Loader3D;
-	
 	import com.infy.camera.CameraInfo;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.RoomGame;
@@ -13,19 +7,21 @@ package com.infy.stage
 	import com.infy.layer.LayerManager;
 	import com.infy.light.LightInfo;
 	import com.infy.parser.RoomConfigParser;
-	import com.infy.path.GamePath;
 	import com.infy.resource.getIcon;
 	import com.infy.room.RoomInfo;
 	import com.infy.room.RoomItemInfo;
 	import com.infy.room.RoomItemType;
-	import com.infy.str.StringTable;
 	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
-	import flash.display.Loader;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.net.URLRequest;
+	
+	import away3d.containers.ObjectContainer3D;
+	import away3d.entities.Mesh;
+	import away3d.events.MouseEvent3D;
+	import away3d.lights.LightBase;
+	import away3d.loaders.Loader3D;
 	
 	import src.DesignViewItemVO;
 

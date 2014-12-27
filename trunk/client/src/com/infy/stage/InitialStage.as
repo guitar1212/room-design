@@ -2,17 +2,17 @@ package com.infy.stage
 {
 	import com.infy.game.RoomGame;
 	import com.infy.hotel.HotelInfo;
+	import com.infy.message.DTestMessage;
+	import com.infy.message.MessageDispatecher;
 	import com.infy.message.MessageManager;
 	import com.infy.message.UTestMessage;
+	import com.infy.message.base.DMessageBase;
 	import com.infy.path.GamePath;
 	import com.infy.room.RoomInfo;
 	import com.infy.room.RoomItemInfo;
 	import com.infy.room.RoomItemType;
 	import com.infy.str.StringTable;
-	import com.infy.task.Task;
-	import com.infy.task.TaskManager;
 	
-	import flash.text.engine.Kerning;
 	import flash.utils.getTimer;
 	
 	/**
@@ -54,6 +54,7 @@ package com.infy.stage
 			// hide ui
 			game.ui.show(false);
 			
+			
 			// create link
 			MessageManager.instance.initialize(GamePath.SERVER_PATH, GamePath.GAME_METHOD);
 			
@@ -72,6 +73,13 @@ package com.infy.stage
 			m_tempCont = getTimer();
 		}
 		
+		override public function registerMessage():void
+		{
+			MessageDispatecher.instance.regisgerClass(101, DTestMessage);
+			
+			MessageDispatecher.instance.registerController(101, this);
+		}
+		
 		override public function release():void
 		{
 			super.release();	
@@ -84,22 +92,22 @@ package com.infy.stage
 			// for test
 			var dT:int = getTimer() - m_tempCont;
 			game.ui.loadingMessage = "初始中..." + (dT/1000).toFixed(2);
-			if(dT > 3000)			
-				m_step = STEP_5_FINISH;
+//			if(dT > 3000)			
+//				m_step = STEP_5_FINISH;
 			
 			if(m_bSuspend) return;
 			
 			if(m_step == STEP_1_NET)
 			{
+				trace("send UTestMessage");
 				var mes:UTestMessage = new UTestMessage();
 				mes.userID = "long";
-				mes.context = ['123', '231'];
+				mes.context = ['long', 'hello'];
 				mes.send();
 				m_bSuspend = true;
 			}
 			else if(m_step == STEP_2)
 			{
-				
 			}
 			else if(m_step == STEP_3)
 			{
@@ -114,6 +122,20 @@ package com.infy.stage
 				m_step = 0;
 				StageManager.instance.changeStage(1);
 			}
+		}
+		
+		override public function reciveMessage(msg:DMessageBase):void
+		{
+		
+			if(msg.mode == 101)
+			{
+				trace("recive 101");
+				trace((msg as DTestMessage).New)
+				m_step = STEP_5_FINISH;
+				m_bSuspend = false;
+			}
+			
+			
 		}
 		
 		

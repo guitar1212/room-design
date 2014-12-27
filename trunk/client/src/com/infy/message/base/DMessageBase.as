@@ -9,6 +9,8 @@ package com.infy.message.base
 	{
 		private var m_data:Object = null;
 		
+		private var m_mode:int;
+		
 		/**
 		 * 數值類型的錯誤回傳值
 		 */
@@ -16,6 +18,16 @@ package com.infy.message.base
 		
 		public function DMessageBase()
 		{
+		}
+		
+		public function get mode():int
+		{
+			return m_mode;
+		}
+		
+		public function set mode(value:int):void
+		{
+			m_mode = value;
 		}
 		
 		/**

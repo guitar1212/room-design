@@ -55,6 +55,7 @@ package com.infy.message
 			
 			if(result)
 			{
+				var mode:int = result['mode'];
 				var returncode:int = result['params'][0];
 				if(returncode != 0)
 					throw new Error("mode" + result['mode'] + " return code = " + returncode);
@@ -62,12 +63,7 @@ package com.infy.message
 				var data:Object = parserResult(result['params'][1]);
 				
 				
-				var t:DTestMessage = new DTestMessage();
-				t.Data = data;
-				trace(t.New);
-				trace(t.Time);
-				
-				//MessageDispatcher.instance.dispatch(data);
+				MessageDispatecher.instance.dispatch(mode, data);
 				
 				if(m_completeCB != null)
 					m_completeCB(data);

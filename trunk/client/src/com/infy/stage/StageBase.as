@@ -1,13 +1,15 @@
 package com.infy.stage
 {
 	import com.infy.game.RoomGame;
+	import com.infy.message.base.DMessageBase;
+	import com.infy.message.base.IMessageController;
 
 	/**
 	 * 
 	 * @long  Dec 1, 2014
 	 * 
 	 */	
-	public class StageBase implements IStage
+	public class StageBase implements IStage, IMessageController
 	{
 		private var m_game:RoomGame;
 		
@@ -18,7 +20,7 @@ package com.infy.stage
 		
 		public function initilaize():void
 		{
-			
+			registerMessage();
 		}
 		
 		public function update():void
@@ -29,6 +31,16 @@ package com.infy.stage
 		public function release():void
 		{
 			
+		}
+		
+		public function registerMessage():void
+		{
+			
+		}
+		
+		public function reciveMessage(msg:DMessageBase):void
+		{
+		
 		}
 		
 		public function get game():RoomGame
