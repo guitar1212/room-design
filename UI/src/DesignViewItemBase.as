@@ -10,6 +10,8 @@
 	{
 		private var m_vo:DesignViewItemVO;
 		private var m_id:String = "";
+		private var m_isSelect:Boolean = false;
+		private var m_pos:int = 0;
 		public var cbItemClick:Function = null;
 		
 		public function DesignViewItemBase() 
@@ -24,11 +26,11 @@
 		
 		private function onOver(e:MouseEvent):void
 		{
-			this["itemOver"].visible = true;
+			this["itemOver"].visible = true || m_isSelect;
 		}
 		private function onOut(e:MouseEvent):void
 		{
-			this["itemOver"].visible = false;
+			this["itemOver"].visible = false || m_isSelect;
 		}
 		
 		public function setViewPic(pic:DisplayObject):void
@@ -38,6 +40,16 @@
 		public function setId(id:String):void
 		{
 			m_id = id;
+		}
+		
+		public function set isSelect(boo:Boolean):void
+		{
+			this["itemOver"].visible = boo;
+			m_isSelect = boo;
+		}
+		public function set pos(index:int):void
+		{
+			m_pos = index;
 		}
 		
 		private function addSingleChild(mc:DisplayObjectContainer, child:DisplayObject = null):void

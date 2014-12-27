@@ -5,6 +5,8 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
 	import flash.display.SimpleButton;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	public class WebDesignUIBase extends MovieClip
 	{
@@ -21,6 +23,7 @@
 		private var m_miniViewArr:Array = null;
 		private var m_labelArr:Array = null;
 		private var m_btnArr:Array = null;
+		private var m_timer:Timer = null;
 		
 		
 		public function WebDesignUIBase()
@@ -29,12 +32,13 @@
 			m_miniViewArr = new Array();
 			m_labelArr = new Array();
 			m_btnArr = new Array();
+			m_timer = new Timer(1000);
 			initUI();
 		}
 		
 		public function set curStep(step:int):void
 		{			
-			(this["nextStepBtn"] as SimpleButton).visible = (step != 2);
+			this["nextStepBtn"].visible = (step != 2);
 			this["miniAnchor"].visible = (step != 1);
 			
 			this["labelAnchor"].visible = (step == 0);
@@ -130,10 +134,10 @@
 			{
 				var btn:ChooseBtn = new ChooseBtn();
 				btn.x = 125 * i;
-				btn.btnName = btnNameArr[i];
+				btn.btnText = btnNameArr[i];
 				btn.btnId = String(i);
 				m_btnArr.push(btn);
-				this["btnAnchor"].addChild(m_btnArr[i] as SimpleButton);
+				this["btnAnchor"].addChild(m_btnArr[i]);
 				m_btnArr[i].cbChooseBtnClick = onBtnChooseClick;
 			}
 			
@@ -161,9 +165,10 @@
 			{
 				var viewItem:DesignViewItem = new DesignViewItem();
 				m_miniViewArr.push(viewItem);
-				m_miniViewArr[i].x = 220 * i;
+				m_miniViewArr[i].x = 225 * i;
 				m_miniViewArr[i].setViewPic(arr[i].itemIcon);
 				m_miniViewArr[i].setId(arr[i].id);
+				m_miniViewArr[i].isSelect = arr[i].isSelect;
 				this["miniAnchor"].addChild(m_miniViewArr[i]);
 				m_miniViewArr[i].cbItemClick = onItemClick;
 			}
@@ -212,7 +217,8 @@
 			}
 			this["titleTf"].mouseEnabled = false;
 			this["roomIntroTf"].mouseEnabled = false;
-			(this["nextStepBtn"] as SimpleButton).addEventListener(MouseEvent.CLICK, onBtnClick);
+			this["nextStepBtn"].addEventListener(MouseEvent.CLICK, onBtnClick);
+			//m_timer.addEventListener(TimerEvent.TIMER,onChange);
 			
 		}
 		
@@ -230,13 +236,7 @@
 		private function onLabelClick(id:String):void
 		{
 			if(cbLabelClick != null)
-				cbLabelClick(id)
-			var labeArrLeng:int = m_labelArr.length;
-			for(var i:int = 0; i< labeArrLeng;++i)
-			{
-				m_labelArr[i].isLabelChoose = (i == int(id));
-			}
-			
+				cbLabelClick(id)			
 		}
 		
 		private function onLabelItemClick(id:String):void
@@ -260,6 +260,12 @@
 			if(cbBtnChooseClick != null)
 				cbBtnChooseClick(id)
 			
+		}
+		
+		
+		private function onChange(e:TimerEvent):void
+		{
+			trace(e + "...");
 		}
 
 	}

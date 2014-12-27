@@ -7,6 +7,7 @@
 		public var itemIcon:DisplayObject = null;
 		public var itemCount:int = 0;
 		public var itemEnabled:Boolean = false;
+		public var isSelect:Boolean = false;
 			
 		public function get id():String
 		{
