@@ -23,6 +23,7 @@ package com.infy.stage
 			game.ui.type = 2;
 			
 			game.ui.cbBtnChooseClick = onButtonClick;
+			game.ui.cbItemClick = onViewPointClick;
 			
 			setButton();
 		}
@@ -31,7 +32,8 @@ package com.infy.stage
 		{
 			super.release();
 			
-			game.ui.cbBtnChooseClick = null;		
+			game.ui.cbBtnChooseClick = null;	
+			game.ui.cbItemClick = null;
 			
 			clean();
 		}
@@ -68,6 +70,12 @@ package com.infy.stage
 			{
 				linkOrderRoom();
 			}
+		}
+		
+		private function onViewPointClick(index:String):void
+		{
+			trace("onViewPointClick" + index);
+			
 		}
 		
 		private function reDesignRoom():void

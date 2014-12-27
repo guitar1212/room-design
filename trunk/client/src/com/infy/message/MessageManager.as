@@ -1,8 +1,9 @@
 package com.infy.message
 {
+	import com.infy.message.base.UMessageBase;
+	
 	import org.phprpc.PHPRPC_Client;
 	import org.phprpc.PHPRPC_Error;
-	import com.infy.message.base.UMessageBase;
 
 	/**
 	 * 
@@ -36,15 +37,15 @@ package com.infy.message
 		public function initialize(host:String, method:String):void
 		{
 			m_rpc = new PHPRPC_Client(host, [method]);
-			m_rpc.keyLength = 256;
-			m_rpc.encryptMode = 2;
+			m_rpc.keyLength = 1024;
+			m_rpc.encryptMode = 0;
 			m_host = host;
 		}
 		
 		public function send(msg:UMessageBase):void
 		{
 			var mode:int = msg.mode;
-			m_rpc.gameserver(mode, msg, phprpcCallback);
+			m_rpc.roomserver(mode, msg.data, phprpcCallback);
 		}
 		
 		private function phprpcCallback(result:*, args:Array, output:String, warring:PHPRPC_Error):void
@@ -54,9 +55,17 @@ package com.infy.message
 			
 			if(result)
 			{
-				var data:Object = parserResult(result.toString());
+				var returncode:int = result['params'][0];
+				if(returncode != 0)
+					throw new Error("mode" + result['mode'] + " return code = " + returncode);
+				
+				var data:Object = parserResult(result['params'][1]);
 				
 				
+				var t:DTestMessage = new DTestMessage();
+				t.Data = data;
+				trace(t.New);
+				trace(t.Time);
 				
 				//MessageDispatcher.instance.dispatch(data);
 				
@@ -68,7 +77,9 @@ package com.infy.message
 		
 		private function parserResult(rawData:*):Object
 		{
-			var data:Object = {};
+			var data:Object = rawData;
+			
+			
 			
 			return data;
 		}

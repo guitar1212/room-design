@@ -7,11 +7,18 @@ package com.infy.message
 		public function UTestMessage()
 		{
 			super();
+			this.mode = 101;
 		}
 		
-		public function set userID():void
+		public function set userID(id:String):void
 		{
-			this.addString("Long");
+			this.addString(0, id);
 		}
+		
+		public function set context(msg:String):void
+		{
+			this.addString(1, msg);
+		}
+		
 	}
 }

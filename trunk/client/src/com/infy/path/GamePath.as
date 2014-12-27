@@ -7,9 +7,9 @@ package com.infy.path
 	 */	
 	public class GamePath
 	{
-		public static var SERVER_PATH:String = "";
+		public static var SERVER_PATH:String = "http://aboo.tk/design_room/server/web/server.php";
 		
-		public static var GAME_METHOD:String = "gameserver";
+		public static var GAME_METHOD:String = "roomserver";
 		
 		public static var ASSET_ROOT_PATH:String = "..\\assets\\";
 		
