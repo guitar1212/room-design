@@ -11,7 +11,7 @@ package
 	import flash.text.TextField;
 	import flash.utils.setInterval;
 	
-	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW", width="1024", height="768")]
+	[SWF(backgroundColor="#eeebda", frameRate="60", quality="LOW", width="1024", height="768")]
 	public class RoomLoader extends Sprite
 	{
 		private static const MAIN_SWF_NAME:String = "RoomDesign.swf";

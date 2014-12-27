@@ -57,11 +57,11 @@ package com.infy.message.base
 		 * @param index index從0開始 
 		 * @return 回果有錯, 回傳""
 		 */
-		protected function getString(index:int):String
+		protected function getString(key:String):String
 		{
 			if(m_data != null)
 			{
-				return m_data[index.toString()];
+				return m_data[key];
 			}
 			else
 			{ 

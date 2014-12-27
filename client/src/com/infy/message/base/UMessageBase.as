@@ -13,6 +13,7 @@ package com.infy.message.base
 		
 		public function UMessageBase()
 		{
+			m_Message['params'] = [];
 		}
 		
 		public function send():void
@@ -37,7 +38,7 @@ package com.infy.message.base
 		 */
 		protected function addInt(index:int, value:int):void
 		{
-			m_Message[index.toString()] = value;
+			m_Message['params'][index] = value;
 		}
 		
 		/**
@@ -47,7 +48,7 @@ package com.infy.message.base
 		 */
 		protected function addString(index:int, value:String):void
 		{
-			m_Message[index.toString()] = value;
+			m_Message['params'][index] = value;
 		}
 		
 		/**
@@ -57,12 +58,12 @@ package com.infy.message.base
 		 */
 		protected function addNumber(index:int, value:Number):void
 		{
-			m_Message[index.toString()] = value;
+			m_Message['params'][index] = value;
 		}
 		
-		protected function getMessageData():Object
+		public function get data():Array
 		{
-			return m_Message;
+			return m_Message['params'];
 		}
 
 	}

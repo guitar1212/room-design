@@ -3,6 +3,7 @@ package com.infy.stage
 	import com.infy.game.RoomGame;
 	import com.infy.hotel.HotelInfo;
 	import com.infy.message.MessageManager;
+	import com.infy.message.UTestMessage;
 	import com.infy.path.GamePath;
 	import com.infy.room.RoomInfo;
 	import com.infy.room.RoomItemInfo;
@@ -27,9 +28,11 @@ package com.infy.stage
 		private static const STEP_4:int = 4;
 		private static const STEP_5_FINISH:int = 5;
 		
-		private var m_step:int = 0;
+		private var m_step:int = STEP_1_NET;
 		
 		private var m_tempCont:int = 0;
+		
+		private var m_bSuspend:Boolean = false;
 		
 		public function InitialStage(g:RoomGame)
 		{
@@ -84,9 +87,15 @@ package com.infy.stage
 			if(dT > 3000)			
 				m_step = STEP_5_FINISH;
 			
+			if(m_bSuspend) return;
+			
 			if(m_step == STEP_1_NET)
 			{
-				
+				var mes:UTestMessage = new UTestMessage();
+				mes.userID = "long";
+				mes.context = "cchaha";
+				mes.send();
+				m_bSuspend = true;
 			}
 			else if(m_step == STEP_2)
 			{

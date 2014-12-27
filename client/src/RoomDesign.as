@@ -5,8 +5,6 @@ package
 	import com.infy.path.GamePath;
 	
 	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
@@ -16,7 +14,7 @@ package
 	 * @long  Nov 26, 2014
 	 * 
 	 */	
-	[SWF(backgroundColor="#dfe3e4", frameRate="60", quality="LOW", width="1024", height="768")]
+	[SWF(backgroundColor="#eeebda", frameRate="60", quality="LOW", width="1024", height="768")]
 	public class RoomDesign extends Sprite
 	{		
 		[Embed(source="/../embeds/viewBG.jpg")]
@@ -24,7 +22,7 @@ package
 		
 		
 		public var game:RoomGame;
-		
+	
 		
 		public function RoomDesign()
 		{

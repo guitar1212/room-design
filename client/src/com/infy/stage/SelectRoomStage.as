@@ -39,6 +39,7 @@ package com.infy.stage
 			game.ui.cbItemClick = onViewPointClick;
 			game.ui.cbLabelClick = onRoomSelect;
 			
+			game.ui.viewItemVO = [];
 			
 			//test
 			setHotelData(game.hotelInfo);
@@ -54,7 +55,7 @@ package com.infy.stage
 			game.ui.cbLabelClick = null;
 			
 			game.ui.labelArray = [];
-			game.ui.viewItemVO = [];
+			
 			game.ui.viewObject = null;
 		}
 		
