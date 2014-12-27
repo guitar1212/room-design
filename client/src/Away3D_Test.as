@@ -87,6 +87,7 @@ package
 	import flash.utils.getTimer;
 	
 	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.OrthographicLens;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.View3D;
@@ -606,12 +607,18 @@ package
 			this.addChild(captureBtn);
 			m_underButtonList.push(captureBtn);
 			
-			/*saveCaptureBtn = new Button();
-			saveCaptureBtn.label = "Save Screen";
-			saveCaptureBtn.addEventListener(MouseEvent.CLICK, onSaveCapture);
-			saveCaptureBtn.enabled = false;
-			this.addChild(saveCaptureBtn);
-			m_underButtonList.push(saveCaptureBtn);*/
+			var topViewBtn:Button = new Button();
+			topViewBtn.label = "TopView";
+			topViewBtn.addEventListener(MouseEvent.CLICK, onTopViewBtnClick);
+			this.addChild(topViewBtn);
+			m_underButtonList.push(topViewBtn);
+			
+			var toggleGridBtn:Button = new Button();
+			toggleGridBtn.label = "toggleGrid";
+			toggleGridBtn.addEventListener(MouseEvent.CLICK, onToggleGridBtnClick);
+			this.addChild(toggleGridBtn);
+			m_underButtonList.push(toggleGridBtn);
+			
 		}
 
 		private var ground:ObjectContainer3D;
@@ -850,6 +857,23 @@ package
 			showImageSavePanel();
 			
 			//saveCaptureBtn.enabled = false;
+		}
+		
+		private function onTopViewBtnClick(event:MouseEvent):void
+		{
+			var info:CameraInfo = new CameraInfo();
+			info.type = "O";
+			info.name = "topViewCam";
+			info.distance = 500;
+			info.projectionHeight = 1000;
+			info.panAngle = 0;
+			info.tiltAngle = 90;
+			setCamera(info);
+		}
+		
+		private function onToggleGridBtnClick(event:MouseEvent = null):void
+		{
+			
 		}
 		
 		/*private function onSaveCapture(event:MouseEvent):void
@@ -1529,18 +1553,25 @@ package
 			
 			if(controller is HoverController)
 			{
+				var str:String = "";
+				if(camera.lens is PerspectiveLens)
+					str = "\nfov : " + PerspectiveLens(camera.lens).fieldOfView;
+				else
+					str = "\nproectHeight : " + OrthographicLens(camera.lens).projectionHeight;
+				
 				var lookAt:Vector3D = HoverController(controller).lookAtPosition;
 				text = "HoverController\nname : " + camera.name +
 					   "\n" + camera.lens.toString() +
 					   "\npos : " + camera.position.x.toFixed(2) + ", " + camera.position.y.toFixed(2) + ", " + camera.position.y.toFixed(2) +
 					   "\nnear : " + camera.lens.near + 
 					   "\nfar : " + camera.lens.far +
-					   "\nfov : " + PerspectiveLens(camera.lens).fieldOfView + 
-					   "\nfocalLength :  " + PerspectiveLens(camera.lens).focalLength +
+					   //"\nfov : " + PerspectiveLens(camera.lens).fieldOfView + 
+					   //"\nfocalLength :  " + PerspectiveLens(camera.lens).focalLength +
 					   "\ndistance :" + HoverController(controller).distance +
 					   "\npanAngle : " + HoverController(controller).panAngle.toFixed(2) + " (" +  HoverController(controller).minPanAngle + ", " + HoverController(controller).maxPanAngle + ")" +
 					   "\ntiltAngle : " + HoverController(controller).tiltAngle.toFixed(2) + " (" +  HoverController(controller).minTiltAngle + ", " + HoverController(controller).maxTiltAngle + ")" +
 					   "\nlookAt : " + lookAt.x.toFixed(2) + ", " + lookAt.y.toFixed(2) + ", " + lookAt.z.toFixed(2) +
+					   str 
 					   "\n";
 					
 			}

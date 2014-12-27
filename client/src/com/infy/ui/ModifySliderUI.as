@@ -12,8 +12,6 @@ package com.infy.ui
 	 */	
 	public class ModifySliderUI extends ModifySlider
 	{
-		private var m_maxValue:Number;
-		private var m_minValue:Number;
 		private var m_currentValue:Number;
 		
 		private var m_defalutValue:Number
@@ -60,6 +58,21 @@ package com.infy.ui
 		{
 			this.slider.value = _value;
 			this.value.text = _value.toString();
+		}
+		
+		public function set title(t:String):void
+		{
+			this.label.text = t;
+		}
+		
+		public function set maxValue(value:Number):void
+		{
+			this.slider.maximum = value;
+		}
+		
+		public function set minValue(value:Number):void
+		{
+			this.slider.minimum = value;
 		}
 	}
 }

@@ -20,6 +20,9 @@ package com.infy.camera
 		public var tiltAngle:Number = 60;
 		public var lookAt:Vector3D = new Vector3D(0, 0, 0);
 		
+		// for orthograhic
+		public var projectionHeight:Number = 1500;
+		
 		public function CameraInfo()
 		{
 		}
@@ -31,10 +34,11 @@ package com.infy.camera
 				   "isDefault : " + isDefault +"\n" + 
 				   "near : " + near + "\n" +
 				   "far : " + far + "\n" +
-				   "distance : " + distance +"\n" +
-				   "panAngle : " + panAngle +"\n" +
-				   "tiltAngle : " + tiltAngle +"\n" +
-				   "lookAt : " + lookAt.toString()
+				   "distance : " + distance + "\n" +
+				   "panAngle : " + panAngle + "\n" +
+				   "tiltAngle : " + tiltAngle + "\n" +
+				   "lookAt : " + lookAt.toString() + "\n"
+				   "projectionHeight : " + projectionHeight.toString()
 				    ;
 		}
 	}
