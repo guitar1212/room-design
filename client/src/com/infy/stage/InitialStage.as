@@ -93,7 +93,7 @@ package com.infy.stage
 			{
 				var mes:UTestMessage = new UTestMessage();
 				mes.userID = "long";
-				mes.context = "cchaha";
+				mes.context = ['123', '231'];
 				mes.send();
 				m_bSuspend = true;
 			}

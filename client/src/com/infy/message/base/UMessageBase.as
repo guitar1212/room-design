@@ -61,6 +61,11 @@ package com.infy.message.base
 			m_Message['params'][index] = value;
 		}
 		
+		protected function addObject(index:int, obj:Object):void
+		{
+			m_Message['params'][index] = obj;
+		}
+		
 		public function get data():Array
 		{
 			return m_Message['params'];

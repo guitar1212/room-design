@@ -70,6 +70,11 @@ package com.infy.message.base
 			}
 		}
 		
+		protected function getArray(key:String):Array
+		{
+			return m_data[key] as Array;
+		}
+		
 		/**
 		 * 取得Number
 		 * @param index index從0開始 

@@ -15,9 +15,9 @@ package com.infy.message
 			this.addString(0, id);
 		}
 		
-		public function set context(msg:String):void
+		public function set context(msg:Array):void
 		{
-			this.addString(1, msg);
+			this.addObject(1, msg);
 		}
 		
 	}
