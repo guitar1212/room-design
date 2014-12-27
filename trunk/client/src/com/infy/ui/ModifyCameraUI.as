@@ -1,18 +1,19 @@
 package com.infy.ui
 {
-	import away3d.cameras.Camera3D;
-	import away3d.cameras.lenses.PerspectiveLens;
-	import away3d.controllers.ControllerBase;
-	import away3d.controllers.HoverController;
-	
 	import com.infy.event.CameraEvent;
-	
-	import fl.controls.CheckBox;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
+	
+	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.OrthographicLens;
+	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.controllers.ControllerBase;
+	import away3d.controllers.HoverController;
+	
+	import fl.controls.CheckBox;
 
 	/**
 	 * 
@@ -45,7 +46,7 @@ package com.infy.ui
 			addSlider(2, "near", 5, 1, 100, 1);
 			addSlider(3, "far", 3000, 1000, 5000, 1);
 			addSlider(4, "distance", 150, 20, 1000, 1);
-			addSlider(5, "fov", 60, 16, 75, 0.5);
+			addSlider(5, "fov", 60, 16, 75, 1);
 			addSlider(6, "look X", 0, -500, 500, 1);
 			addSlider(7, "look Y", 0, -200, 200, 1);
 			addSlider(8, "look Z", 0, -500, 500, 1);
@@ -83,6 +84,23 @@ package com.infy.ui
 			
 			setAtributMapping();
 			
+			var cam:Camera3D = m_targetCameraController.targetObject as Camera3D;
+			var s:ModifySliderUI = this.getChildAt(5) as ModifySliderUI;
+			if(cam.lens is OrthographicLens)
+			{
+				s.title = "projectHeight"
+				s.minValue = 100;
+				s.maxValue = 1000;
+				s.sliderValue = OrthographicLens(cam.lens).projectionHeight;
+			}
+			else
+			{
+				s.title = "fov";
+				s.minValue = 15;
+				s.maxValue = 75;
+				s.sliderValue = PerspectiveLens(cam.lens).fieldOfView;
+			}
+			
 			refresh();
 		}
 		
@@ -92,6 +110,7 @@ package com.infy.ui
 		
 		public function refresh():void
 		{
+			
 			var cam:Camera3D = m_targetCameraController.targetObject as Camera3D;
 			var lookAt:Vector3D = HoverController(m_targetCameraController).lookAtPosition;
 			//ModifySliderUI(getChildAt(0)).sliderValue = HoverController(m_targetCameraController).panAngle;
@@ -100,7 +119,10 @@ package com.infy.ui
 			ModifySliderUI(getChildAt(2)).sliderValue = cam.lens.near;
 			ModifySliderUI(getChildAt(3)).sliderValue = cam.lens.far;
 			ModifySliderUI(getChildAt(4)).sliderValue = HoverController(m_targetCameraController).distance;
-			ModifySliderUI(getChildAt(5)).sliderValue = PerspectiveLens(cam.lens).fieldOfView;			
+			if(cam.lens is OrthographicLens)
+				ModifySliderUI(getChildAt(5)).sliderValue = OrthographicLens(cam.lens).projectionHeight;
+			else
+				ModifySliderUI(getChildAt(5)).sliderValue = PerspectiveLens(cam.lens).fieldOfView;
 			ModifySliderUI(getChildAt(6)).sliderValue = lookAt.x;
 			ModifySliderUI(getChildAt(7)).sliderValue = lookAt.y;
 			ModifySliderUI(getChildAt(8)).sliderValue = lookAt.z;
@@ -117,6 +139,7 @@ package com.infy.ui
 			if(title == "near") cam.lens.near = value;
 			if(title == "far") cam.lens.far = value;			
 			if(title == "distance") HoverController(m_targetCameraController).distance = value;
+			if(title == "projectHeight") OrthographicLens(cam.lens).projectionHeight = value;
 			if(title == "fov") PerspectiveLens(cam.lens).fieldOfView = value;
 			else
 			{

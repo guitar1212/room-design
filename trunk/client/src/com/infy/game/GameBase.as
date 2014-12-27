@@ -1,18 +1,5 @@
 package com.infy.game
 {
-	import away3d.cameras.Camera3D;
-	import away3d.cameras.lenses.PerspectiveLens;
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.Scene3D;
-	import away3d.containers.View3D;
-	import away3d.controllers.HoverController;
-	import away3d.entities.Mesh;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.LightBase;
-	import away3d.lights.PointLight;
-	import away3d.materials.TextureMaterial;
-	import away3d.materials.lightpickers.StaticLightPicker;
-	
 	import com.infy.camera.CameraInfo;
 	import com.infy.constant.View3DCons;
 	import com.infy.event.GameEvent;
@@ -27,6 +14,20 @@ package com.infy.game
 	import flash.display.StageScaleMode;
 	import flash.events.EventDispatcher;
 	import flash.net.FileReference;
+	
+	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.OrthographicLens;
+	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.entities.Mesh;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.LightBase;
+	import away3d.lights.PointLight;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	/**
 	 * 
@@ -150,6 +151,17 @@ package com.infy.game
 				cameraController.targetObject = null;				
 				cameraController = null;
 			}
+			if(info.type == "P")
+			{
+				camera.lens = new PerspectiveLens();
+				PerspectiveLens(camera.lens).fieldOfView = info.fov;
+			}
+			else if(info.type == "O")
+			{
+				camera.lens = new OrthographicLens();
+				OrthographicLens(camera.lens).projectionHeight = info.projectionHeight;
+			}
+			
 			cameraController = new HoverController(camera);
 			cameraController.steps = 40;
 			cameraController.distance = info.distance;
@@ -157,9 +169,10 @@ package com.infy.game
 			cameraController.maxTiltAngle = 90;
 			cameraController.panAngle = info.panAngle;
 			cameraController.tiltAngle = info.tiltAngle;
+			
 			camera.lens.near = info.near;
 			camera.lens.far = info.far;
-			PerspectiveLens(camera.lens).fieldOfView = info.fov;
+			
 			HoverController(cameraController).lookAtPosition = info.lookAt.clone();
 		}
 		
