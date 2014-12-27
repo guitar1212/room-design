@@ -9,9 +9,9 @@ package com.infy.message
 			super();
 		}
 		
-		public function get New():String
+		public function get New():Array
 		{
-			return this.getString("new");
+			return this.getArray("new");
 		}
 		
 		public function get Time():String
