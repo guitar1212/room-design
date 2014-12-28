@@ -37,7 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import com.adobe.images.JPGEncoder;
 	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.constant.View3DCons;
@@ -49,7 +48,7 @@ package
 	import com.infy.event.ObjEvent;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.EditRoomGame;
-	import com.infy.game.RoomGame;
+	import com.infy.grid.Grid;
 	import com.infy.light.LightInfo;
 	import com.infy.light.LightManager;
 	import com.infy.parser.RoomConfigParser;
@@ -65,17 +64,13 @@ package
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
 	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.ColorUtil;
 	import com.infy.util.zip.ZipLoader;
 	
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
-	import flash.geom.Point;
 	import flash.geom.Vector3D;
 	import flash.net.FileFilter;
 	import flash.net.FileReference;
@@ -141,6 +136,8 @@ package
 		private var m_objInfoUI:ObjectInfoUI;
 		
 		private var m_saveImgPanel:ImageSavePanel;
+		
+		private var m_bTopView:Boolean = false;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -869,11 +866,23 @@ package
 			info.panAngle = 0;
 			info.tiltAngle = 90;
 			setCamera(info);
+			
+			m_bTopView = true;
 		}
 		
+		private var m_grid:Grid;
+		private var m_bShowGrid:Boolean = false;
 		private function onToggleGridBtnClick(event:MouseEvent = null):void
 		{
+			if(m_grid == null)
+				m_grid = new Grid(10, 50, .2, 0x333333);
 			
+			m_bShowGrid = !m_bShowGrid;
+			
+			if(m_bShowGrid)
+				addToScene(m_grid);
+			else
+				removeFromeScene(m_grid);
 		}
 		
 		/*private function onSaveCapture(event:MouseEvent):void
@@ -929,14 +938,29 @@ package
 			{
 				if(game.cameraController)
 				{
-					if(event.delta < 0) // forward
+					if(game.camera.lens is OrthographicLens)
 					{
-						game.cameraController.distance += 20;
+						if(event.delta < 0) // forward
+						{
+							OrthographicLens(game.camera.lens).projectionHeight += 20;
+						}
+						else
+						{
+							if(OrthographicLens(game.camera.lens).projectionHeight > 50)
+								OrthographicLens(game.camera.lens).projectionHeight -= 20;
+						}
 					}
 					else
 					{
-						if(game.cameraController.distance > 50)
-							game.cameraController.distance -= 20;
+						if(event.delta < 0) // forward
+						{
+							game.cameraController.distance += 20;
+						}
+						else
+						{
+							if(game.cameraController.distance > 50)
+								game.cameraController.distance -= 20;
+						}
 					}
 					setCameraInfo(game.cameraController);
 					m_cameraModifyUI.refresh();
@@ -1083,7 +1107,11 @@ package
 					var dy:Number = 0.3*(stage.mouseY - lastPanY);
 					
 					game.cameraController.lookAtPosition.x += dx;
-					game.cameraController.lookAtPosition.y += dy;
+					
+					if(m_bTopView)
+						game.cameraController.lookAtPosition.z -= dy;
+					else
+						game.cameraController.lookAtPosition.y += dy;
 					game.cameraController.update();
 					lastPanX = stage.mouseX;
 					lastPanY = stage.mouseY;
@@ -1093,7 +1121,9 @@ package
 				else
 				{
 					game.cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-					game.cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;					
+					game.cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;	
+					
+					m_bTopView = false;
 				}
 				setCameraInfo(game.cameraController);
 				m_cameraModifyUI.refresh();
@@ -1824,6 +1854,10 @@ package
 				m_sceneContainer.removeItem(o);
 			}	
 			else if(o is Mesh)
+			{
+				m_sceneContainer.removeItem(o);
+			}
+			else if(o is SegmentSet)
 			{
 				m_sceneContainer.removeItem(o);
 			}
