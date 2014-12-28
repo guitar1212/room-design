@@ -1139,6 +1139,11 @@ package
 					tempDragObj.object3d.scenePosition.x = (ground.maxX + ground.scenePosition.x) - 1;
 			}
 			
+			if(m_bShowGrid)
+			{
+				
+			}
+			
 			//light1.direction = new Vector3D(Math.sin(getTimer()/10000)*150000, 1000, Math.cos(getTimer()/10000)*150000);
 			
 			//cube.roll(1);
@@ -1590,7 +1595,7 @@ package
 		{
 			var text:String = "";
 			var camera:Camera3D = controller.targetObject as Camera3D;
-			
+
 			if(controller is HoverController)
 			{
 				var str:String = "";

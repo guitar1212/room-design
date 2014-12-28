@@ -7,13 +7,11 @@ package com.infy.game
 	import com.infy.parser.command.LightParserCommand;
 	import com.infy.util.TimerManager;
 	
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.EventDispatcher;
-	import flash.net.FileReference;
 	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.OrthographicLens;

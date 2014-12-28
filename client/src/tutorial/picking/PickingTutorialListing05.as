@@ -1,10 +1,14 @@
 package tutorial.picking
 {
 
+	import flash.events.KeyboardEvent;
+	import flash.geom.Matrix3D;
+	import flash.geom.Vector3D;
+	import flash.text.TextField;
+	
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.base.CompactSubGeometry;
 	import away3d.core.base.Geometry;
-	import away3d.core.base.SubGeometry;
 	import away3d.core.pick.PickingColliderType;
 	import away3d.core.pick.PickingType;
 	import away3d.entities.Mesh;
@@ -15,11 +19,6 @@ package tutorial.picking
 	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.SphereGeometry;
-	
-	import flash.events.KeyboardEvent;
-	import flash.geom.Matrix3D;
-	import flash.geom.Vector3D;
-	import flash.text.TextField;
 
 	public class PickingTutorialListing05 extends PickingTutorialListingBase
 	{
