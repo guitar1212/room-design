@@ -1,30 +1,29 @@
 package com.infy.game
 {
-	import away3d.cameras.Camera3D;
-	import away3d.cameras.lenses.PerspectiveLens;
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.Scene3D;
-	import away3d.containers.View3D;
-	import away3d.controllers.HoverController;
-	import away3d.debug.AwayStats;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.LightBase;
-	import away3d.lights.PointLight;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.DAEParser;
-	import away3d.loaders.parsers.Max3DSParser;
-	import away3d.loaders.parsers.OBJParser;
-	import away3d.loaders.parsers.Parsers;
-	import away3d.materials.lightpickers.StaticLightPicker;
-	
 	import com.infy.constant.View3DCons;
-	import com.infy.event.GameEvent;
 	import com.infy.event.RoomEvent;
 	import com.infy.light.LightInfo;
 	import com.infy.light.LightManager;
 	
 	import flash.display.Sprite;
 	import flash.geom.Vector3D;
+	
+	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.core.pick.PickingType;
+	import away3d.debug.AwayStats;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.LightBase;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.parsers.DAEParser;
+	import away3d.loaders.parsers.Max3DSParser;
+	import away3d.loaders.parsers.OBJParser;
+	import away3d.loaders.parsers.Parsers;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	/**
 	 * 
@@ -65,6 +64,7 @@ package com.infy.game
 			view.backgroundColor = View3DCons.BACKGROUND_COLOR;
 			view.width = View3DCons.WIDTH;
 			view.height = View3DCons.HEIGHT;
+			view.mousePicker = PickingType.RAYCAST_BEST_HIT
 			
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera);
