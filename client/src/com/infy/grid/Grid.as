@@ -20,13 +20,13 @@ package com.infy.grid
 			
 			for(var i:int = 0; i < lines; i++)
 			{
-				var vx0:Vector3D = new Vector3D(startX - i*gridSize, 0, startZ);
-				var vx1:Vector3D = new Vector3D(startX - i*gridSize, 0, -startZ);
+				var vx0:Vector3D = new Vector3D(startX - i*gridSize, 1, startZ);
+				var vx1:Vector3D = new Vector3D(startX - i*gridSize, 1, -startZ);
 				var lineX:LineSegment = new LineSegment(vx0, vx1, color, color, thickness);
 				addSegment(lineX);
 				
-				var vz0:Vector3D = new Vector3D(startX, 0, startZ - i*gridSize);
-				var vz1:Vector3D = new Vector3D(-startX, 0, startZ - i*gridSize);
+				var vz0:Vector3D = new Vector3D(startX, 1, startZ - i*gridSize);
+				var vz1:Vector3D = new Vector3D(-startX, 1, startZ - i*gridSize);
 				var lineZ:LineSegment = new LineSegment(vz0, vz1, color, color, thickness);
 				addSegment(lineZ);
 			}
