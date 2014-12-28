@@ -71,6 +71,7 @@ package
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.PressAndTapGestureEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileFilter;
 	import flash.net.FileReference;
@@ -862,7 +863,7 @@ package
 			info.type = "O";
 			info.name = "topViewCam";
 			info.distance = 500;
-			info.projectionHeight = 1000;
+			info.projectionHeight = 500;
 			info.panAngle = 0;
 			info.tiltAngle = 90;
 			setCamera(info);
@@ -1334,12 +1335,21 @@ package
 			info.name = "new cam";
 			info.near = game.camera.lens.near;
 			info.far = game.camera.lens.far;
-			info.fov = PerspectiveLens(game.camera.lens).fieldOfView;
+			if(game.camera.lens is PerspectiveLens)
+			{
+				info.type = "P";
+				info.fov = PerspectiveLens(game.camera.lens).fieldOfView;
+			}
+			else
+			{
+				info.type = "O";
+				info.projectionHeight = OrthographicLens(game.camera.lens).projectionHeight;
+			}
+				
 			info.distance = game.cameraController.distance;
 			info.tiltAngle = game.cameraController.tiltAngle;
 			info.panAngle = castPanAngle(game.cameraController.panAngle);
 			info.lookAt = game.cameraController.lookAtPosition.clone();
-			info.type = "P";
 			info.isDefault = false;
 			return info;
 		}
