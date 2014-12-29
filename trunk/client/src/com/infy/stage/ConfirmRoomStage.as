@@ -1,5 +1,6 @@
 package com.infy.stage
 {
+	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
 	import com.infy.game.RoomGame;
 	import com.infy.light.LightManager;
@@ -24,6 +25,7 @@ package com.infy.stage
 			
 			game.ui.cbBtnChooseClick = onButtonClick;
 			game.ui.cbItemClick = onViewPointClick;
+			game.lockCamera = false;
 			
 			setButton();
 		}
@@ -34,7 +36,7 @@ package com.infy.stage
 			
 			game.ui.cbBtnChooseClick = null;	
 			game.ui.cbItemClick = null;
-			
+			game.lockCamera = true;
 			clean();
 		}
 		
@@ -75,6 +77,7 @@ package com.infy.stage
 		private function onViewPointClick(index:String):void
 		{
 			trace("onViewPointClick" + index);
+			//var info:CameraInfo = CameraInfoManager.instance.get
 			
 		}
 		

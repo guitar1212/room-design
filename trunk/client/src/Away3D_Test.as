@@ -1166,20 +1166,20 @@ package
 			else if(event.target is BaseButton)
 				return;
 			
-			if(game.cameraController)
-			{
-				lastPanAngle = game.cameraController.panAngle;
-				lastTiltAngle = game.cameraController.tiltAngle;
-				lastMouseX = stage.mouseX;
-				lastMouseY = stage.mouseY;
-				move = true;
-				stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-				if(event.shiftKey)
-				{
-					lastPanX = stage.mouseX;
-					lastPanY = stage.mouseY;
-				}
-			}			
+//			if(game.cameraController)
+//			{
+//				lastPanAngle = game.cameraController.panAngle;
+//				lastTiltAngle = game.cameraController.tiltAngle;
+//				lastMouseX = stage.mouseX;
+//				lastMouseY = stage.mouseY;
+//				move = true;
+//				stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+//				if(event.shiftKey)
+//				{
+//					lastPanX = stage.mouseX;
+//					lastPanY = stage.mouseY;
+//				}
+//			}			
 		}
 		
 		/**
@@ -1187,8 +1187,8 @@ package
 		 */
 		private function onMouseUp(event:MouseEvent):void
 		{
-			move = false;
-			removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+//			move = false;
+//			removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
 		private function onMouseDobuleClick(event:MouseEvent):void
@@ -1199,11 +1199,11 @@ package
 		/**
 		 * Mouse stage leave listener for navigation
 		 */
-		private function onStageMouseLeave(event:Event):void
-		{
-			move = false;
-			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-		}
+//		private function onStageMouseLeave(event:Event):void
+//		{
+//			move = false;
+//			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+//		}
 		
 		/**
 		 * stage listener for resize events
