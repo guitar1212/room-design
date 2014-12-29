@@ -70,6 +70,8 @@ package com.infy.stage
 			// show 3d view
 			game.show3DView();
 			
+			game.lockCamera = true;
+			
 			if(m_roomParser == null)
 				m_roomParser = new RoomConfigParser(game);
 			

@@ -1,25 +1,9 @@
 package com.infy.game
 {
-	import away3d.cameras.Camera3D;
-	import away3d.containers.Scene3D;
-	import away3d.containers.View3D;
-	import away3d.controllers.HoverController;
-	import away3d.debug.AwayStats;
-	import away3d.lights.DirectionalLight;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.DAEParser;
-	import away3d.loaders.parsers.Max3DSParser;
-	import away3d.loaders.parsers.OBJParser;
-	import away3d.loaders.parsers.Parsers;
-	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.utils.Cast;
-	
 	import com.infy.constant.View3DCons;
 	import com.infy.hotel.HotelInfo;
 	import com.infy.layer.Layer;
 	import com.infy.layer.LayerManager;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
 	import com.infy.room.RoomInfo;
 	import com.infy.stage.ConfirmRoomStage;
 	import com.infy.stage.DesignRoomStage;
@@ -31,8 +15,20 @@ package com.infy.game
 	
 	import flash.display.Sprite;
 	import flash.display.Stage;
-	import flash.geom.Vector3D;
 	import flash.ui.Keyboard;
+	
+	import away3d.cameras.Camera3D;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.debug.AwayStats;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.parsers.DAEParser;
+	import away3d.loaders.parsers.Max3DSParser;
+	import away3d.loaders.parsers.OBJParser;
+	import away3d.loaders.parsers.Parsers;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.utils.Cast;
 
 	/**
 	 * 
@@ -47,6 +43,7 @@ package com.infy.game
 		
 		private var m_hotelInfo:HotelInfo;
 		
+		
 		public function RoomGame(root:Sprite)
 		{
 			super(root);
@@ -55,6 +52,8 @@ package com.infy.game
 			//initialize();
 		}
 		
+		
+
 		override public function initialize():void
 		{			
 			super.initialize();
@@ -196,6 +195,11 @@ package com.infy.game
 			super.update();
 			StageManager.instance.onUpdate();
 			TaskManager.instance.update();
+			
+			if(!lockCamera)
+			{
+				
+			}
 		}
 		
 		public function render():void

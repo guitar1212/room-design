@@ -11,7 +11,9 @@ package com.infy.game
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.MouseEvent;
 	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.OrthographicLens;
@@ -44,6 +46,8 @@ package com.infy.game
 		
 		public var lightPicker:StaticLightPicker;
 		
+		private var m_bLockCamera:Boolean = true;
+		
 		public function GameBase(root:Sprite)
 		{
 			m_root = root;	
@@ -54,16 +58,66 @@ package com.infy.game
 		{
 			root.stage.scaleMode = StageScaleMode.NO_SCALE;
 			root.stage.align = StageAlign.TOP_LEFT;
+			
+			root.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			root.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			
+		}
+		
+		protected function onMouseUp(event:MouseEvent):void
+		{
+			m_moveCamera = false;
+			root.stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+		}
+		
+		protected function onMouseDown(event:MouseEvent):void
+		{
+			if(cameraController)
+			{
+				lastPanAngle = cameraController.panAngle;
+				lastTiltAngle = cameraController.tiltAngle;
+				lastMouseX = root.stage.mouseX;
+				lastMouseY = root.stage.mouseY;
+				m_moveCamera = true;
+				root.stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+				if(event.shiftKey)
+				{
+					lastPanX = root.stage.mouseX;
+					lastPanY = root.stage.mouseY;
+				}
+			}
+		}
+		
+		protected function onStageMouseLeave(event:Event):void
+		{
+			onMouseUp(null);
 		}
 		
 		public function update():void
 		{
-			
+			if(!lockCamera)
+			{
+				if(m_moveCamera)
+				{
+					cameraController.panAngle = 0.3*(root.stage.mouseX - lastMouseX) + lastPanAngle;
+					cameraController.tiltAngle = 0.3*(root.stage.mouseY - lastMouseY) + lastTiltAngle;	
+				}
+			}
 		}
 		
 		public function get root():Sprite
 		{
 			return m_root;
+		}
+		
+		public function get lockCamera():Boolean
+		{
+			return m_bLockCamera;
+		}
+		
+		public function set lockCamera(value:Boolean):void
+		{
+			m_bLockCamera = value;
 		}
 		
 		public function addObjectToScene(obj:ObjectContainer3D):void
@@ -176,6 +230,13 @@ package com.infy.game
 		
 		private var m_bitmapdata:BitmapData;
 		private var m_bScreenCapture:Boolean = false;
+		private var m_moveCamera:Boolean;
+		private var lastPanAngle:Number;
+		private var lastTiltAngle:Number;
+		private var lastMouseX:Number;
+		private var lastMouseY:Number;
+		private var lastPanX:Number;
+		private var lastPanY:Number;
 		public function captureScreen():void
 		{
 			if(!m_bScreenCapture)
