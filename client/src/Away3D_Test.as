@@ -37,51 +37,6 @@ THE SOFTWARE.
 
 package
 {
-	import com.infy.camera.CameraInfo;
-	import com.infy.camera.CameraInfoManager;
-	import com.infy.constant.View3DCons;
-	import com.infy.constant.WireFrameConst;
-	import com.infy.editor.ui.ImageSavePanel;
-	import com.infy.editor.ui.ObjectInfoUI;
-	import com.infy.event.CameraEvent;
-	import com.infy.event.GameEvent;
-	import com.infy.event.ObjEvent;
-	import com.infy.event.RoomEvent;
-	import com.infy.game.EditRoomGame;
-	import com.infy.grid.Grid;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.parser.RoomConfigParser;
-	import com.infy.parser.command.CameraParserCommand;
-	import com.infy.parser.command.LightParserCommand;
-	import com.infy.parser.command.ParserCommandType;
-	import com.infy.path.GamePath;
-	import com.infy.ui.CameraInfoUI;
-	import com.infy.ui.Modify3DObjectUI;
-	import com.infy.ui.ModifyCameraUI;
-	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.TextEditorBaseUI;
-	import com.infy.util.primitive.PrimitiveCreator;
-	import com.infy.util.primitive.PrimitiveInfo;
-	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.zip.ZipLoader;
-	
-	import flash.display.BitmapData;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.events.PressAndTapGestureEvent;
-	import flash.geom.Vector3D;
-	import flash.net.FileFilter;
-	import flash.net.FileReference;
-	import flash.net.URLRequest;
-	import flash.text.TextField;
-	import flash.ui.Keyboard;
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
-	import flash.utils.getTimer;
-	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.OrthographicLens;
 	import away3d.cameras.lenses.PerspectiveLens;
@@ -117,11 +72,57 @@ package
 	import away3d.tools.utils.Drag3D;
 	import away3d.utils.Cast;
 	
+	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
+	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
+	import com.infy.editor.Editor2DRoom;
+	import com.infy.editor.ui.ImageSavePanel;
+	import com.infy.editor.ui.ObjectInfoUI;
+	import com.infy.event.CameraEvent;
+	import com.infy.event.GameEvent;
+	import com.infy.event.ObjEvent;
+	import com.infy.event.RoomEvent;
+	import com.infy.game.EditRoomGame;
+	import com.infy.grid.Grid;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.parser.RoomConfigParser;
+	import com.infy.parser.command.CameraParserCommand;
+	import com.infy.parser.command.LightParserCommand;
+	import com.infy.parser.command.ParserCommandType;
+	import com.infy.path.GamePath;
+	import com.infy.ui.CameraInfoUI;
+	import com.infy.ui.Modify3DObjectUI;
+	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifyLightUI;
+	import com.infy.ui.TextEditorBaseUI;
+	import com.infy.util.primitive.PrimitiveCreator;
+	import com.infy.util.primitive.PrimitiveInfo;
+	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.zip.ZipLoader;
+	
 	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
 	import fl.core.UIComponent;
 	import fl.events.SliderEvent;
+	
+	import flash.display.BitmapData;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.events.PressAndTapGestureEvent;
+	import flash.geom.Vector3D;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.ui.Keyboard;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite
@@ -139,6 +140,8 @@ package
 		private var m_saveImgPanel:ImageSavePanel;
 		
 		private var m_bTopView:Boolean = false;
+		
+		private var m_edit2D:Editor2DRoom;
 		
 		//cube textures
 		[Embed(source="/../embeds/trinket_diffuse.jpg")]
@@ -345,7 +348,7 @@ package
 			// show mesh info
 			m_objInfoUI = new ObjectInfoUI();
 			m_objInfoUI.x = 10;
-			m_objInfoUI.y = 470;			
+			m_objInfoUI.y = 500;			
 			this.addChild(m_objInfoUI);
 			
 			// show camera info
@@ -617,6 +620,11 @@ package
 			this.addChild(toggleGridBtn);
 			m_underButtonList.push(toggleGridBtn);
 			
+			var open2DEditorBtn:Button = new Button();
+			open2DEditorBtn.label = "Edit 2D";
+			open2DEditorBtn.addEventListener(MouseEvent.CLICK, onToggle2DEditorBtnClick);
+			this.addChild(open2DEditorBtn);
+			m_underButtonList.push(open2DEditorBtn);
 		}
 
 		private var ground:ObjectContainer3D;
@@ -886,6 +894,21 @@ package
 				removeFromeScene(m_grid);
 		}
 		
+		private function onToggle2DEditorBtnClick(event:MouseEvent):void
+		{
+			if(m_edit2D == null)
+				m_edit2D = new Editor2DRoom();
+			
+			if(m_edit2D.parent == null)
+			{
+				this.addChild(m_edit2D);
+				onResize();
+			}
+			else
+				m_edit2D.parent.removeChild(m_edit2D);
+					
+					
+		}
 		/*private function onSaveCapture(event:MouseEvent):void
 		{
 			
@@ -1244,12 +1267,25 @@ package
 			m_mouseInfoText.y = game.view.y - 25;
 			
 			var dx:int = game.view.x;
+			var dy:int = game.view.y + game.view.height + 3;
+			var bpl:int = 7;	// buttons per line
 			for(var i:int = 0; i < m_underButtonList.length; i++)
 			{
 				var b:Button = m_underButtonList[i];
-				b.y = game.view.y + game.view.height + 3;
+				var c:int = ~~(i/bpl);
+				b.y = dy + c*(b.height + 1);
 				b.x = dx;
-				dx += b.width + 5;
+				
+				if(i != 0 && i%(bpl-1) == 0)
+					dx = game.view.x;
+				else
+					dx += b.width + 3;
+			}
+			
+			if(m_edit2D)
+			{
+				m_edit2D.x = (stage.stageWidth - m_edit2D.width)/2;
+				m_edit2D.y = (stage.stageHeight - m_edit2D.height)/2;
 			}
 		}
 		
