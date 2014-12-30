@@ -17,6 +17,7 @@
 		public function DesignViewItemBase() 
 		{
 			// constructor code
+			this.buttonMode = true;
 			this["itemOver"].visible = false;
 			this["itemOver"].mouseEnabled = false;
 			this.addEventListener(MouseEvent.MOUSE_OVER,onOver);
