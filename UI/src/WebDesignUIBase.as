@@ -17,7 +17,9 @@
 		public var cbLabelItemClick:Function = null;
 		public var cbGoodsItemDown:Function = null;
 		public var cbGoodsItemUp:Function = null;
+		public var cbRightViewClick:Function = null;
 		public var cbTrashClick:Function = null;
+		public var cbDirectionDown:Function = null;
 		
 		
 		private var m_miniViewArr:Array = null;
@@ -46,6 +48,8 @@
 			this["titleTf"].visible = (step != 1);
 			this["roomIntroTf"].visible = (step != 1);
 			this["page1"].visible = (step == 1);
+			this["directionSetting"].visible = (step == 2);
+			
 			switch(step)
 			{
 				case 0:
@@ -169,6 +173,7 @@
 				m_miniViewArr[i].setViewPic(arr[i].itemIcon);
 				m_miniViewArr[i].setId(arr[i].id);
 				m_miniViewArr[i].isSelect = arr[i].isSelect;
+				m_miniViewArr[i].pos = i;
 				this["miniAnchor"].addChild(m_miniViewArr[i]);
 				m_miniViewArr[i].cbItemClick = onItemClick;
 			}
@@ -192,6 +197,11 @@
 			this["page1"].goodsItemVO = arr;
 			this["page1"].cbItemDown = onGoodsItemDown;
 			this["page1"].cbItemUp = onGoodsItemUp;
+		}
+		public function set rightViewVOArr(arr:Array):void
+		{
+			this["page1"].viewItemVO = arr;
+			this["page1"].cbViewClick = onRightViewClick;
 		}
 		
 		private function addSingleChild(mc:DisplayObjectContainer, child:DisplayObject = null):void
@@ -218,6 +228,10 @@
 			this["titleTf"].mouseEnabled = false;
 			this["roomIntroTf"].mouseEnabled = false;
 			this["nextStepBtn"].addEventListener(MouseEvent.CLICK, onBtnClick);
+			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
+			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
+			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
+			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
 			//m_timer.addEventListener(TimerEvent.TIMER,onChange);
 			
 		}
@@ -226,6 +240,29 @@
 		{
 			if (cbMouseClick != null)
 				cbMouseClick();
+		}
+		
+		private function onDirectionClick(e:MouseEvent):void
+		{
+			var target:String = "";
+			switch (e.currentTarget.name)
+			{
+				case "dUpBtn":
+					target = "up";
+					break;
+				case "dDownBtn":
+					target = "down";
+					break;
+				case "dRightBtn":
+					target = "right";
+					break;
+				case "dLeftBtn":
+					target = "left";
+					break;
+			}
+			
+			if (cbDirectionDown != null)
+				cbDirectionDown(target);
 		}
 		private function onItemClick(id:String):void
 		{
@@ -253,6 +290,12 @@
 		{
 			if(cbGoodsItemUp != null)
 				cbGoodsItemUp(id)
+		}
+		
+		private function onRightViewClick(id:String):void
+		{
+			if(cbRightViewClick != null)
+				cbRightViewClick(id)
 		}
 		
 		private function onBtnChooseClick(id:String):void
