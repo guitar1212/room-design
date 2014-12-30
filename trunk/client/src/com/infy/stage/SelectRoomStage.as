@@ -94,7 +94,7 @@ package com.infy.stage
 			{
 				var vo:DesignViewItemVO = new DesignViewItemVO();
 				vo.id = roomInfo.viewPoints[i];
-				vo.itemIcon = getIcon(vo.id);				
+				vo.itemIcon = getIcon(vo.id);		
 				viweArr.push(vo);
 			}
 			

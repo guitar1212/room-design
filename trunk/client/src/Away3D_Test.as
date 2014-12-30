@@ -238,8 +238,6 @@ package
 		
 		private var m_cameraInfoUI:CameraInfoUI;
 		
-		private var m_bLockCamera:Boolean = false;
-		
 		private var m_textureSprite:Sprite = new Sprite();
 		
 		private var m_underButtonList:Array = [];
@@ -267,6 +265,7 @@ package
 		private function init():void
 		{
 			game = new EditRoomGame(this);
+			game.lockCamera = false;
 			roomParser = new RoomConfigParser(game);
 			
 			initUI();
@@ -726,7 +725,7 @@ package
 		
 		private function toggleCameraLocked(lock:Boolean):void
 		{
-			m_bLockCamera = lock;
+			game.lockCamera = lock;
 		}
 		
 		protected function onInputEnter(event:MouseEvent):void
@@ -1123,7 +1122,7 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			if (move && !m_bLockCamera) 
+			if (move) 
 			{
 				if(m_shiftKeyDown)
 				{
@@ -1144,8 +1143,8 @@ package
 				}
 				else
 				{
-					game.cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-					game.cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;	
+//					game.cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+//					game.cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;	
 					
 					m_bTopView = false;
 				}
@@ -1164,7 +1163,7 @@ package
 			
 			if(m_bShowGrid)
 			{
-				
+			
 			}
 			
 			//light1.direction = new Vector3D(Math.sin(getTimer()/10000)*150000, 1000, Math.cos(getTimer()/10000)*150000);

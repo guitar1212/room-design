@@ -20,7 +20,6 @@ package
 		[Embed(source="/../embeds/viewBG.jpg")]
 		public static var RoomBackground:Class;
 		
-		
 		public var game:RoomGame;
 	
 		
