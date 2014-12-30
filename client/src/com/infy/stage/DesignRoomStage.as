@@ -61,6 +61,7 @@ package com.infy.stage
 			game.ui.cbLabelItemClick = onLabelItemClick;
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
 			game.ui.cbItemClickMenu = onObjMenuClick;
+			game.ui.cbRightViewClick = onViewChange;
 			
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onLoadRoomObjectCompleted);
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
@@ -78,6 +79,17 @@ package com.infy.stage
 			initRoom();
 			init3D();
 			
+			var roomInfo:RoomInfo = game.roomInfo;
+			var viweArr:Array = [];
+			for(var i:int = 0; i < roomInfo.viewPoints.length; i++)
+			{
+				var vo:DesignViewItemVO = new DesignViewItemVO();
+				vo.id = roomInfo.viewPoints[i];
+				vo.itemIcon = getIcon(vo.id);		
+				viweArr.push(vo);
+			}
+			game.ui.rightViewVOArr = viweArr;
+			
 			//test
 			test();
 		}
@@ -89,8 +101,10 @@ package com.infy.stage
 			game.ui.cbLabelItemClick = null;
 			game.ui.cbGoodsItemDown = null;
 			game.ui.cbItemClickMenu = null;
-			
+			game.ui.cbRightViewClick = null;
 			game.ui.hideSimpleLoading();
+			
+			//game.ui.rightViewVOArr = null;
 		}
 		
 		protected function onCameraCreate(event:RoomEvent):void
@@ -205,10 +219,11 @@ package com.infy.stage
 				
 			}
 		}
-		/*protected function onGoodsMove(event:Event):void
+		
+		private function onViewChange(vo:DesignViewItemVO):void
 		{
 			
-		}*/
+		}
 		
 		protected function onGoodsMoveStop(event:Event):void
 		{

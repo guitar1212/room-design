@@ -7,6 +7,7 @@ package com.infy.editor
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
+	import flash.geom.Point;
 	
 	/**
 	 * 
@@ -56,8 +57,12 @@ package com.infy.editor
 		private var m_lastY:Number;
 		private var m_bMove:Boolean = false;
 		
-		private var m_buttonList:Array = [];
+		private var m_bSnapGrid:Boolean = false;
+		
+		private var m_toggleButtonList:Array = [];
 		private var m_functionButtonBar:Sprite;
+		
+		private var m_drawPoint:Sprite;
 		
 		public function Editor2DRoom()
 		{
@@ -104,6 +109,12 @@ package com.infy.editor
 			m_drawArea.addChild(drawMash);
 			m_drawArea.mask = drawMash;
 			
+			m_drawPoint = new Sprite();
+			m_drawPoint.graphics.beginFill(0x00ff00, 0.7);
+			m_drawPoint.graphics.drawCircle(0, 0, 3);
+			m_drawPoint.graphics.endFill();
+			this.addChild(m_drawPoint);
+			
 			m_functionButtonBar = new Sprite();
 			m_functionButtonBar.x = 20;
 			m_functionButtonBar.y = 40;
@@ -115,8 +126,8 @@ package com.infy.editor
 			createButton(gridIcon, ToggleGrid, true);			
 			createButton(plusIcon, onScaleUp, true);
 			createButton(subIcon, onScaleDown, true);
-			createButton(drawRecIcon, onDrawRectangle, true);
-			createButton(drawCircleIcon, onDrawCircle, true);
+			m_toggleButtonList.push(createButton(drawRecIcon, onDrawRectangle, true));
+			m_toggleButtonList.push(createButton(drawCircleIcon, onDrawCircle, true));
 			
 			onResize(null);			
 		}
@@ -157,6 +168,9 @@ package com.infy.editor
 			m_background.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			m_background.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			
+			m_drawArea.addEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, onDrawStart);
+			m_drawArea.addEventListener(MouseEvent.MIDDLE_MOUSE_UP, onDrawEnd);
+			
 			this.addEventListener(Event.RESIZE, onResize);
 		}
 		
@@ -165,6 +179,8 @@ package com.infy.editor
 			this.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			m_background.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			m_background.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			m_drawArea.removeEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, onDrawStart);
+			m_drawArea.removeEventListener(MouseEvent.MIDDLE_MOUSE_UP, onDrawEnd);
 			this.removeEventListener(Event.RESIZE, onResize);
 			m_bMove = false;
 		}
@@ -180,6 +196,23 @@ package com.infy.editor
 			m_lastY = event.stageY;
 			m_bMove = true;
 		}	
+		
+		private var m_bStartDraw:Boolean = false;
+		private function onDrawStart(event:MouseEvent):void
+		{
+			if(bDrawRec)
+			{
+				m_bStartDraw = true;
+			}
+		}
+		
+		private function onDrawEnd(event:MouseEvent):void
+		{
+			if(bDrawRec)
+			{
+				m_bStartDraw = false;
+			}
+		}
 
 		public function get scale():Number
 		{
@@ -222,6 +255,24 @@ package com.infy.editor
 				m_lastX = stage.mouseX;
 				m_lastY = stage.mouseY;
 			}
+			
+			if(m_bSnapGrid)
+			{
+				
+			}
+			else
+			{
+				var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
+				m_drawPoint.x = p.x + m_drawArea.x;
+				m_drawPoint.y = p.y + m_drawArea.y;
+			}
+			
+			if(m_bStartDraw)
+			{
+				
+			}
+			
+			
 		}
 		
 		private function onCancelBtnClick(e:MouseEvent):void
@@ -247,9 +298,24 @@ package com.infy.editor
 			
 		}
 		
+		private var bDrawRec:Boolean = false;
 		private function onDrawRectangle(e:MouseEvent):void
 		{
-			
+			bDrawRec = !bDrawRec;
+			var b:SimpleButton = e.target as SimpleButton;
+			if(b)
+			{
+				if(bDrawRec)
+				{
+					b.upState = b.downState;
+					// change mouse cursor
+					
+				}
+				else
+				{
+					b.upState = b.hitTestState;
+				}
+			}
 		}
 		
 		private function onDrawCircle(e:MouseEvent):void
