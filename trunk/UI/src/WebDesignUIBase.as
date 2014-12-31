@@ -169,6 +169,8 @@
 			{
 				var viewItem:DesignViewItem = new DesignViewItem();
 				m_miniViewArr.push(viewItem);
+				
+				m_miniViewArr[i].setVO(arr[i]);
 				m_miniViewArr[i].x = 225 * i;
 				m_miniViewArr[i].setViewPic(arr[i].itemIcon);
 				m_miniViewArr[i].setId(arr[i].id);
@@ -264,10 +266,10 @@
 			if (cbDirectionDown != null)
 				cbDirectionDown(target);
 		}
-		private function onItemClick(id:String):void
+		private function onItemClick(vo:Object):void
 		{
 			if (cbItemClick != null)
-				cbItemClick(id);
+				cbItemClick(vo);
 		}
 		
 		private function onLabelClick(id:String):void
@@ -292,10 +294,10 @@
 				cbGoodsItemUp(id)
 		}
 		
-		private function onRightViewClick(id:String):void
+		private function onRightViewClick(vo:Object):void
 		{
 			if(cbRightViewClick != null)
-				cbRightViewClick(id)
+				cbRightViewClick(vo)
 		}
 		
 		private function onBtnChooseClick(id:String):void
