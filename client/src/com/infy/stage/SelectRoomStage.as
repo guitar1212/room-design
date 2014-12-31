@@ -103,15 +103,15 @@ package com.infy.stage
 			m_curSelectRoomInfo = roomInfo;
 			
 			// default view point
-			onViewPointClick(viweArr[0].id);
+			onViewPointClick(viweArr[0]);
 		}
 		
-		private function onViewPointClick(index:String):void
+		private function onViewPointClick(vo:DesignViewItemVO):void
 		{
-			trace("view point " + index);
+			trace("view point " + vo.id);
 			
 			game.ui.showLoading("下載房間示意圖...");
-			var filename:String = index;
+			var filename:String = vo.id;
 			var loader:Loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadViewPointComplete, false, 0, true);
 			var path:String = GamePath.ASSET_IMAGE_PATH + "view/" + filename + ".png";

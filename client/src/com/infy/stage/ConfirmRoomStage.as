@@ -5,6 +5,8 @@ package com.infy.stage
 	import com.infy.game.RoomGame;
 	import com.infy.light.LightManager;
 	import com.infy.str.StringTable;
+	
+	import src.DesignViewItemVO;
 
 	/**
 	 * 
@@ -13,6 +15,8 @@ package com.infy.stage
 	 */	
 	public class ConfirmRoomStage extends StageBase
 	{
+		private var m_btnState:String = "";
+		
 		public function ConfirmRoomStage(game:RoomGame)
 		{
 			super(game);
@@ -25,7 +29,9 @@ package com.infy.stage
 			
 			game.ui.cbBtnChooseClick = onButtonClick;
 			game.ui.cbItemClick = onViewPointClick;
-			game.lockCamera = false;
+			game.ui.cbDirectionDown = onDirectionBtnDown;
+			game.ui.cbDirectionUp = onDirectionBtnUp
+			game.lockCamera = true;
 			
 			setButton();
 		}
@@ -36,6 +42,7 @@ package com.infy.stage
 			
 			game.ui.cbBtnChooseClick = null;	
 			game.ui.cbItemClick = null;
+			game.ui.cbDirectionDown = null;
 			game.lockCamera = true;
 			clean();
 		}
@@ -74,11 +81,25 @@ package com.infy.stage
 			}
 		}
 		
-		private function onViewPointClick(index:String):void
+		private function onViewPointClick(vo:DesignViewItemVO):void
 		{
-			trace("onViewPointClick" + index);
-			//var info:CameraInfo = CameraInfoManager.instance.get
+			trace("onViewPointClick" + vo.id);
+			var info:CameraInfo = CameraInfoManager.instance.getCameraInfo(vo.id);
+			if(info)
+			{
+				game.setCamera(info, info.type);
+			}
 			
+		}
+		
+		private function onDirectionBtnDown(index:String):void
+		{
+			m_btnState = index;
+		}
+		
+		private function onDirectionBtnUp(index:String):void
+		{
+			m_btnState = "";
 		}
 		
 		private function reDesignRoom():void
@@ -107,6 +128,23 @@ package com.infy.stage
 		override public function update():void
 		{
 			super.update();
+			
+			if(m_btnState == "up")
+			{
+				game.cameraController.distance -= 1;
+			}
+			else if(m_btnState == "down")
+			{
+				game.cameraController.distance += 1;
+			}
+			else if(m_btnState == "right")
+			{
+				game.cameraController.panAngle += 1;
+			}
+			else if(m_btnState == "left")
+			{
+				game.cameraController.panAngle -= 1;
+			}
 		}
 	}
 }

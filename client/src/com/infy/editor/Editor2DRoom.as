@@ -1,13 +1,22 @@
 package com.infy.editor
 {
+	import com.infy.editor.editor2droom.DrawBase;
+	import com.infy.editor.editor2droom.DrawCircle;
+	import com.infy.editor.editor2droom.DrawRectangle;
+	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+	import flash.ui.Keyboard;
+	import flash.ui.Mouse;
 	
 	/**
 	 * 
@@ -35,6 +44,9 @@ package com.infy.editor
 		[Embed(source="/../embeds/Ediror2DRoom/ic_panorama_fisheye_black_24dp.png")]
 		public static var drawCircleIcon:Class;
 		
+		[Embed(source="/../embeds/Ediror2DRoom/ic_mode_edit_black_24dp.png")]
+		public static var editIcon:Class;
+		
 		private static const GRID_SIZE:Number = 200;
 		private static const GRID_WIDTH:Number = 10;
 			
@@ -44,6 +56,9 @@ package com.infy.editor
 		private static const DRAW_AREA_WIDTH:Number = 750;
 		private static const DRAW_AREA_HEIGHT:Number = 450;
 		
+		private static const DRAW_AREA_CENTER_X:Number = DRAW_AREA_WIDTH/2;
+		private static const DRAW_AREA_CENTER_Y:Number = DRAW_AREA_HEIGHT/2;
+		
 		private var m_scale:Number = 1;
 		
 		private var m_layerList:Vector.<Sprite> = new Vector.<Sprite>();
@@ -51,6 +66,7 @@ package com.infy.editor
 		
 		private var m_background:Sprite;
 		private var m_drawArea:Sprite;
+		private var m_drawContainer:Sprite;
 		private var m_grid:Sprite;
 		
 		private var m_lastX:Number;
@@ -58,11 +74,18 @@ package com.infy.editor
 		private var m_bMove:Boolean = false;
 		
 		private var m_bSnapGrid:Boolean = false;
+		private var m_bEditMode:Boolean = false;
 		
-		private var m_toggleButtonList:Array = [];
 		private var m_functionButtonBar:Sprite;
 		
 		private var m_drawPoint:Sprite;
+		
+		private var m_curSelectDrawObject:DrawBase = null;
+		
+		private var m_msg:TextField = new TextField();
+		
+		private var m_penOffset:Point = new Point();
+		
 		
 		public function Editor2DRoom()
 		{
@@ -86,7 +109,7 @@ package com.infy.editor
 			m_background = new Sprite();
 			m_background.graphics.beginFill(0x888888);
 			m_background.graphics.drawRect(0,0,DIALOG_WIDTH,DIALOG_HEIGHT);
-			m_background.graphics.endFill();
+			m_background.graphics.endFill();			
 			this.addChildToLayer(0, m_background);
 			
 			m_drawArea = new Sprite();
@@ -102,18 +125,24 @@ package com.infy.editor
 			m_grid = new Sprite();
 			m_drawArea.addChild(m_grid);
 			
+			m_drawContainer = new Sprite();
+			m_drawArea.addChild(m_drawContainer);
+			
 			var drawMash:Sprite = new Sprite();
+			drawMash.mouseEnabled = false;
+			drawMash.mouseChildren = false;
 			drawMash.graphics.beginFill(0xffffff);
 			drawMash.graphics.drawRect(0,0,DRAW_AREA_WIDTH,DRAW_AREA_HEIGHT);
 			drawMash.graphics.endFill();
 			m_drawArea.addChild(drawMash);
 			m_drawArea.mask = drawMash;
 			
-			m_drawPoint = new Sprite();
-			m_drawPoint.graphics.beginFill(0x00ff00, 0.7);
-			m_drawPoint.graphics.drawCircle(0, 0, 3);
-			m_drawPoint.graphics.endFill();
-			this.addChild(m_drawPoint);
+			
+			m_drawPoint = new Sprite();			
+			m_drawPoint.mouseEnabled = false;
+			m_drawPoint.mouseChildren = false;
+			m_drawArea.addChild(m_drawPoint);
+			changeDrawPoint(0);
 			
 			m_functionButtonBar = new Sprite();
 			m_functionButtonBar.x = 20;
@@ -126,8 +155,14 @@ package com.infy.editor
 			createButton(gridIcon, ToggleGrid, true);			
 			createButton(plusIcon, onScaleUp, true);
 			createButton(subIcon, onScaleDown, true);
-			m_toggleButtonList.push(createButton(drawRecIcon, onDrawRectangle, true));
-			m_toggleButtonList.push(createButton(drawCircleIcon, onDrawCircle, true));
+			createButton(editIcon, onEditItem, true);
+			createButton(drawRecIcon, onDrawRectangle, true);
+			createButton(drawCircleIcon, onDrawCircle, true);
+			
+			m_msg.autoSize = TextFieldAutoSize.LEFT;
+			m_msg.x = m_drawArea.x;
+			m_msg.y = m_drawArea.y + m_drawArea.height + 3;
+			this.addChild(m_msg);
 			
 			onResize(null);			
 		}
@@ -168,10 +203,12 @@ package com.infy.editor
 			m_background.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			m_background.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			
-			m_drawArea.addEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, onDrawStart);
-			m_drawArea.addEventListener(MouseEvent.MIDDLE_MOUSE_UP, onDrawEnd);
+			m_drawArea.addEventListener(MouseEvent.MOUSE_DOWN, onDrawStart);
+			m_drawArea.addEventListener(MouseEvent.MOUSE_UP, onDrawEnd);
 			
 			this.addEventListener(Event.RESIZE, onResize);
+			
+			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown)
 		}
 		
 		protected function onRelease(event:Event):void
@@ -179,10 +216,58 @@ package com.infy.editor
 			this.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			m_background.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			m_background.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-			m_drawArea.removeEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, onDrawStart);
-			m_drawArea.removeEventListener(MouseEvent.MIDDLE_MOUSE_UP, onDrawEnd);
+			m_drawArea.removeEventListener(MouseEvent.MOUSE_DOWN, onDrawStart);
+			m_drawArea.removeEventListener(MouseEvent.MOUSE_UP, onDrawEnd);
 			this.removeEventListener(Event.RESIZE, onResize);
+			this.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown)
 			m_bMove = false;
+		}
+		
+		private function onKeyDown(event:KeyboardEvent):void
+		{
+			switch(event.keyCode)
+			{
+				case Keyboard.DELETE:
+					if(event.shiftKey)
+						cleanAllDrawItem();
+					break;
+				
+				case Keyboard.S:
+					m_bSnapGrid = !m_bSnapGrid;
+					break;
+				
+				case Keyboard.UP:
+					m_penOffset.y -= 2;
+					m_drawContainer.y -= 2;
+					m_grid.y -= 2;
+					break;
+				
+				case Keyboard.DOWN:
+					m_penOffset.y += 2;
+					m_drawContainer.y += 2;
+					m_grid.y += 2;
+					break;
+				
+				case Keyboard.LEFT:
+					m_penOffset.x -= 2;
+					m_drawContainer.x -= 2;
+					m_grid.x -= 2;
+					break;
+				
+				case Keyboard.RIGHT:
+					m_penOffset.x += 2;
+					m_drawContainer.x += 2;
+					m_grid.x += 2;
+					break;
+				
+				case Keyboard.NUMPAD_ADD:
+					onScaleUp(null);
+					break;
+				
+				case Keyboard.NUMPAD_SUBTRACT:
+					onScaleDown(null);
+					break;
+			}
 		}
 		
 		protected function onMouseUp(event:MouseEvent):void
@@ -198,19 +283,81 @@ package com.infy.editor
 		}	
 		
 		private var m_bStartDraw:Boolean = false;
+		private var m_drawObj:DrawBase;
 		private function onDrawStart(event:MouseEvent):void
 		{
-			if(bDrawRec)
+			if(m_bEditMode)
+			{
+				if(event.target is DrawBase)
+				{
+					var d:DrawBase = event.target as DrawBase;
+					if(m_curSelectDrawObject == d)
+					{
+						return;
+					}
+					m_curSelectDrawObject = d;
+					//d.select = !d.select;
+					selectDrawObject(d);
+				}
+				return;	
+			}
+			
+			if(bDrawRec || bDrawCircle)
 			{
 				m_bStartDraw = true;
+				//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
+				var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
+				if(bDrawRec)
+				{
+					m_drawObj = new DrawRectangle();
+					m_drawObj.name = "drawRec";
+				}
+				else if(bDrawCircle)
+				{
+					m_drawObj = new DrawCircle();
+					m_drawObj.name = "drawCir";
+				}
+				m_drawObj.oriScale = this.scale;
+				m_drawObj.startDraw(p.x, p.y);
+				m_drawObj.refrenceObject = m_drawPoint;
+				var offset:Point = new Point();
+				offset.x = p.x - DRAW_AREA_CENTER_X;
+				offset.y = p.y - DRAW_AREA_CENTER_Y;
+				
+				m_drawObj.offset.x = offset.x;
+				m_drawObj.offset.y = offset.y;
+				m_drawContainer.addChild(m_drawObj);
+			}
+		}
+		
+		private function selectDrawObject(d:DrawBase):void
+		{
+			for(var i:int = 0; i < m_drawContainer.numChildren; i++)
+			{
+				var draw:DrawBase = m_drawContainer.getChildAt(i) as DrawBase;
+				if(draw == d)
+				{
+					draw.select = true;
+				}
+				else
+				{
+					draw.select = false;
+				}
 			}
 		}
 		
 		private function onDrawEnd(event:MouseEvent):void
 		{
-			if(bDrawRec)
+			if(bDrawRec || bDrawCircle)
 			{
-				m_bStartDraw = false;
+				m_bStartDraw = false;				
+				
+				if(m_drawObj)
+				{
+					//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
+					var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
+					m_drawObj.endDraw(p.x, p.y);
+				}
 			}
 		}
 
@@ -222,6 +369,10 @@ package com.infy.editor
 		public function set scale(value:Number):void
 		{
 			m_scale = value;
+			
+			
+			scaleDrawItem(value);
+			
 			drawGrid(m_scale);
 		}
 		
@@ -258,13 +409,15 @@ package com.infy.editor
 			
 			if(m_bSnapGrid)
 			{
-				
+				var np:Point = getNearestGridPoint(stage.mouseX, stage.mouseY);
+				m_drawPoint.x = np.x;
+				m_drawPoint.y = np.y;
 			}
 			else
 			{
 				var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
-				m_drawPoint.x = p.x + m_drawArea.x;
-				m_drawPoint.y = p.y + m_drawArea.y;
+				m_drawPoint.x = p.x;
+				m_drawPoint.y = p.y;
 			}
 			
 			if(m_bStartDraw)
@@ -272,7 +425,14 @@ package com.infy.editor
 				
 			}
 			
+			updateMsg();
 			
+			
+		}
+		
+		private function updateMsg():void
+		{
+			m_msg.text = "Mouse(" + stage.mouseX + "," + stage.mouseY + ").  Scale = " + scale + ".  PanOffset = " + m_penOffset; 
 		}
 		
 		private function onCancelBtnClick(e:MouseEvent):void
@@ -298,6 +458,12 @@ package com.infy.editor
 			
 		}
 		
+		private function onEditItem(e:MouseEvent):void
+		{
+			m_bEditMode = !m_bEditMode;
+			
+		}
+		
 		private var bDrawRec:Boolean = false;
 		private function onDrawRectangle(e:MouseEvent):void
 		{
@@ -308,8 +474,9 @@ package com.infy.editor
 				if(bDrawRec)
 				{
 					b.upState = b.downState;
+				
 					// change mouse cursor
-					
+					changeDrawPoint(1);
 				}
 				else
 				{
@@ -318,8 +485,63 @@ package com.infy.editor
 			}
 		}
 		
+		private var bDrawCircle:Boolean = false;
+		
 		private function onDrawCircle(e:MouseEvent):void
 		{
+			bDrawCircle = !bDrawCircle;
+			if(bDrawCircle)
+			{
+				changeDrawPoint(2);				
+			}			
+		}
+		
+		private function cleanAllDrawItem():void
+		{
+			for(var i:int = 0; i < m_drawContainer.numChildren; i++)
+			{
+				var d:DrawBase = m_drawContainer.getChildAt(i) as DrawBase;
+				d.graphics.clear();
+			}
+			
+			m_drawContainer.removeChildren();
+		}
+		
+		private function scaleDrawItem(value:Number):void
+		{
+			for(var i:int = 0; i < m_drawContainer.numChildren; i++)
+			{
+				var d:DrawBase = m_drawContainer.getChildAt(i) as DrawBase;
+				scaleFromCenter(d, value, value);
+			}
+		}
+		
+		private function scaleFromCenter(obj:DrawBase, sX:Number, sY:Number):void
+		{
+			var prevW:Number = obj.width;
+			var prevH:Number = obj.height;
+			
+			var _sX:Number = sX/obj.oriScale;
+			var _sY:Number = sY/obj.oriScale;
+			
+			obj.scaleX = _sX;
+			obj.scaleY = _sY;
+			if(obj is DrawCircle)
+			{
+				/*obj.x += (obj.width - prevW) / 2;
+				obj.y += (obj.height - prevH) / 2;*/
+				obj.x = (_sX*obj.offset.x + DRAW_AREA_CENTER_X);
+				obj.y = (_sY*obj.offset.y + DRAW_AREA_CENTER_Y);
+			}
+			else
+			{
+				/*obj.x += (obj.width - prevW) / 2;
+				obj.y += (obj.height - prevH) / 2;*/
+				obj.x = (_sX*obj.offset.x + DRAW_AREA_CENTER_X);
+				obj.y = (_sY*obj.offset.y + DRAW_AREA_CENTER_Y);
+			}
+			
+			
 			
 		}
 		
@@ -335,46 +557,59 @@ package com.infy.editor
 			
 			var units:int = ~~(total_len/unit_width);
 			
-			var centerX:Number = m_drawArea.width/2;
-			var centerY:Number = m_drawArea.height/2;
-			
 			var i:int = 0;
 			var dx:Number = 0, dy:Number = 0;
-			var maxX:Number = centerX + units*unit_width;
-			if(maxX > m_drawArea.width) maxX = m_drawArea.width;
-			var minX:Number = centerX - units*unit_width;
+			var maxX:Number = DRAW_AREA_CENTER_X + units*unit_width;
+			if(maxX > DRAW_AREA_WIDTH) maxX = DRAW_AREA_WIDTH;
+			var minX:Number = DRAW_AREA_CENTER_X - units*unit_width;
 			if(minX < 0) minX = 0;
-			var maxY:Number = centerY + units*unit_width;
-			if(maxY > m_drawArea.height) maxY = m_drawArea.height;
-			var minY:Number = centerY - units*unit_width;
+			var maxY:Number = DRAW_AREA_CENTER_Y + units*unit_width;
+			if(maxY > DRAW_AREA_HEIGHT) maxY = DRAW_AREA_HEIGHT;
+			var minY:Number = DRAW_AREA_CENTER_Y - units*unit_width;
 			if(minY < 0) minY = 0;
 			while(i < units)
 			{				
-				m_grid.graphics.moveTo(centerX + unit_width*(1 + i), maxY);
-				m_grid.graphics.lineTo(centerX + unit_width*(1 + i), minY);
+				m_grid.graphics.moveTo(DRAW_AREA_CENTER_X + unit_width*(1 + i), maxY);
+				m_grid.graphics.lineTo(DRAW_AREA_CENTER_X + unit_width*(1 + i), minY);
 				
-				m_grid.graphics.moveTo(centerX - unit_width*(1 + i), maxY);
-				m_grid.graphics.lineTo(centerX - unit_width*(1 + i), minY);
+				m_grid.graphics.moveTo(DRAW_AREA_CENTER_X - unit_width*(1 + i), maxY);
+				m_grid.graphics.lineTo(DRAW_AREA_CENTER_X - unit_width*(1 + i), minY);
 				
-				m_grid.graphics.moveTo(minX, centerY + unit_width*(1 + i));
-				m_grid.graphics.lineTo(maxX, centerY + unit_width*(1 + i));
+				m_grid.graphics.moveTo(minX, DRAW_AREA_CENTER_Y + unit_width*(1 + i));
+				m_grid.graphics.lineTo(maxX, DRAW_AREA_CENTER_Y + unit_width*(1 + i));
 				
-				m_grid.graphics.moveTo(minX, centerY - unit_width*(1 + i));
-				m_grid.graphics.lineTo(maxX, centerY - unit_width*(1 + i));
+				m_grid.graphics.moveTo(minX, DRAW_AREA_CENTER_Y - unit_width*(1 + i));
+				m_grid.graphics.lineTo(maxX, DRAW_AREA_CENTER_Y - unit_width*(1 + i));
 				
 				i++;
 			}
 			
 			m_grid.graphics.lineStyle(1.5, 0xff0000, 0.8);
-			m_grid.graphics.moveTo(minX, centerY);
-			m_grid.graphics.lineTo(maxX, centerY);
+			m_grid.graphics.moveTo(minX, DRAW_AREA_CENTER_Y);
+			m_grid.graphics.lineTo(maxX, DRAW_AREA_CENTER_Y);
 			
 			m_grid.graphics.lineStyle(1.5, 0x0000ff, 0.8);
-			m_grid.graphics.moveTo(centerX, minY);
-			m_grid.graphics.lineTo(centerX, maxY);
+			m_grid.graphics.moveTo(DRAW_AREA_CENTER_X, minY);
+			m_grid.graphics.lineTo(DRAW_AREA_CENTER_X, maxY);
 			
 			
 			//m_grid.graphics.endFill();
+		}
+		
+		private function getNearestGridPoint(stageX:Number, stageY:Number):Point
+		{
+			var p:Point = new Point();
+			
+			var unit_width:Number = scale*GRID_WIDTH;
+			
+			var localPoint:Point = m_drawArea.globalToLocal(new Point(stageX, stageY));
+			localPoint.x -= DRAW_AREA_CENTER_X;
+			localPoint.y -= DRAW_AREA_CENTER_Y;
+			
+			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X + m_grid.x;
+			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y + m_grid.y;
+			
+			return p;
 		}
 		
 		private function onResize(event:Event):void
@@ -389,6 +624,30 @@ package com.infy.editor
 				b.y = dy;
 				
 				dx += b.width;				
+			}
+		}
+		
+		private function changeDrawPoint(type:int):void
+		{
+			m_drawPoint.graphics.clear();
+			
+			if(type == 0)
+			{
+				m_drawPoint.graphics.beginFill(0x00ff00, 0.7);
+				m_drawPoint.graphics.drawCircle(0, 0, 3);
+				m_drawPoint.graphics.endFill();
+			}
+			else if(type == 1) // draw rectangle
+			{
+				m_drawPoint.graphics.beginFill(0x00ffff, 0.7);
+				m_drawPoint.graphics.drawRect(-2, -2, 4, 4);
+				m_drawPoint.graphics.endFill();
+			}
+			else if(type == 2)
+			{
+				m_drawPoint.graphics.beginFill(0xffff00, 0.7);
+				m_drawPoint.graphics.drawCircle(0, 0, 3);
+				m_drawPoint.graphics.endFill();
 			}
 		}
 
