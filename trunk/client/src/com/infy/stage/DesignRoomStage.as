@@ -1,6 +1,13 @@
 package com.infy.stage
 {
+	import away3d.containers.ObjectContainer3D;
+	import away3d.entities.Mesh;
+	import away3d.events.MouseEvent3D;
+	import away3d.lights.LightBase;
+	import away3d.loaders.Loader3D;
+	
 	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.RoomGame;
 	import com.infy.layer.Layer;
@@ -14,14 +21,9 @@ package com.infy.stage
 	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.display.Loader;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	
-	import away3d.containers.ObjectContainer3D;
-	import away3d.entities.Mesh;
-	import away3d.events.MouseEvent3D;
-	import away3d.lights.LightBase;
-	import away3d.loaders.Loader3D;
 	
 	import src.DesignViewItemVO;
 
@@ -46,6 +48,10 @@ package com.infy.stage
 		
 		private var m_curView:String = "view1";
 		
+		private var m_loadIconConut:int = 0;
+		
+		private var m_viweArr:Array = [];
+		
 		public function DesignRoomStage(game:RoomGame)
 		{
 			super(game);
@@ -61,7 +67,7 @@ package com.infy.stage
 			game.ui.cbLabelItemClick = onLabelItemClick;
 			game.ui.cbGoodsItemDown = onGoodsItemMouseDown;
 			game.ui.cbItemClickMenu = onObjMenuClick;
-			game.ui.cbRightViewClick = onViewChange;
+			game.ui.cbRightViewClick = onViewChange;			
 			
 			game.addEventListener(RoomEvent.LOAD_COMPLETED, onLoadRoomObjectCompleted);
 			game.addEventListener(RoomEvent.CREATE_OBJECT, onRoomObjectCreate);
@@ -80,18 +86,33 @@ package com.infy.stage
 			init3D();
 			
 			var roomInfo:RoomInfo = game.roomInfo;
-			var viweArr:Array = [];
+			
+			m_viweArr.length = 0;
 			for(var i:int = 0; i < roomInfo.viewPoints.length; i++)
 			{
 				var vo:DesignViewItemVO = new DesignViewItemVO();
 				vo.id = roomInfo.viewPoints[i];
-				vo.itemIcon = getIcon(vo.id);		
-				viweArr.push(vo);
+				var loader:Loader = getIcon(vo.id) as Loader;
+				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadIconComplete);
+				vo.itemIcon = loader;
+				m_viweArr.push(vo);
 			}
-			game.ui.rightViewVOArr = viweArr;
+			//game.ui.rightViewVOArr = viweArr;
 			
 			//test
 			test();
+		}
+		
+		
+		protected function onLoadIconComplete(event:Event):void
+		{
+			m_loadIconConut++;
+			
+			if(m_loadIconConut >= m_viweArr.length)
+			{
+				game.ui.rightViewVOArr = m_viweArr;
+			}
+			
 		}
 		
 		override public function release():void
@@ -104,7 +125,9 @@ package com.infy.stage
 			game.ui.cbRightViewClick = null;
 			game.ui.hideSimpleLoading();
 			
-			//game.ui.rightViewVOArr = null;
+			game.ui.rightViewVOArr = null;
+			
+			m_loadIconConut = 0;
 		}
 		
 		protected function onCameraCreate(event:RoomEvent):void
@@ -222,7 +245,11 @@ package com.infy.stage
 		
 		private function onViewChange(vo:DesignViewItemVO):void
 		{
-			
+			var info:CameraInfo = CameraInfoManager.instance.getCameraInfo(vo.id);
+			if(info)
+			{
+				game.setCamera(info, info.type);
+			}
 		}
 		
 		protected function onGoodsMoveStop(event:Event):void

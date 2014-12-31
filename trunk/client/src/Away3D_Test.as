@@ -113,7 +113,6 @@ package
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
-	import flash.events.PressAndTapGestureEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileFilter;
 	import flash.net.FileReference;
@@ -144,33 +143,33 @@ package
 		private var m_edit2D:Editor2DRoom;
 		
 		//cube textures
-		[Embed(source="/../embeds/trinket_diffuse.jpg")]
+		/*[Embed(source="/../embeds/trinket_diffuse.jpg")]
 		public static var TrinketDiffuse:Class;
 		[Embed(source="/../embeds/trinket_specular.jpg")]
 		public static var TrinketSpecular:Class;
 		[Embed(source="/../embeds/trinket_normal.jpg")]
-		public static var TrinketNormals:Class;
+		public static var TrinketNormals:Class;*/
 		
 		//sphere textures
-		[Embed(source="/../embeds/beachball_diffuse.jpg")]
+		/*[Embed(source="/../embeds/beachball_diffuse.jpg")]
 		public static var BeachBallDiffuse:Class;
 		[Embed(source="/../embeds/beachball_specular.jpg")]
-		public static var BeachBallSpecular:Class;
+		public static var BeachBallSpecular:Class;*/
 		
 		//torus textures
-		[Embed(source="/../embeds/weave_diffuse.jpg")]
+		/*[Embed(source="/../embeds/weave_diffuse.jpg")]
 		public static var WeaveDiffuse:Class;
 		[Embed(source="/../embeds/weave_normal.jpg")]
-		public static var WeaveNormals:Class;
+		public static var WeaveNormals:Class;*/
 		
 		//plane textures
-		[Embed(source="/../embeds/floor_diffuse.jpg")]
+		/*[Embed(source="/../embeds/floor_diffuse.jpg")]
 		public static var FloorDiffuse:Class;
 		[Embed(source="/../embeds/floor_specular.jpg")]
 		public static var FloorSpecular:Class;
 		[Embed(source="/../embeds/floor_normal.jpg")]
 		public static var FloorNormals:Class;
-		
+		*/
 		
 		//signature variables
 		//private var Signature:Sprite;
@@ -431,7 +430,7 @@ package
 		 */
 		private function initMaterials():void
 		{
-			planeMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
+			/*planeMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			planeMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
 			planeMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
 			planeMaterial.lightPicker = game.lightPicker;
@@ -458,7 +457,7 @@ package
 			_activeMaterial = new ColorMaterial( 0xFF0000 );
 			_activeMaterial.lightPicker = game.lightPicker;
 			_inactiveMaterial = new ColorMaterial( 0xCCCCCC );
-			_inactiveMaterial.lightPicker = game.lightPicker;
+			_inactiveMaterial.lightPicker = game.lightPicker;*/
 		}
 		
 		/**
