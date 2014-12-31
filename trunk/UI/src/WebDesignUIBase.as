@@ -20,6 +20,7 @@
 		public var cbRightViewClick:Function = null;
 		public var cbTrashClick:Function = null;
 		public var cbDirectionDown:Function = null;
+		public var cbDirectionUp:Function = null;
 		
 		
 		private var m_miniViewArr:Array = null;
@@ -34,7 +35,7 @@
 			m_miniViewArr = new Array();
 			m_labelArr = new Array();
 			m_btnArr = new Array();
-			m_timer = new Timer(1000);
+			//m_timer = new Timer(1000);
 			initUI();
 		}
 		
@@ -160,6 +161,8 @@
 		/*視角Item*/
 		public function set viewItemVO(arr:Array):void
 		{
+			if(arr == null)
+				return;
 			var itemLeng:int = arr.length;
 			while(this["miniAnchor"].numChildren)
 			{
@@ -230,10 +233,14 @@
 			this["titleTf"].mouseEnabled = false;
 			this["roomIntroTf"].mouseEnabled = false;
 			this["nextStepBtn"].addEventListener(MouseEvent.CLICK, onBtnClick);
-			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
-			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
-			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
-			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionClick);
+			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
+			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
+			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
+			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
+			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_UP ,onDirectionUp);
+			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_UP, onDirectionUp);
+			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_UP, onDirectionUp);
+			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_UP, onDirectionUp);
 			//m_timer.addEventListener(TimerEvent.TIMER,onChange);
 			
 		}
@@ -244,7 +251,7 @@
 				cbMouseClick();
 		}
 		
-		private function onDirectionClick(e:MouseEvent):void
+		private function onDirectionDown(e:MouseEvent):void
 		{
 			var target:String = "";
 			switch (e.currentTarget.name)
@@ -265,6 +272,28 @@
 			
 			if (cbDirectionDown != null)
 				cbDirectionDown(target);
+		}
+		private function onDirectionUp(e:MouseEvent):void
+		{
+			var target:String = "";
+			switch (e.currentTarget.name)
+			{
+				case "dUpBtn":
+					target = "up";
+					break;
+				case "dDownBtn":
+					target = "down";
+					break;
+				case "dRightBtn":
+					target = "right";
+					break;
+				case "dLeftBtn":
+					target = "left";
+					break;
+			}
+			
+			if (cbDirectionUp != null)
+				cbDirectionUp(target);
 		}
 		private function onItemClick(vo:Object):void
 		{

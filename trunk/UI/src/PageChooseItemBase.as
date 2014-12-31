@@ -66,6 +66,8 @@
 		/*物品Item*/
 		public function set goodsItemVO(arr:Array):void
 		{
+			if(arr == null)
+				return;
 			var itemLeng:int = arr.length;
 			m_itemCount = arr.length;
 			while (this["itemAnchor"].numChildren)
@@ -93,6 +95,9 @@
 		/*視角Item*/
 		public function set viewItemVO(arr:Array):void
 		{
+			if(arr == null)
+				return;
+				
 			var itemLeng:int = arr.length;
 			while (this["rigthMiniAnchor"].numChildren)
 			{
@@ -108,8 +113,8 @@
 				m_miniViewArr[i].setViewPic(arr[i].itemIcon);
 				if(arr[i].itemIcon != null)
 				{
-					arr[i].itemIcon.width = 96;
-					arr[i].itemIcon.height = 61;
+					(arr[i].itemIcon).width = 96;
+					(arr[i].itemIcon).height = 61;
 				}
 				m_miniViewArr[i].setId(arr[i].id);
 				m_miniViewArr[i].isSelect = arr[i].isSelect;
