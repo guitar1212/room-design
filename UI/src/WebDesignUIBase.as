@@ -27,6 +27,7 @@
 		private var m_labelArr:Array = null;
 		private var m_btnArr:Array = null;
 		private var m_timer:Timer = null;
+		private var d_mouseDown:Boolean = false;
 		
 		
 		public function WebDesignUIBase()
@@ -237,10 +238,21 @@
 			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
 			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
 			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_DOWN, onDirectionDown);
+			
 			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_UP ,onDirectionUp);
 			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_UP, onDirectionUp);
 			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_UP, onDirectionUp);
 			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_UP, onDirectionUp);
+			
+			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_OVER ,onDirectionOver);
+			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_OVER, onDirectionOver);
+			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_OVER, onDirectionOver);
+			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_OVER, onDirectionOver);
+			
+			this["directionSetting"]["dUpBtn"].addEventListener(MouseEvent.MOUSE_OUT ,onDirectionOut);
+			this["directionSetting"]["dDownBtn"].addEventListener(MouseEvent.MOUSE_OUT, onDirectionOut);
+			this["directionSetting"]["dRightBtn"].addEventListener(MouseEvent.MOUSE_OUT, onDirectionOut);
+			this["directionSetting"]["dLeftBtn"].addEventListener(MouseEvent.MOUSE_OUT, onDirectionOut);
 			//m_timer.addEventListener(TimerEvent.TIMER,onChange);
 			
 		}
@@ -253,6 +265,7 @@
 		
 		private function onDirectionDown(e:MouseEvent):void
 		{
+			d_mouseDown = true;
 			var target:String = "";
 			switch (e.currentTarget.name)
 			{
@@ -273,9 +286,34 @@
 			if (cbDirectionDown != null)
 				cbDirectionDown(target);
 		}
-		private function onDirectionUp(e:MouseEvent):void
+		private function onDirectionOver(e:MouseEvent):void
 		{
-			var target:String = "";
+			if(d_mouseDown)
+			{
+				var target:String = "";
+				switch (e.currentTarget.name)
+				{
+					case "dUpBtn":
+						target = "up";
+						break;
+					case "dDownBtn":
+						target = "down";
+						break;
+					case "dRightBtn":
+						target = "right";
+						break;
+					case "dLeftBtn":
+						target = "left";
+						break;
+				}
+			
+				if (cbDirectionDown != null)
+					cbDirectionDown(target);
+			}
+		}
+		private function onDirectionOut(e:MouseEvent):void
+		{
+			/*var target:String = "";
 			switch (e.currentTarget.name)
 			{
 				case "dUpBtn":
@@ -290,10 +328,34 @@
 				case "dLeftBtn":
 					target = "left";
 					break;
-			}
+			}*/
 			
 			if (cbDirectionUp != null)
-				cbDirectionUp(target);
+				cbDirectionUp();
+		}
+		
+		private function onDirectionUp(e:MouseEvent):void
+		{
+			d_mouseDown = false;
+			/*var target:String = "";
+			switch (e.currentTarget.name)
+			{
+				case "dUpBtn":
+					target = "up";
+					break;
+				case "dDownBtn":
+					target = "down";
+					break;
+				case "dRightBtn":
+					target = "right";
+					break;
+				case "dLeftBtn":
+					target = "left";
+					break;
+			}*/
+			
+			if (cbDirectionUp != null)
+				cbDirectionUp();
 		}
 		private function onItemClick(vo:Object):void
 		{
