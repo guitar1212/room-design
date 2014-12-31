@@ -97,7 +97,7 @@ package com.infy.stage
 			m_btnState = index;
 		}
 		
-		private function onDirectionBtnUp(index:String):void
+		private function onDirectionBtnUp():void
 		{
 			m_btnState = "";
 		}
