@@ -35,10 +35,10 @@ model	item_05	obj	-187,91,-11	0,270,0	2,2,2	255,255,255	1	Y	N	null	0
 
 #Camera
 #keyword	name	default	type	near	far	fov	distance	panAngle	tiltAngle	lookAt
-camera	cam01	Y	P	5	1000	60	150	96.9	21.3	0,20,0
-camera	cam02	N	P	1	1000	60	130	248	24.8	150,20,113
-camera	cam03	N	P	5	1500	60	150	124	14.1	2.7,36.8,0
+camera	view0	Y	P	5	1000	60	150	96.9	21.3	0,20,0
+camera	view1	N	P	1	1000	60	130	248	24.8	150,20,113
+camera	view2	N	P	5	1500	60	150	124	14.1	2.7,36.8,0
 
 #light
 #keyword	name	type	color	ambient	ambientColor	diffuse	specular	castShadows	direction	falloff	radius	addToLightPicker
-light	main_light	dir	255,255,255	1	255,255,255	1	0.5	N	0,-1,0	0	0	Y
+light	main_light	dir	255,255,255	1	255,255,255	1	0.5	N	1,-1,0	0	0	Y
