@@ -102,8 +102,15 @@
 			{
 				var viewItem:DesignRightViewItem = new DesignRightViewItem();
 				m_miniViewArr.push(viewItem);
+				
+				m_miniViewArr[i].setVO(arr[i]);
 				m_miniViewArr[i].y = 65 * i;
 				m_miniViewArr[i].setViewPic(arr[i].itemIcon);
+				if(arr[i].itemIcon != null)
+				{
+					arr[i].itemIcon.width = 96;
+					arr[i].itemIcon.height = 61;
+				}
 				m_miniViewArr[i].setId(arr[i].id);
 				m_miniViewArr[i].isSelect = arr[i].isSelect;
 				this["rigthMiniAnchor"].addChild(m_miniViewArr[i]);
@@ -148,10 +155,10 @@
 			}
 		}
 		
-		private function onViewClick(id:String):void
+		private function onViewClick(vo:Object):void
 		{
 			if (cbViewClick != null)
-				cbViewClick(id);
+				cbViewClick(vo);
 		}
 
 		private function onLabelClick(id:String):void

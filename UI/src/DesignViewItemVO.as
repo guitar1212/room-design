@@ -8,6 +8,7 @@
 		public var itemCount:int = 0;
 		public var itemEnabled:Boolean = false;
 		public var isSelect:Boolean = false;
+		public var extraObject:* ;
 			
 		public function get id():String
 		{

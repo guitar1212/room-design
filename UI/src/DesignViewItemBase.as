@@ -43,6 +43,11 @@
 			m_id = id;
 		}
 		
+		public function setVO(vo:DesignViewItemVO):void
+		{
+			m_vo = vo;
+		}
+		
 		public function set isSelect(boo:Boolean):void
 		{
 			this["itemOver"].visible = boo;
@@ -69,7 +74,7 @@
 		private function onitemClick(e:MouseEvent):void
 		{
 			if (cbItemClick != null)
-				cbItemClick(m_id);
+				cbItemClick(m_vo);
 		}
 
 	}
