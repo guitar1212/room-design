@@ -24,6 +24,8 @@ package com.infy.editor.editor2droom
 		
 		private var m_bSelect:Boolean = false;
 		
+		private var m_modifier:DrawObjectModifyer = new DrawObjectModifyer();
+		
 		public function DrawBase()
 		{
 			super();
@@ -72,9 +74,16 @@ package com.infy.editor.editor2droom
 		{
 			m_bSelect = value;
 			if(value)
+			{
 				this.filters = [new GlowFilter(0xffff00, 0.8, 3, 3)];
+				m_modifier.target = this;
+				
+			}
 			else
+			{
 				this.filters = [];
+				m_modifier.target = null;
+			}
 		}
 		
 		public function get select():Boolean

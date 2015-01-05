@@ -37,6 +37,51 @@ THE SOFTWARE.
 
 package
 {
+	import com.infy.camera.CameraInfo;
+	import com.infy.camera.CameraInfoManager;
+	import com.infy.constant.View3DCons;
+	import com.infy.constant.WireFrameConst;
+	import com.infy.editor.Editor2DRoom;
+	import com.infy.editor.ui.ImageSavePanel;
+	import com.infy.editor.ui.ObjectInfoUI;
+	import com.infy.event.CameraEvent;
+	import com.infy.event.GameEvent;
+	import com.infy.event.ObjEvent;
+	import com.infy.event.RoomEvent;
+	import com.infy.game.EditRoomGame;
+	import com.infy.grid.Grid;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	import com.infy.parser.RoomConfigParser;
+	import com.infy.parser.command.CameraParserCommand;
+	import com.infy.parser.command.LightParserCommand;
+	import com.infy.parser.command.ParserCommandType;
+	import com.infy.path.GamePath;
+	import com.infy.ui.CameraInfoUI;
+	import com.infy.ui.Modify3DObjectUI;
+	import com.infy.ui.ModifyCameraUI;
+	import com.infy.ui.ModifyLightUI;
+	import com.infy.ui.TextEditorBaseUI;
+	import com.infy.util.primitive.PrimitiveCreator;
+	import com.infy.util.primitive.PrimitiveInfo;
+	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.zip.ZipLoader;
+	
+	import flash.display.BitmapData;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Vector3D;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.ui.Keyboard;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
+	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.OrthographicLens;
 	import away3d.cameras.lenses.PerspectiveLens;
@@ -70,58 +115,12 @@ package
 	import away3d.primitives.WireframePrimitiveBase;
 	import away3d.textures.BitmapTexture;
 	import away3d.tools.utils.Drag3D;
-	import away3d.utils.Cast;
-	
-	import com.infy.camera.CameraInfo;
-	import com.infy.camera.CameraInfoManager;
-	import com.infy.constant.View3DCons;
-	import com.infy.constant.WireFrameConst;
-	import com.infy.editor.Editor2DRoom;
-	import com.infy.editor.ui.ImageSavePanel;
-	import com.infy.editor.ui.ObjectInfoUI;
-	import com.infy.event.CameraEvent;
-	import com.infy.event.GameEvent;
-	import com.infy.event.ObjEvent;
-	import com.infy.event.RoomEvent;
-	import com.infy.game.EditRoomGame;
-	import com.infy.grid.Grid;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	import com.infy.parser.RoomConfigParser;
-	import com.infy.parser.command.CameraParserCommand;
-	import com.infy.parser.command.LightParserCommand;
-	import com.infy.parser.command.ParserCommandType;
-	import com.infy.path.GamePath;
-	import com.infy.ui.CameraInfoUI;
-	import com.infy.ui.Modify3DObjectUI;
-	import com.infy.ui.ModifyCameraUI;
-	import com.infy.ui.ModifyLightUI;
-	import com.infy.ui.TextEditorBaseUI;
-	import com.infy.util.primitive.PrimitiveCreator;
-	import com.infy.util.primitive.PrimitiveInfo;
-	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.zip.ZipLoader;
 	
 	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
 	import fl.core.UIComponent;
 	import fl.events.SliderEvent;
-	
-	import flash.display.BitmapData;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.geom.Vector3D;
-	import flash.net.FileFilter;
-	import flash.net.FileReference;
-	import flash.net.URLRequest;
-	import flash.text.TextField;
-	import flash.ui.Keyboard;
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
-	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#A2A2A2", frameRate="60", quality="LOW")]
 	public class Away3D_Test extends Sprite

@@ -8,6 +8,7 @@ package com.infy.editor
 	import flash.display.DisplayObject;
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
+	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -16,7 +17,6 @@ package com.infy.editor
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.ui.Keyboard;
-	import flash.ui.Mouse;
 	
 	/**
 	 * 
@@ -195,6 +195,7 @@ package com.infy.editor
 		
 		protected function onInit(event:Event):void
 		{
+			this.stage.scaleMode = StageScaleMode.NO_SCALE; 
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			
 			this.alpha = 0;
@@ -266,6 +267,11 @@ package com.infy.editor
 				
 				case Keyboard.NUMPAD_SUBTRACT:
 					onScaleDown(null);
+					break;
+				
+				case Keyboard.R:
+					if(m_curSelectDrawObject)
+						rotationFromCenter(m_curSelectDrawObject, 45);
 					break;
 			}
 		}
@@ -357,6 +363,8 @@ package com.infy.editor
 					//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
 					var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
 					m_drawObj.endDraw(p.x, p.y);
+					
+					m_drawObj = null;
 				}
 			}
 		}
@@ -432,7 +440,8 @@ package com.infy.editor
 		
 		private function updateMsg():void
 		{
-			m_msg.text = "Mouse(" + stage.mouseX + "," + stage.mouseY + ").  Scale = " + scale + ".  PanOffset = " + m_penOffset; 
+			m_msg.text = "Mouse(" + stage.mouseX + "," + stage.mouseY + ").  Scale = " + scale + ".  PanOffset = " + m_penOffset + 
+				         "\nDrawPoint (" + m_drawPoint.x + ", " + m_drawPoint.y + ")"; 
 		}
 		
 		private function onCancelBtnClick(e:MouseEvent):void
@@ -526,23 +535,26 @@ package com.infy.editor
 			
 			obj.scaleX = _sX;
 			obj.scaleY = _sY;
-			if(obj is DrawCircle)
-			{
-				/*obj.x += (obj.width - prevW) / 2;
-				obj.y += (obj.height - prevH) / 2;*/
-				obj.x = (_sX*obj.offset.x + DRAW_AREA_CENTER_X);
-				obj.y = (_sY*obj.offset.y + DRAW_AREA_CENTER_Y);
-			}
-			else
-			{
-				/*obj.x += (obj.width - prevW) / 2;
-				obj.y += (obj.height - prevH) / 2;*/
-				obj.x = (_sX*obj.offset.x + DRAW_AREA_CENTER_X);
-				obj.y = (_sY*obj.offset.y + DRAW_AREA_CENTER_Y);
-			}
+			obj.x = (_sX*obj.offset.x + DRAW_AREA_CENTER_X);
+			obj.y = (_sY*obj.offset.y + DRAW_AREA_CENTER_Y);
+		}
+		
+		private function rotationFromCenter(obj:DrawBase, angle:Number):void
+		{
+//			var oriCenterX:Number = obj.width/2; + obj.x;
+//			var oriCenterY:Number = obj.height/2 + obj.y;
 			
+			obj.rotation = angle;
 			
-			
+//			var newCenterX:Number = obj.width/2; + obj.x;
+//			var newCenterY:Number = obj.height/2 + obj.y;
+//			
+//			var dx:Number = newCenterX - oriCenterX;
+//			var dy:Number = newCenterY - oriCenterX;
+//			
+//			var len:Number = Math.sqrt(dx*dx + dy*dy);
+//			obj.x += Math.cos(angle);
+//			obj.y -= Math.sin(angle);
 		}
 		
 		private function drawGrid(scale:Number):void
@@ -606,8 +618,8 @@ package com.infy.editor
 			localPoint.x -= DRAW_AREA_CENTER_X;
 			localPoint.y -= DRAW_AREA_CENTER_Y;
 			
-			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X + m_grid.x;
-			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y + m_grid.y;
+			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X + m_grid.x + m_penOffset.x;
+			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y + m_grid.y + m_penOffset.y;
 			
 			return p;
 		}
