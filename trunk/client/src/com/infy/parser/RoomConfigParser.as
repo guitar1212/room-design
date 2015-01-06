@@ -12,6 +12,10 @@ package com.infy.parser
 	import away3d.loaders.parsers.Max3DSParser;
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.loaders.parsers.ParserBase;
+	import away3d.materials.ColorMaterial;
+	import away3d.materials.methods.CelDiffuseMethod;
+	import away3d.materials.methods.CelSpecularMethod;
+	import away3d.materials.methods.OutlineMethod;
 	
 	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
@@ -412,11 +416,18 @@ package com.infy.parser
 			var mesh:Mesh;
 			var len:uint = (event.target as Loader3D).numChildren;
 			
+			var material:ColorMaterial = testToonShading();
+			for(i = 0; i < len; ++i) 
+			{
+				mesh = Mesh((event.target as Loader3D).getChildAt(i));
+				mesh.material = material;
+			}
+			
 			//addObjectContainerToScene(event.target as ObjectContainer3D);
 			
 			m_game.addObjectToScene(event.target as ObjectContainer3D);
 			
-			//event.target.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);
+			//event.target.addEventListener(MouseEvent3D.DOUBLE_CLICK, on3DObjeMouseDown);			
 			
 			var roomEvent:RoomEvent = new RoomEvent(RoomEvent.CREATE_OBJECT);
 			roomEvent.objType = "load_model";
@@ -432,6 +443,22 @@ package com.infy.parser
 				excutePrivimiteCommand();
 				excuteCameraCommand();
 			}
+		}
+		
+		private function testToonShading():ColorMaterial
+		{
+			var material : ColorMaterial = new ColorMaterial(0xffffff);
+			//material.ambientColor = 0xdd5525;
+			material.ambientColor = 0xffffff;
+			material.ambient = 1; //0xdd5525;
+			material.specular = .25;
+			material.diffuseMethod = new CelDiffuseMethod(3);
+			material.specularMethod = new CelSpecularMethod();
+			material.addMethod(new OutlineMethod(0x000000, 25/50));
+			CelSpecularMethod(material.specularMethod).smoothness = .01;
+			CelDiffuseMethod(material.diffuseMethod).smoothness = .01;
+			material.lightPicker = m_game.lightPicker;
+			return material;
 		}
 		
 		private function excuteLoadCommand():void
