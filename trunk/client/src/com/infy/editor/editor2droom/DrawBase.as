@@ -62,7 +62,10 @@ package com.infy.editor.editor2droom
 			var p:Point;
 			if(refrenceObject)
 			{				
-				p = new Point(refrenceObject.x - this.x - parent.x, refrenceObject.y - this.y - parent.y);
+				//p = new Point(refrenceObject.x - this.x - parent.x, refrenceObject.y - this.y - parent.y);
+				var s:Point = refrenceObject.parent.localToGlobal(new Point(refrenceObject.x, refrenceObject.y));
+				//p = globalToLocal(new Point(stage.mouseX, stage.mouseY));
+				p = globalToLocal(s);
 			}
 			else
 				p = globalToLocal(new Point(stage.mouseX, stage.mouseY));

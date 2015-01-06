@@ -327,8 +327,8 @@ package com.infy.editor
 				m_drawObj.startDraw(p.x, p.y);
 				m_drawObj.refrenceObject = m_drawPoint;
 				var offset:Point = new Point();
-				offset.x = p.x - DRAW_AREA_CENTER_X + m_penOffset.x;
-				offset.y = p.y - DRAW_AREA_CENTER_Y + m_penOffset.y;
+				offset.x = p.x - DRAW_AREA_CENTER_X;// + m_penOffset.x;
+				offset.y = p.y - DRAW_AREA_CENTER_Y;// + m_penOffset.y;
 				
 				m_drawObj.offset.x = offset.x;
 				m_drawObj.offset.y = offset.y;
@@ -361,7 +361,8 @@ package com.infy.editor
 				if(m_drawObj)
 				{
 					//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
-					var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
+					//var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
+					var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
 					m_drawObj.endDraw(p.x, p.y);
 					
 					m_drawObj = null;
@@ -536,9 +537,6 @@ package com.infy.editor
 		
 		private function scaleFromCenter(obj:DrawBase, sX:Number, sY:Number):void
 		{
-			var prevW:Number = obj.width;
-			var prevH:Number = obj.height;
-			
 			var _sX:Number = sX/obj.oriScale;
 			var _sY:Number = sY/obj.oriScale;
 			
@@ -546,6 +544,8 @@ package com.infy.editor
 			obj.scaleY = _sY;
 			obj.x = (_sX*(obj.offset.x) + DRAW_AREA_CENTER_X);
 			obj.y = (_sY*(obj.offset.y) + DRAW_AREA_CENTER_Y);
+			
+			// 中心點 在縮放時會跑掉  跟 m_penOffset 有關
 		}
 		
 		private function rotationFromCenter(obj:DrawBase, angle:Number):void

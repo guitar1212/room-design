@@ -24,8 +24,8 @@ package com.infy.editor.editor2droom
 		{
 			super.endDraw(endX, endY);
 			
-			var sX:Number = this.x - parent.x;
-			var sY:Number = this.y - parent.y;
+			var sX:Number = this.x;
+			var sY:Number = this.y;
 			
 			var cX:Number = (endX + sX)/2;
 			var cY:Number = (endY + sY)/2;
