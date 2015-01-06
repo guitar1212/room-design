@@ -20,6 +20,10 @@ package com.infy.editor.editor2droom
 		
 		public var oriScale:Number = 1;
 		
+		public var oriPosition:Point = new Point();
+		
+		public var oriRotation:Number = 0;
+		
 		public var refrenceObject:DisplayObject = null;
 		
 		private var m_bSelect:Boolean = false;
@@ -58,7 +62,7 @@ package com.infy.editor.editor2droom
 			var p:Point;
 			if(refrenceObject)
 			{				
-				p = new Point(refrenceObject.x - this.x, refrenceObject.y - this.y);
+				p = new Point(refrenceObject.x - this.x - parent.x, refrenceObject.y - this.y - parent.y);
 			}
 			else
 				p = globalToLocal(new Point(stage.mouseX, stage.mouseY));

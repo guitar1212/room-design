@@ -23,12 +23,10 @@ package com.infy.editor.editor2droom
 		{
 			for(var i:int = 0; i < 4; i++)
 			{
-				var s:Sprite = new Sprite();
-				s.graphics.beginFill(0x0000ff, 0.9);
-				s.graphics.drawRect(-2, -2, 4, 4);
-				s.graphics.endFill();
-				s.name = "scale" + i;
-				
+				var s:Sprite = new Sprite();					
+				s.name = "scale" + i;			
+				s.useHandCursor = true;
+				s.buttonMode = true;
 				this.addChild(s);
 				m_spriteList.push(s);
 			}
@@ -43,10 +41,29 @@ package com.infy.editor.editor2droom
 			this.addChild(rotateController);
 		}
 		
+		private function drawControlPoint():void
+		{
+			var s:Sprite;
+			var baseWidth:int = 12;
+			var width:int = (m_target != null) ? baseWidth/m_target.scaleX : baseWidth;
+			for(var i:int = 0; i < 4; i++)
+			{
+				s = m_spriteList[i];
+				s.graphics.clear();
+				s.graphics.beginFill(0x0000ff, 0.9);
+				s.graphics.drawRect(-width/2, -width/2, width, width);
+				s.graphics.endFill();
+			}
+		}
+		
 		protected function onMouseDown(event:MouseEvent):void
 		{
-			// TODO Auto-generated method stub
-			
+			var targetName:String = event.target.name;
+			if(targetName.indexOf("scale") > -1)
+			{
+				var index:String = targetName.charAt(5);
+				trace(index);
+			}
 		}
 		
 		public function set target(obj:DrawBase):void
@@ -58,7 +75,7 @@ package com.infy.editor.editor2droom
 					m_target.removeChildren();
 					m_target = null;
 					
-					for(var i:int = 0; i < m_spriteList; i++)
+					for(var i:int = 0; i < m_spriteList.length; i++)
 					{
 						this.removeChild(m_spriteList[i]);
 					}
@@ -68,6 +85,9 @@ package com.infy.editor.editor2droom
 			{
 				m_target = obj;
 				m_target.addChild(this);
+				drawControlPoint();
+				
+				trace("target scale : " + m_target.scaleX + ",  oriScale : " + m_target.oriScale);
 			}
 			refresh();
 		}
@@ -78,7 +98,7 @@ package com.infy.editor.editor2droom
 			if(m_target)
 			{	
 				var r:Rectangle = m_target.getBounds(this);	
-				this.graphics.lineStyle(2, 0xff0000);
+				this.graphics.lineStyle(4/m_target.scaleX, 0xff0000);
 				this.graphics.moveTo(r.x, r.y);
 				this.graphics.lineTo(r.x + r.width, r.y);
 				this.graphics.lineTo(r.x + r.width, r.y + r.height);
@@ -96,7 +116,7 @@ package com.infy.editor.editor2droom
 				m_spriteList[4].x = r.x + r.width/2;
 				m_spriteList[4].y = r.y + r.height/2;
 				
-				for(var i:int = 0; i < m_spriteList; i++)
+				for(var i:int = 0; i < m_spriteList.length; i++)
 				{
 					this.addChild(m_spriteList[i]);
 				}

@@ -8,6 +8,7 @@ package com.infy.util.primitive
 	import away3d.materials.methods.CelSpecularMethod;
 	import away3d.materials.methods.FresnelEnvMapMethod;
 	import away3d.materials.methods.HardShadowMapMethod;
+	import away3d.materials.methods.OutlineMethod;
 	import away3d.materials.methods.ShadowMapMethodBase;
 	import away3d.materials.methods.SimpleShadowMapMethodBase;
 	import away3d.primitives.CubeGeometry;
@@ -36,16 +37,18 @@ package com.infy.util.primitive
 			
 			var m:ColorMaterial = new ColorMaterial(info.color, info.alpha);
 			m.specular = 0.25;
-			/*var sm:CelSpecularMethod = new CelSpecularMethod();
-			var cm:CelDiffuseMethod = new CelDiffuseMethod();
+			var sm:CelSpecularMethod = new CelSpecularMethod();
+			var cm:CelDiffuseMethod = new CelDiffuseMethod(3);
 			
 			sm.specularColor = 0xff0000;
 			sm.smoothness = 0.5;
-			//m.specularMethod = sm;
+			m.specularMethod = sm;
 			
 			cm.smoothness = 0.1;
-			//m.diffuseMethod = cm;*/
-						
+			m.diffuseMethod = cm;
+			
+			m.addMethod(new OutlineMethod(0x000000, 2/50));
+			
 			//m.lightPicker = lightPicker;
 			var box:Mesh = new Mesh(new CubeGeometry(info.size.x, info.size.y, info.size.z), m);
 			box.name = info.name;

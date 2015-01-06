@@ -66,7 +66,7 @@ package com.infy.editor
 		
 		private var m_background:Sprite;
 		private var m_drawArea:Sprite;
-		private var m_drawContainer:Sprite;
+		private var m_drawObjectContainer:Sprite;
 		private var m_grid:Sprite;
 		
 		private var m_lastX:Number;
@@ -125,8 +125,8 @@ package com.infy.editor
 			m_grid = new Sprite();
 			m_drawArea.addChild(m_grid);
 			
-			m_drawContainer = new Sprite();
-			m_drawArea.addChild(m_drawContainer);
+			m_drawObjectContainer = new Sprite();
+			m_drawArea.addChild(m_drawObjectContainer);
 			
 			var drawMash:Sprite = new Sprite();
 			drawMash.mouseEnabled = false;
@@ -239,25 +239,25 @@ package com.infy.editor
 				
 				case Keyboard.UP:
 					m_penOffset.y -= 2;
-					m_drawContainer.y -= 2;
+					m_drawObjectContainer.y -= 2;
 					m_grid.y -= 2;
 					break;
 				
 				case Keyboard.DOWN:
 					m_penOffset.y += 2;
-					m_drawContainer.y += 2;
+					m_drawObjectContainer.y += 2;
 					m_grid.y += 2;
 					break;
 				
 				case Keyboard.LEFT:
 					m_penOffset.x -= 2;
-					m_drawContainer.x -= 2;
+					m_drawObjectContainer.x -= 2;
 					m_grid.x -= 2;
 					break;
 				
 				case Keyboard.RIGHT:
 					m_penOffset.x += 2;
-					m_drawContainer.x += 2;
+					m_drawObjectContainer.x += 2;
 					m_grid.x += 2;
 					break;
 				
@@ -312,7 +312,7 @@ package com.infy.editor
 			{
 				m_bStartDraw = true;
 				//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
-				var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
+				var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
 				if(bDrawRec)
 				{
 					m_drawObj = new DrawRectangle();
@@ -327,20 +327,20 @@ package com.infy.editor
 				m_drawObj.startDraw(p.x, p.y);
 				m_drawObj.refrenceObject = m_drawPoint;
 				var offset:Point = new Point();
-				offset.x = p.x - DRAW_AREA_CENTER_X;
-				offset.y = p.y - DRAW_AREA_CENTER_Y;
+				offset.x = p.x - DRAW_AREA_CENTER_X + m_penOffset.x;
+				offset.y = p.y - DRAW_AREA_CENTER_Y + m_penOffset.y;
 				
 				m_drawObj.offset.x = offset.x;
 				m_drawObj.offset.y = offset.y;
-				m_drawContainer.addChild(m_drawObj);
+				m_drawObjectContainer.addChild(m_drawObj);
 			}
 		}
 		
 		private function selectDrawObject(d:DrawBase):void
 		{
-			for(var i:int = 0; i < m_drawContainer.numChildren; i++)
+			for(var i:int = 0; i < m_drawObjectContainer.numChildren; i++)
 			{
-				var draw:DrawBase = m_drawContainer.getChildAt(i) as DrawBase;
+				var draw:DrawBase = m_drawObjectContainer.getChildAt(i) as DrawBase;
 				if(draw == d)
 				{
 					draw.select = true;
@@ -440,8 +440,17 @@ package com.infy.editor
 		
 		private function updateMsg():void
 		{
+			var s:Point = m_drawArea.localToGlobal(new Point(m_drawPoint.x, m_drawPoint.y));
+			var p:Point = getDrawCoordinatePosition(s.x, s.y);
+			
 			m_msg.text = "Mouse(" + stage.mouseX + "," + stage.mouseY + ").  Scale = " + scale + ".  PanOffset = " + m_penOffset + 
-				         "\nDrawPoint (" + m_drawPoint.x + ", " + m_drawPoint.y + ")"; 
+				         "\nDrawPoint @DrawArea(" + m_drawPoint.x + ", " + m_drawPoint.y + ")  @DrawCoordinate(" + p.x + ", " + p.y + ")";
+			
+			if(m_curSelectDrawObject)
+			{
+				var text:String = "\nSelectObj : " +  m_curSelectDrawObject.name + ", (x = " + m_curSelectDrawObject.x + ", y = " + m_curSelectDrawObject.y + ")  w = " + m_curSelectDrawObject.width + ", h = " + m_curSelectDrawObject.height + ",  scale = " + m_curSelectDrawObject.scaleX + ", oriScale = " + m_curSelectDrawObject.oriScale + ". offset = " + m_curSelectDrawObject.offset;
+				m_msg.appendText(text);
+			}
 		}
 		
 		private function onCancelBtnClick(e:MouseEvent):void
@@ -507,20 +516,20 @@ package com.infy.editor
 		
 		private function cleanAllDrawItem():void
 		{
-			for(var i:int = 0; i < m_drawContainer.numChildren; i++)
+			for(var i:int = 0; i < m_drawObjectContainer.numChildren; i++)
 			{
-				var d:DrawBase = m_drawContainer.getChildAt(i) as DrawBase;
+				var d:DrawBase = m_drawObjectContainer.getChildAt(i) as DrawBase;
 				d.graphics.clear();
 			}
 			
-			m_drawContainer.removeChildren();
+			m_drawObjectContainer.removeChildren();
 		}
 		
 		private function scaleDrawItem(value:Number):void
 		{
-			for(var i:int = 0; i < m_drawContainer.numChildren; i++)
+			for(var i:int = 0; i < m_drawObjectContainer.numChildren; i++)
 			{
-				var d:DrawBase = m_drawContainer.getChildAt(i) as DrawBase;
+				var d:DrawBase = m_drawObjectContainer.getChildAt(i) as DrawBase;
 				scaleFromCenter(d, value, value);
 			}
 		}
@@ -535,8 +544,8 @@ package com.infy.editor
 			
 			obj.scaleX = _sX;
 			obj.scaleY = _sY;
-			obj.x = (_sX*obj.offset.x + DRAW_AREA_CENTER_X);
-			obj.y = (_sY*obj.offset.y + DRAW_AREA_CENTER_Y);
+			obj.x = (_sX*(obj.offset.x) + DRAW_AREA_CENTER_X);
+			obj.y = (_sY*(obj.offset.y) + DRAW_AREA_CENTER_Y);
 		}
 		
 		private function rotationFromCenter(obj:DrawBase, angle:Number):void
@@ -618,8 +627,11 @@ package com.infy.editor
 			localPoint.x -= DRAW_AREA_CENTER_X;
 			localPoint.y -= DRAW_AREA_CENTER_Y;
 			
-			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X + m_grid.x + m_penOffset.x;
-			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y + m_grid.y + m_penOffset.y;
+			localPoint.x -= m_penOffset.x;
+			localPoint.y -= m_penOffset.y;
+			
+			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X + m_grid.x;
+			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y + m_grid.y;
 			
 			return p;
 		}
@@ -661,6 +673,30 @@ package com.infy.editor
 				m_drawPoint.graphics.drawCircle(0, 0, 3);
 				m_drawPoint.graphics.endFill();
 			}
+		}
+		
+		public function calculateDrawObjectPosition(obj:DrawBase):Point
+		{
+			var p:Point = new Point();
+			
+			
+			return p;
+		}
+		
+		public function getDrawCoordinatePosition(stageX:Number, stageY:Number):Point
+		{
+			var p:Point = m_drawArea.globalToLocal(new Point(stageX, stageY));
+			
+			p.x -= DRAW_AREA_CENTER_X;
+			p.y -= DRAW_AREA_CENTER_Y;
+			
+			p.x -= m_penOffset.x;
+			p.y -= m_penOffset.y;
+			
+			p.x = p.x/m_scale;
+			p.y = p.y/m_scale;
+			
+			return p;
 		}
 
 	}
