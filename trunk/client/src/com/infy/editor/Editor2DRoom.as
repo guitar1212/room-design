@@ -3,6 +3,10 @@ package com.infy.editor
 	import com.infy.editor.editor2droom.DrawBase;
 	import com.infy.editor.editor2droom.DrawCircle;
 	import com.infy.editor.editor2droom.DrawRectangle;
+	import com.infy.editor.editor2droom.event.Editor2DEvent;
+	
+	import fl.controls.ColorPicker;
+	import fl.events.ColorPickerEvent;
 	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
@@ -17,6 +21,8 @@ package com.infy.editor
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.ui.Keyboard;
+	
+	import src.ToolItemVO;
 	
 	/**
 	 * 
@@ -47,7 +53,10 @@ package com.infy.editor
 		[Embed(source="/../embeds/Ediror2DRoom/ic_mode_edit_black_24dp.png")]
 		public static var editIcon:Class;
 		
-		private static const GRID_SIZE:Number = 200;
+		[Embed(source="/../embeds/Ediror2DRoom/cell-2-2-120.png")]
+		public static var snapIcon:Class;
+		
+		private static const GRID_SIZE:Number = 500;
 		private static const GRID_WIDTH:Number = 10;
 			
 		private static const DIALOG_WIDTH:Number = 800;
@@ -75,6 +84,7 @@ package com.infy.editor
 		
 		private var m_bSnapGrid:Boolean = false;
 		private var m_bEditMode:Boolean = false;
+		private var m_bMoveDrawArea:Boolean = false;
 		
 		private var m_functionButtonBar:Sprite;
 		
@@ -86,6 +96,9 @@ package com.infy.editor
 		
 		private var m_penOffset:Point = new Point();
 		
+		private var m_colorPicker:ColorPicker = null;
+		
+		private var m_drawFunUI:ToolUI;
 		
 		public function Editor2DRoom()
 		{
@@ -119,7 +132,7 @@ package com.infy.editor
 			m_drawArea.graphics.drawRect(0,0,DRAW_AREA_WIDTH,DRAW_AREA_HEIGHT);
 			m_drawArea.graphics.endFill();
 			m_drawArea.x = _x;
-			m_drawArea.y = _y;
+			m_drawArea.y = _y;			
 			this.addChildToLayer(0, m_drawArea);
 						
 			m_grid = new Sprite();
@@ -144,6 +157,33 @@ package com.infy.editor
 			m_drawArea.addChild(m_drawPoint);
 			changeDrawPoint(0);
 			
+			//====================================================================
+			m_drawFunUI = new ToolUI();
+			m_drawFunUI.toolDirection = 1;
+			m_drawFunUI.cbToolClick = onDrawFunBtnClick;
+			m_drawFunUI.x = 0;
+			m_drawFunUI.y = 80;
+			this.addChild(m_drawFunUI);
+			
+			var buttonArr:Array = [];
+			var vo1:ToolItemVO = new ToolItemVO();
+			vo1.id = "edit";
+			vo1.toolIcon = new editIcon() as Bitmap;
+			buttonArr.push(vo1);			
+			
+			vo1 = new ToolItemVO();
+			vo1.id = "drawRectangle";
+			vo1.toolIcon = new drawRecIcon() as Bitmap;
+			buttonArr.push(vo1);
+			
+			vo1 = new ToolItemVO();
+			vo1.id = "drawCircle";
+			vo1.toolIcon = new drawCircleIcon() as Bitmap;
+			buttonArr.push(vo1);
+			
+			m_drawFunUI.toolArray = buttonArr;
+			
+			
 			m_functionButtonBar = new Sprite();
 			m_functionButtonBar.x = 20;
 			m_functionButtonBar.y = 40;
@@ -153,9 +193,11 @@ package com.infy.editor
 			this.addChild(cancelBtn);
 			
 			createButton(gridIcon, ToggleGrid, true);			
+			createButton(snapIcon, toggleSnapGrid, true);
 			createButton(plusIcon, onScaleUp, true);
 			createButton(subIcon, onScaleDown, true);
 			createButton(editIcon, onEditItem, true);
+			
 			createButton(drawRecIcon, onDrawRectangle, true);
 			createButton(drawCircleIcon, onDrawCircle, true);
 			
@@ -164,7 +206,27 @@ package com.infy.editor
 			m_msg.y = m_drawArea.y + m_drawArea.height + 3;
 			this.addChild(m_msg);
 			
+			m_colorPicker = new ColorPicker();
+			m_colorPicker.selectedColor = 0x11ff11;			
+			m_colorPicker.x = m_drawArea.x + m_drawArea.width - m_colorPicker.width;
+			m_colorPicker.y = m_drawArea.y - m_colorPicker.height - 1; 
+			this.addChild(m_colorPicker);
+			
 			onResize(null);			
+		}
+		
+		protected function onDrawAreaMouseWheel(event:MouseEvent):void
+		{
+			if(event.delta > 0)
+			{
+				onScaleUp(event);
+			}
+			else if(event.delta < 0)
+			{
+				onScaleDown(event);
+			}
+			
+			event.stopImmediatePropagation();
 		}
 		
 		private function createButton(c:Class, cb:Function, isFunctionList:Boolean):SimpleButton
@@ -206,10 +268,17 @@ package com.infy.editor
 			
 			m_drawArea.addEventListener(MouseEvent.MOUSE_DOWN, onDrawStart);
 			m_drawArea.addEventListener(MouseEvent.MOUSE_UP, onDrawEnd);
+			m_drawArea.addEventListener(MouseEvent.MOUSE_WHEEL, onDrawAreaMouseWheel);
+			
+			m_colorPicker.addEventListener(ColorPickerEvent.CHANGE, onColorChange);
 			
 			this.addEventListener(Event.RESIZE, onResize);
 			
-			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown)
+			this.addEventListener(Editor2DEvent.CREATE, onCreateObject);
+			
+			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			
+			m_bMoveDrawArea = false;
 		}
 		
 		protected function onRelease(event:Event):void
@@ -219,9 +288,14 @@ package com.infy.editor
 			m_background.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			m_drawArea.removeEventListener(MouseEvent.MOUSE_DOWN, onDrawStart);
 			m_drawArea.removeEventListener(MouseEvent.MOUSE_UP, onDrawEnd);
+			m_drawArea.removeEventListener(MouseEvent.MOUSE_WHEEL, onDrawAreaMouseWheel);
+			m_colorPicker.removeEventListener(ColorPickerEvent.CHANGE, onColorChange);
 			this.removeEventListener(Event.RESIZE, onResize);
-			this.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown)
+			this.removeEventListener(Editor2DEvent.CREATE, onCreateObject);
+			this.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			m_bMove = false;
+			m_bMoveDrawArea = false;
+			clean();
 		}
 		
 		private function onKeyDown(event:KeyboardEvent):void
@@ -237,28 +311,20 @@ package com.infy.editor
 					m_bSnapGrid = !m_bSnapGrid;
 					break;
 				
-				case Keyboard.UP:
-					m_penOffset.y -= 2;
-					m_drawObjectContainer.y -= 2;
-					m_grid.y -= 2;
+				case Keyboard.UP:					
+					moveDrawArea(0, -2);
 					break;
 				
 				case Keyboard.DOWN:
-					m_penOffset.y += 2;
-					m_drawObjectContainer.y += 2;
-					m_grid.y += 2;
+					moveDrawArea(0, 2);
 					break;
 				
 				case Keyboard.LEFT:
-					m_penOffset.x -= 2;
-					m_drawObjectContainer.x -= 2;
-					m_grid.x -= 2;
+					moveDrawArea(-2, 0);
 					break;
 				
 				case Keyboard.RIGHT:
-					m_penOffset.x += 2;
-					m_drawObjectContainer.x += 2;
-					m_grid.x += 2;
+					moveDrawArea(2, 0);
 					break;
 				
 				case Keyboard.NUMPAD_ADD:
@@ -276,9 +342,21 @@ package com.infy.editor
 			}
 		}
 		
+		private function moveDrawArea(offsetX:Number, offsetY:Number):void
+		{
+			m_penOffset.x += offsetX;
+			m_drawObjectContainer.x += offsetX;
+			m_grid.x += offsetX;
+			
+			m_penOffset.y += offsetY;
+			m_drawObjectContainer.y += offsetY;
+			m_grid.y += offsetY;
+		}
+		
 		protected function onMouseUp(event:MouseEvent):void
 		{
 			m_bMove = false;
+			event.stopImmediatePropagation();
 		}
 		
 		protected function onMouseDown(event:MouseEvent):void
@@ -286,12 +364,23 @@ package com.infy.editor
 			m_lastX = event.stageX;
 			m_lastY = event.stageY;
 			m_bMove = true;
+			
+			event.stopImmediatePropagation();
 		}	
 		
 		private var m_bStartDraw:Boolean = false;
 		private var m_drawObj:DrawBase;
 		private function onDrawStart(event:MouseEvent):void
 		{
+			event.stopImmediatePropagation();
+			// move draw area
+			if(event.shiftKey)
+			{
+				m_bMoveDrawArea = true;
+				m_lastX = event.stageX;
+				m_lastY = event.stageY;
+				return;
+			}
 			if(m_bEditMode)
 			{
 				if(event.target is DrawBase)
@@ -323,6 +412,9 @@ package com.infy.editor
 					m_drawObj = new DrawCircle();
 					m_drawObj.name = "drawCir";
 				}
+				
+				m_drawObj.drawColor = m_colorPicker.selectedColor;
+				
 				m_drawObj.oriScale = this.scale;
 				m_drawObj.startDraw(p.x, p.y);
 				m_drawObj.refrenceObject = m_drawPoint;
@@ -354,6 +446,9 @@ package com.infy.editor
 		
 		private function onDrawEnd(event:MouseEvent):void
 		{
+			event.stopImmediatePropagation();
+			m_bMoveDrawArea = false;
+			
 			if(bDrawRec || bDrawCircle)
 			{
 				m_bStartDraw = false;				
@@ -377,8 +472,7 @@ package com.infy.editor
 
 		public function set scale(value:Number):void
 		{
-			m_scale = value;
-			
+			m_scale = value;			
 			
 			scaleDrawItem(value);
 			
@@ -416,6 +510,14 @@ package com.infy.editor
 				m_lastY = stage.mouseY;
 			}
 			
+			if(m_bMoveDrawArea)
+			{
+				moveDrawArea(stage.mouseX - m_lastX, stage.mouseY - m_lastY);
+				
+				m_lastX = stage.mouseX;
+				m_lastY = stage.mouseY;
+			}
+			
 			if(m_bSnapGrid)
 			{
 				var np:Point = getNearestGridPoint(stage.mouseX, stage.mouseY);
@@ -434,9 +536,9 @@ package com.infy.editor
 				
 			}
 			
+			
+			
 			updateMsg();
-			
-			
 		}
 		
 		private function updateMsg():void
@@ -449,7 +551,7 @@ package com.infy.editor
 			
 			if(m_curSelectDrawObject)
 			{
-				var text:String = "\nSelectObj : " +  m_curSelectDrawObject.name + ", (x = " + m_curSelectDrawObject.x + ", y = " + m_curSelectDrawObject.y + ")  w = " + m_curSelectDrawObject.width + ", h = " + m_curSelectDrawObject.height + ",  scale = " + m_curSelectDrawObject.scaleX + ", oriScale = " + m_curSelectDrawObject.oriScale + ". offset = " + m_curSelectDrawObject.offset;
+				var text:String = "\nSelectObj : " +  m_curSelectDrawObject.name + ", (x = " + m_curSelectDrawObject.x + ", y = " + m_curSelectDrawObject.y + ")  w = " + m_curSelectDrawObject.oriWidth + ", h = " + m_curSelectDrawObject.oriHeight + ",  scale = " + m_curSelectDrawObject.scaleX + ", oriScale = " + m_curSelectDrawObject.oriScale + ". offset = " + m_curSelectDrawObject.offset;
 				m_msg.appendText(text);
 			}
 		}
@@ -460,9 +562,19 @@ package com.infy.editor
 				this.parent.removeChild(this);
 		}
 		
+		private function onColorChange(e:ColorPickerEvent)
+		{
+			
+		}
+		
 		private function ToggleGrid(e:MouseEvent):void
 		{
 			m_grid.visible = !m_grid.visible;
+		}
+		
+		private function toggleSnapGrid(e:MouseEvent):void
+		{
+			m_bSnapGrid = !m_bSnapGrid;
 		}
 		
 		private function onScaleUp(e:MouseEvent):void
@@ -505,7 +617,6 @@ package com.infy.editor
 		}
 		
 		private var bDrawCircle:Boolean = false;
-		
 		private function onDrawCircle(e:MouseEvent):void
 		{
 			bDrawCircle = !bDrawCircle;
@@ -581,13 +692,13 @@ package com.infy.editor
 			var i:int = 0;
 			var dx:Number = 0, dy:Number = 0;
 			var maxX:Number = DRAW_AREA_CENTER_X + units*unit_width;
-			if(maxX > DRAW_AREA_WIDTH) maxX = DRAW_AREA_WIDTH;
+			//if(maxX > DRAW_AREA_WIDTH) maxX = DRAW_AREA_WIDTH;
 			var minX:Number = DRAW_AREA_CENTER_X - units*unit_width;
-			if(minX < 0) minX = 0;
+			//if(minX < 0) minX = 0;
 			var maxY:Number = DRAW_AREA_CENTER_Y + units*unit_width;
-			if(maxY > DRAW_AREA_HEIGHT) maxY = DRAW_AREA_HEIGHT;
+			//if(maxY > DRAW_AREA_HEIGHT) maxY = DRAW_AREA_HEIGHT;
 			var minY:Number = DRAW_AREA_CENTER_Y - units*unit_width;
-			if(minY < 0) minY = 0;
+			//if(minY < 0) minY = 0;
 			while(i < units)
 			{				
 				m_grid.graphics.moveTo(DRAW_AREA_CENTER_X + unit_width*(1 + i), maxY);
@@ -651,6 +762,81 @@ package com.infy.editor
 			}
 		}
 		
+		private function onDrawFunBtnClick(btnID:String):void
+		{
+			var e:Editor2DEvent
+			if(btnID == "drawRectangle")
+			{
+				e = new Editor2DEvent(Editor2DEvent.CREATE);
+				e.style = "rectangle";
+				e.name = "rec01";
+				e.depth = 50;
+				e.position.setTo(10,10);
+				e.size.setTo(10,20);
+				e.rotation = 45;				
+				this.dispatchEvent(e);
+			}
+			else if(btnID == "drawCircle")
+			{
+				e = new Editor2DEvent(Editor2DEvent.CREATE);
+				e.style = "circle";
+				e.name = "cir01";
+				e.depth = 50;
+				e.position.setTo(-20,-20);
+				//e.size.setTo(30,40);
+				e.rotation = 0;
+				e.size.setTo(35,35);
+				e.radius = 35;
+				this.dispatchEvent(e);
+			}
+		}
+		
+		private function onCreateObject(event:Editor2DEvent):void
+		{
+			var obj:DrawBase = null;
+			if(event.style == "rectangle")
+			{
+				obj = new DrawRectangle();
+			}
+			else if(event.style == "circle")
+			{
+				obj = new DrawCircle();
+			}
+			else
+			{
+				return;
+			}
+			
+			m_drawObjectContainer.addChild(obj);
+			obj.name = event.name;			
+			obj.oriPosition = event.position.clone();
+			obj.oriWidth = event.size.x;
+			obj.oriHeight = event.size.y;
+			obj.depth = event.depth;
+			obj.oriRotation = event.rotation;
+			obj.x = event.position.x + DRAW_AREA_CENTER_X;
+			obj.y = event.position.y + DRAW_AREA_CENTER_Y;
+			obj.offset.x = obj.x - DRAW_AREA_CENTER_X;
+			obj.offset.y = obj.y - DRAW_AREA_CENTER_Y;
+			obj.rotation = event.rotation;
+			
+			//obj.drawColor = m_colorPicker.selectedColor;
+			
+			obj.graphics.beginFill(event.color, obj.drawAlpha);
+			if(event.style == "rectangle")
+			{	
+				obj.graphics.drawRect(-obj.oriWidth/2, -obj.oriHeight/2, obj.oriWidth, obj.oriHeight);
+			}
+			else if(event.style == "circle")
+			{
+				obj.graphics.drawCircle(0, 0, event.radius);
+			}
+			
+			obj.graphics.endFill();
+			
+			scaleFromCenter(obj, this.scale, this.scale); 
+		}
+		
 		private function changeDrawPoint(type:int):void
 		{
 			m_drawPoint.graphics.clear();
@@ -697,6 +883,11 @@ package com.infy.editor
 			p.y = p.y/m_scale;
 			
 			return p;
+		}
+		
+		public function clean():void
+		{
+			m_drawObjectContainer.removeChildren();
 		}
 
 	}

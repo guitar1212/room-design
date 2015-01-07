@@ -2,6 +2,7 @@ package com.infy.editor.editor2droom
 {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
 	
@@ -9,15 +10,19 @@ package com.infy.editor.editor2droom
 	{
 		private var m_target:DrawBase;
 		
+		private var m_modifyIndex:String;
+		
 		private var m_spriteList:Vector.<Sprite> = new Vector.<Sprite>();
 		
 		public function DrawObjectModifyer()
 		{
 			super();
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			
 			onInit();
 		}
+		
 		
 		private function onInit():void
 		{
@@ -61,9 +66,22 @@ package com.infy.editor.editor2droom
 			var targetName:String = event.target.name;
 			if(targetName.indexOf("scale") > -1)
 			{
-				var index:String = targetName.charAt(5);
-				trace(index);
+				m_modifyIndex = targetName.charAt(5);
+				trace(m_modifyIndex);
 			}
+			
+			this.addEventListener(Event.ENTER_FRAME, onModifyObject);
+			
+		}
+		
+		protected function onModifyObject(event:Event):void
+		{
+			
+		}
+		
+		protected function onMouseUp(event:MouseEvent):void
+		{
+			this.removeEventListener(Event.ENTER_FRAME, onModifyObject);
 		}
 		
 		public function set target(obj:DrawBase):void
