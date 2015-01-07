@@ -39,7 +39,7 @@ package com.infy.editor.editor2droom
 			this.graphics.drawRect(-w/2, -h/2, w, h);
 			this.graphics.endFill();
 			
-			drawCenter();
+			//drawCenter();
 			
 			// modify offset
 			this.offset.x -= (sX - cX);

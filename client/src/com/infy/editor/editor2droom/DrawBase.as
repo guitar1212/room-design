@@ -14,7 +14,7 @@ package com.infy.editor.editor2droom
 		
 		public var drawColor:uint = 0x11ff11;
 		
-		public var drawAlpha:Number = 0.45;
+		public var drawAlpha:Number = 0.7;
 		
 		public var offset:Point = new Point();
 		
@@ -22,7 +22,13 @@ package com.infy.editor.editor2droom
 		
 		public var oriPosition:Point = new Point();
 		
+		public var oriWidth:Number;
+		
+		public var oriHeight:Number;
+		
 		public var oriRotation:Number = 0;
+		
+		public var depth:Number = 1;
 		
 		public var refrenceObject:DisplayObject = null;
 		
@@ -82,13 +88,13 @@ package com.infy.editor.editor2droom
 			m_bSelect = value;
 			if(value)
 			{
-				this.filters = [new GlowFilter(0xffff00, 0.8, 3, 3)];
+				//this.filters = [new GlowFilter(0xffff00, 0.8, 3, 3)];
 				m_modifier.target = this;
 				
 			}
 			else
 			{
-				this.filters = [];
+				//this.filters = [];
 				m_modifier.target = null;
 			}
 		}

@@ -21,6 +21,8 @@ package com.infy.parser.command
 		
 		private var m_target:ObjectContainer3D = null;
 		
+		public var isDelete:Boolean = false;
+		
 		public function ParserCommandBase(dispatcher:EventDispatcher, args:Array = null)
 		{
 			m_dispatcher = dispatcher;

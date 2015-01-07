@@ -77,6 +77,7 @@ package
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
 	import com.infy.editor.Editor2DRoom;
+	import com.infy.editor.editor2droom.event.Editor2DEvent;
 	import com.infy.editor.ui.ImageSavePanel;
 	import com.infy.editor.ui.ObjectInfoUI;
 	import com.infy.event.CameraEvent;
@@ -91,6 +92,7 @@ package
 	import com.infy.parser.command.CameraParserCommand;
 	import com.infy.parser.command.LightParserCommand;
 	import com.infy.parser.command.ParserCommandType;
+	import com.infy.parser.command.PrimitiveParserCommand;
 	import com.infy.path.GamePath;
 	import com.infy.ui.CameraInfoUI;
 	import com.infy.ui.Modify3DObjectUI;
@@ -100,6 +102,7 @@ package
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
 	import com.infy.util.scene.SceneObjectView;
+	import com.infy.util.tools.ColorUtil;
 	import com.infy.util.zip.ZipLoader;
 	
 	import fl.controls.BaseButton;
@@ -901,12 +904,41 @@ package
 			{
 				this.addChild(m_edit2D);
 				onResize();
+				
+				create2DRoom();
 			}
 			else
 				m_edit2D.parent.removeChild(m_edit2D);
 					
 					
 		}
+		
+		private function create2DRoom():void
+		{
+			// update command
+			roomParser.refresh();
+			
+			var commands:Vector.<PrimitiveParserCommand> = roomParser.primiteCommand;
+			
+			for(var i:int = 0; i < commands.length; i++)
+			{				
+				if(commands[i].isDelete) continue;
+				
+				if(commands[i].cmd == ParserCommandType.BOX || commands[i].cmd == ParserCommandType.PLANE)
+				{
+					var e:Editor2DEvent = new Editor2DEvent(Editor2DEvent.CREATE);
+					e.name = commands[i].name;
+					e.style = "rectangle";
+					e.depth = commands[i].size.y;
+					e.position.setTo(commands[i].position.x, commands[i].position.z);
+					e.size.setTo(commands[i].size.x, commands[i].size.z);
+					e.rotation = commands[i].rotation.y;
+					e.color = ColorUtil.getHexCode(commands[i].color[0], commands[i].color[1], commands[i].color[2]);
+					m_edit2D.dispatchEvent(e);
+				}
+			}
+		}
+		
 		/*private function onSaveCapture(event:MouseEvent):void
 		{
 			

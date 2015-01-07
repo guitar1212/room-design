@@ -96,8 +96,16 @@ package com.infy.parser.command
 				rotation.z = target.rotationZ;
 			}
 			
-			var str:String = cmd;
+			var str:String = "";
+			if(!target.parent)
+			{
+				this.isDelete = true;
+				str = "//";
+			}
+			else
+				this.isDelete = false;
 			
+			str += cmd;			
 			str += addString(name);			
 			str += addString(type);
 			str += addVector3D(position);

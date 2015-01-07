@@ -123,8 +123,7 @@ package com.infy.parser
 					continue;
 				
 				var args:Array = raw.split("\t");
-				var cmd:String = args[0];
-				
+				var cmd:String = args[0];				
 				
 				if(cmd == "load")
 				{
@@ -475,6 +474,11 @@ package com.infy.parser
 				m_primitiveCommand[i].excute();
 		}
 		
+		public function get primiteCommand():Vector.<PrimitiveParserCommand>
+		{
+			return m_primitiveCommand; 
+		}
+		
 		private function excuteCameraCommand():void
 		{
 			for(var i:int = 0; i < m_cameraCommand.length; i++)
@@ -489,6 +493,11 @@ package com.infy.parser
 			{
 				m_lightCommand[i].excute();
 			}
+		}
+		
+		public function refresh():void
+		{
+			this.data;
 		}
 		
 		public function get data():String
