@@ -36,8 +36,19 @@ package com.infy.editor.editor2droom
 		
 		protected function onMouseClick(event:MouseEvent):void
 		{
-			// TODO Auto-generated method stub
-			
+			var btn:DisplayObject = event.target as DisplayObject;
+			if(btn)
+			{
+				var i:int = 0, len:int = m_btnList.length;
+				for(i; i < len; i++)
+				{
+					var data:Object = m_btnList[i] as Object;
+					if(data.btn == btn)
+					{
+						
+					}
+				}
+			}
 		}
 		
 		public function addButton(btn:DisplayObject, cb:Function):void
