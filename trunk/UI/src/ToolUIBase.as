@@ -35,7 +35,7 @@
 			{
 				var tool:ToolItem = new ToolItem();
 				tool.toolVO = toolArr[i];
-				tool.toolId = String(i);
+				tool.toolId = toolArr[i].id;
 				tool.toolPic = toolArr[i].toolIcon;
 				tool.isSelect = toolArr[i].isSelect;
 				
