@@ -3,6 +3,7 @@ package com.infy.editor.editor2droom
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.SimpleButton;
+	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.utils.Dictionary;
 	
@@ -13,35 +14,88 @@ package com.infy.editor.editor2droom
 	 */	
 	public class ButtonGroup extends MovieClip
 	{
-		private var m_btnDic:Dictionary = new Dictionary();
+		private var m_btnList:Array = [];
+		
+		private var m_direction:int = 0;
+		
+		private var m_btnContainer:Sprite;
+		
+		private var m_bMultiSelect:Boolean = false;
+		
 		
 		public function ButtonGroup()
 		{
 			super();
 			
-			this.addEventListener(MouseEvent.CLICK, onMouseClick);
-		}
-		
-		public function addButton(btn:DisplayObject, cb:Function):void
-		{
-			if(!m_btnDic.hasOwnProperty(btn))
-			{
-				m_btnDic[btn] = cb;
-			}
+			m_btnContainer = new Sprite();
+			m_btnContainer.x = 5;
+			this.addChild(m_btnContainer);
+			
+			m_btnContainer.addEventListener(MouseEvent.CLICK, onMouseClick);
 		}
 		
 		protected function onMouseClick(event:MouseEvent):void
 		{
-			var b:DisplayObject = event.target;
+			// TODO Auto-generated method stub
 			
-			for each(var btn:DisplayObject in m_btnDic)
+		}
+		
+		public function addButton(btn:DisplayObject, cb:Function):void
+		{
+			var data:Object = {"btn":btn, "callback":cb};
+			//m_btnList.push();
+		}
+		
+		public function sort():void
+		{
+			var i:int = 0, len:int = m_btnList.length;
+			var dx:Number = 0, dy:Number = 0;
+			var data:Object;
+			
+			if(direction == 0)
 			{
-				if(btn == b)
+				for(i; i < len; i++)
 				{
-					m_btnDic[btn]();
-					break;
+					data = m_btnList[i] as Object;
+					data.btn.x = dx;
+					data.btn.y = dy;
+					
+					dx += (data.btn.width + 2);
+				}
+			}
+			else
+			{
+				for(i; i < len; i++)
+				{
+					data = m_btnList[i] as Object;
+					data.btn.x = dx;
+					data.btn.y = dy;
+					
+					dy += (data.btn.height + 2);
 				}
 			}
 		}
+
+		public function get direction():int
+		{
+			return m_direction;
+		}
+
+		public function set direction(value:int):void
+		{
+			m_direction = value;
+		}
+
+		public function get multiSelect():Boolean
+		{
+			return m_bMultiSelect;
+		}
+
+		public function set multiSelect(value:Boolean):void
+		{
+			m_bMultiSelect = value;
+		}
+		
+		
 	}
 }
