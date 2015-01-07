@@ -4,10 +4,12 @@
 	import flash.events.MouseEvent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import src.ToolItemVO;
 	import src.UIColorMatrixFilter;
 
 	public class ToolItemBase extends MovieClip
 	{
+		private var m_vo:ToolItemVO;
 		private var m_id:String = "";
 		private var m_select:Boolean = false;
 		public var cbToolClick:Function = null;
@@ -28,6 +30,11 @@
 		private function onOut(e:MouseEvent):void
 		{
 			this["toolPicAnchor"].filters = null;
+		}
+		
+		public function set toolVO(vo:ToolItemVO):void
+		{
+			m_vo = vo;
 		}
 		
 		public function set toolPic(pic:DisplayObject):void
