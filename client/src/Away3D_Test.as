@@ -91,6 +91,8 @@ package
 	import com.infy.parser.RoomConfigParser;
 	import com.infy.parser.command.CameraParserCommand;
 	import com.infy.parser.command.LightParserCommand;
+	import com.infy.parser.command.LoadParserCommand;
+	import com.infy.parser.command.ParserCommandBase;
 	import com.infy.parser.command.ParserCommandType;
 	import com.infy.parser.command.PrimitiveParserCommand;
 	import com.infy.path.GamePath;
@@ -546,8 +548,8 @@ package
 		private function initListeners():void
 		{
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			//this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			//this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			this.addEventListener(MouseEvent.DOUBLE_CLICK, onMouseDobuleClick);
 			stage.addEventListener(Event.RESIZE, onResize);
 			
@@ -849,6 +851,7 @@ package
 		
 		private function saveRoom(event:MouseEvent):void
 		{
+			roomParser.refresh();
 			var saveData:String = roomParser.data;
 			
 			var f:FileReference = new FileReference();
@@ -873,7 +876,7 @@ package
 			info.name = "topViewCam";
 			info.distance = 500;
 			info.projectionHeight = 500;
-			info.panAngle = 0;
+			info.panAngle = 180;
 			info.tiltAngle = 90;
 			setCamera(info);
 			
@@ -919,23 +922,49 @@ package
 			roomParser.refresh();
 			
 			var commands:Vector.<PrimitiveParserCommand> = roomParser.primiteCommand;
-			
-			for(var i:int = 0; i < commands.length; i++)
+			var i:int, len:int = commands.length;
+			var e:Editor2DEvent;
+			for(i = 0; i < len; i++)
 			{				
-				if(commands[i].isDelete) continue;
+				var cmd:PrimitiveParserCommand = commands[i];
+				if(cmd.isDelete) continue;
 				
-				if(commands[i].cmd == ParserCommandType.BOX || commands[i].cmd == ParserCommandType.PLANE)
+				if(cmd.cmd == ParserCommandType.BOX || cmd.cmd == ParserCommandType.PLANE)
 				{
-					var e:Editor2DEvent = new Editor2DEvent(Editor2DEvent.CREATE);
-					e.name = commands[i].name;
+					e = new Editor2DEvent(Editor2DEvent.CREATE);
+					e.name = cmd.name;
 					e.style = "rectangle";
-					e.depth = commands[i].size.y;
-					e.position.setTo(commands[i].position.x, commands[i].position.z);
-					e.size.setTo(commands[i].size.x, commands[i].size.z);
-					e.rotation = commands[i].rotation.y;
-					e.color = ColorUtil.getHexCode(commands[i].color[0], commands[i].color[1], commands[i].color[2]);
+					e.depth = cmd.size.y;
+					e.position.setTo(cmd.position.x, cmd.position.z);
+					e.size.setTo(cmd.size.x, cmd.size.z);
+					e.rotation = cmd.rotation.y;
+					e.color = ColorUtil.getHexCode(cmd.color[0], cmd.color[1], cmd.color[2]);
 					m_edit2D.dispatchEvent(e);
 				}
+			}
+			
+			var loadCmd:Vector.<LoadParserCommand> = roomParser.loadCommand;
+			len = loadCmd.length;
+			for(i = 0; i < len; i++)
+			{				
+				var lmd:LoadParserCommand = loadCmd[i];
+				
+				if(lmd.isDelete) continue;
+				
+				var target:ObjectContainer3D = lmd.target;
+				var sizeX:Number = (target.maxX - target.minX)*target.scaleX;
+				var sizeY:Number = (target.maxZ - target.minZ)*target.scaleZ;
+				
+				
+				e = new Editor2DEvent(Editor2DEvent.CREATE);
+				e.name = lmd.name;
+				e.style = "rectangle";
+				e.depth = lmd.size.y;
+				e.position.setTo(lmd.position.x, -lmd.position.z);
+				e.size.setTo(sizeX, sizeY);
+				e.rotation = lmd.rotation.y;
+				e.color = ColorUtil.getHexCode(lmd.color[0], lmd.color[1], lmd.color[2]);
+				m_edit2D.dispatchEvent(e);
 			}
 		}
 		
@@ -1206,42 +1235,6 @@ package
 			game.update();
 			game.view.render();
 			
-		}
-		
-		/**
-		 * Mouse down listener for navigation
-		 */
-		private function onMouseDown(event:MouseEvent):void
-		{
-			// 滑鼠在UI上點擊 不用
-			if(event.target is TextField) 
-				return;
-			else if(event.target is BaseButton)
-				return;
-			
-//			if(game.cameraController)
-//			{
-//				lastPanAngle = game.cameraController.panAngle;
-//				lastTiltAngle = game.cameraController.tiltAngle;
-//				lastMouseX = stage.mouseX;
-//				lastMouseY = stage.mouseY;
-//				move = true;
-//				stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-//				if(event.shiftKey)
-//				{
-//					lastPanX = stage.mouseX;
-//					lastPanY = stage.mouseY;
-//				}
-//			}			
-		}
-		
-		/**
-		 * Mouse up listener for navigation
-		 */
-		private function onMouseUp(event:MouseEvent):void
-		{
-//			move = false;
-//			removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
 		private function onMouseDobuleClick(event:MouseEvent):void

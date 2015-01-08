@@ -92,6 +92,11 @@ package com.infy.parser.command
 			dispatchEvent(event);	
 		}
 		
+		override public function updateCommand():void
+		{
+			super.updateCommand();
+		}
+		
 		override public function toString():String
 		{
 			var str:String = ParserCommandType.CAMERA;

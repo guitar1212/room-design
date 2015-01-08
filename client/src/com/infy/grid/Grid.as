@@ -1,7 +1,5 @@
 package com.infy.grid
 {
-	import flash.geom.Vector3D;
-	
 	import away3d.entities.Mesh;
 	import away3d.entities.SegmentSet;
 	import away3d.events.MouseEvent3D;
@@ -9,6 +7,8 @@ package com.infy.grid
 	import away3d.primitives.LineSegment;
 	import away3d.primitives.PlaneGeometry;
 	import away3d.primitives.SphereGeometry;
+	
+	import flash.geom.Vector3D;
 	
 	public class Grid extends SegmentSet
 	{
@@ -45,11 +45,32 @@ package com.infy.grid
 			m_plane.addEventListener( MouseEvent3D.MOUSE_MOVE, onMeshMouseMove );
 			this.addChild(m_plane);
 			
+			// center
+			var center:Mesh = new Mesh(new SphereGeometry( 5 ), new ColorMaterial( 0xFF0000, 0.8 ));
+			addChild(center);
+			
+			// axis
+			var axisLength:int = 50;
+			var v0:Vector3D = new Vector3D(0, 0, 0);
+			var v1:Vector3D = new Vector3D(axisLength, 0, 0);
+			var axisX:LineSegment = new LineSegment(v0, v1, 0xff0000, 0xff0000, 5);
+			addSegment(axisX);
+			
+			var v2:Vector3D = new Vector3D(0, 0, 0);
+			var v3:Vector3D = new Vector3D(0, 0, axisLength);
+			var axisZ:LineSegment = new LineSegment(v2, v3, 0x00ff00, 0x00ff00, 5);
+			addSegment(axisZ);
+			
+			var v4:Vector3D = new Vector3D(0, 0, 0);
+			var v5:Vector3D = new Vector3D(0, axisLength, 0);
+			var axisY:LineSegment = new LineSegment(v4, v5, 0x0000ff, 0x0000ff, 5);
+			addSegment(axisY);
+			
 			// To trace picking positions.
 			m_locationTracer = new Mesh( new SphereGeometry( 5 ), new ColorMaterial( 0x00FF00, 0.5 ) );
 			m_locationTracer.mouseEnabled = m_locationTracer.mouseChildren = false;
 			m_locationTracer.visible = true;
-			addChild(m_locationTracer );
+			addChild(m_locationTracer);
 		}
 		
 		protected function onMeshMouseMove(event:MouseEvent3D):void

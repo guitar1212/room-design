@@ -1,5 +1,19 @@
 package com.infy.game
 {
+	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.OrthographicLens;
+	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.entities.Mesh;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.LightBase;
+	import away3d.lights.PointLight;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	
 	import com.infy.camera.CameraInfo;
 	import com.infy.constant.View3DCons;
 	import com.infy.event.GameEvent;
@@ -14,20 +28,6 @@ package com.infy.game
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.MouseEvent;
-	
-	import away3d.cameras.Camera3D;
-	import away3d.cameras.lenses.OrthographicLens;
-	import away3d.cameras.lenses.PerspectiveLens;
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.Scene3D;
-	import away3d.containers.View3D;
-	import away3d.controllers.HoverController;
-	import away3d.entities.Mesh;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.LightBase;
-	import away3d.lights.PointLight;
-	import away3d.materials.TextureMaterial;
-	import away3d.materials.lightpickers.StaticLightPicker;
 	
 	/**
 	 * 
@@ -59,8 +59,14 @@ package com.infy.game
 			root.stage.scaleMode = StageScaleMode.NO_SCALE;
 			root.stage.align = StageAlign.TOP_LEFT;
 			
-			root.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			root.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			scene = new Scene3D();
+			
+			camera = new Camera3D();
+			
+			view = new View3D();
+			
+			view.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			view.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			
 		}
 		
@@ -215,7 +221,10 @@ package com.infy.game
 			}
 			
 			cameraController = new HoverController(camera);
-			cameraController.steps = 40;
+			if(info.type == "P")
+				cameraController.steps = 25;
+			else if(info.type == "O")
+				cameraController.steps = 2;
 			cameraController.distance = info.distance;
 			cameraController.minTiltAngle = -15;
 			cameraController.maxTiltAngle = 90;

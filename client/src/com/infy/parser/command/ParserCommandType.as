@@ -7,6 +7,8 @@ package com.infy.parser.command
 	 */	
 	public class ParserCommandType
 	{
+		public static const PRIMITIVES:String = "primitives";
+		
 		public static const CAMERA:String = "camera";
 		
 		public static const LIGHT:String = "light";
