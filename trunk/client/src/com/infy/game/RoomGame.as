@@ -237,8 +237,9 @@ package com.infy.game
 			ui.resize();
 		}
 		
-		public function onKeyDown(keycode:uint, ctrl:Boolean, shift:Boolean, alt:Boolean):void
+		override protected function keyDown(keycode:uint, ctrl:Boolean, shift:Boolean, alt:Boolean):void
 		{
+			super.keyDown(keycode, ctrl, shift, alt);
 			// debug
 			switch(keycode)
 			{

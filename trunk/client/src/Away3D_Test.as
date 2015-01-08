@@ -92,7 +92,6 @@ package
 	import com.infy.parser.command.CameraParserCommand;
 	import com.infy.parser.command.LightParserCommand;
 	import com.infy.parser.command.LoadParserCommand;
-	import com.infy.parser.command.ParserCommandBase;
 	import com.infy.parser.command.ParserCommandType;
 	import com.infy.parser.command.PrimitiveParserCommand;
 	import com.infy.path.GamePath;
@@ -107,7 +106,6 @@ package
 	import com.infy.util.tools.ColorUtil;
 	import com.infy.util.zip.ZipLoader;
 	
-	import fl.controls.BaseButton;
 	import fl.controls.Button;
 	import fl.controls.TextInput;
 	import fl.core.UIComponent;
@@ -147,35 +145,6 @@ package
 		
 		private var m_edit2D:Editor2DRoom;
 		
-		//cube textures
-		/*[Embed(source="/../embeds/trinket_diffuse.jpg")]
-		public static var TrinketDiffuse:Class;
-		[Embed(source="/../embeds/trinket_specular.jpg")]
-		public static var TrinketSpecular:Class;
-		[Embed(source="/../embeds/trinket_normal.jpg")]
-		public static var TrinketNormals:Class;*/
-		
-		//sphere textures
-		/*[Embed(source="/../embeds/beachball_diffuse.jpg")]
-		public static var BeachBallDiffuse:Class;
-		[Embed(source="/../embeds/beachball_specular.jpg")]
-		public static var BeachBallSpecular:Class;*/
-		
-		//torus textures
-		/*[Embed(source="/../embeds/weave_diffuse.jpg")]
-		public static var WeaveDiffuse:Class;
-		[Embed(source="/../embeds/weave_normal.jpg")]
-		public static var WeaveNormals:Class;*/
-		
-		//plane textures
-		/*[Embed(source="/../embeds/floor_diffuse.jpg")]
-		public static var FloorDiffuse:Class;
-		[Embed(source="/../embeds/floor_specular.jpg")]
-		public static var FloorSpecular:Class;
-		[Embed(source="/../embeds/floor_normal.jpg")]
-		public static var FloorNormals:Class;
-		*/
-		
 		//signature variables
 		//private var Signature:Sprite;
 		//private var SignatureBitmap:Bitmap;
@@ -186,16 +155,9 @@ package
 		private var cubeMaterial:TextureMaterial;
 		private var torusMaterial:TextureMaterial;
 		
-		
-		//scene objects
-		/*private var plane:Mesh;
-		private var sphere:Mesh;
-		private var cube:Mesh;
-		private var torus:Mesh;
-		*/
 		//navigation variables
 		private var move:Boolean = false;
-		private var m_shiftKeyDown:Boolean = false;
+		//private var m_shiftKeyDown:Boolean = false;
 		private var lastPanAngle:Number;
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
@@ -222,11 +184,9 @@ package
 		private var wireframeBtn:Button;
 		private var createLightBtn:Button;
 		private var saveRoomBtn:Button;
-		//private var saveCaptureBtn:Button ;
 		
 		//private var billboard:Sprite3D;
 		
-		//private var m_meshInfo:TextField;
 		private var m_cameraInfo:TextField;		
 		private var m_lightInfo:TextField;
 		private var m_mouseInfoText:TextField;
@@ -469,28 +429,10 @@ package
 		 * Initialise the scene objects
 		 */
 		private function initObjects():void
-		{				
-			/*var p:Mesh = new Mesh(new PlaneGeometry(1000, 1000), new ColorMaterial(0xeeffff));
-			addToScene(p);*/
-			
+		{	
 			/*billboard = new Sprite3D(planeMaterial, 50, 50);
 			billboard.x = 100;			
 			addToScene(billboard);*/
-			
-			/*var wc:WireframeCube = new WireframeCube();
-			wc.color = 0x999999;
-			wc.thickness = 1.5;
-			wc.scaleX = 3;
-			wc.scaleY = 3;
-			wc.scaleZ = 3;
-			addToScene(wc);*/
-			
-			/*var cg:Mesh = new Mesh(new CubeGeometry(), new ColorMaterial(0xff22ff));			
-			cg.x = 100;
-			//cg.addChild(wc);
-			cg.y = 150;
-			//addToScene(cg);
-			cg.geometry.scale(3);*/
 			
 			/*var cone:Mesh = new Mesh(new ConeGeometry(), new ColorMaterial(0x2d56ef));
 			cone.z = 100;
@@ -548,8 +490,6 @@ package
 		private function initListeners():void
 		{
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			//this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			//this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			this.addEventListener(MouseEvent.DOUBLE_CLICK, onMouseDobuleClick);
 			stage.addEventListener(Event.RESIZE, onResize);
 			
@@ -817,18 +757,7 @@ package
 
 		private var m_lightCount:int = 0;
 		private function onCreateLightBtnClick(event:MouseEvent):void
-		{
-			/*var light:LightBase = new DirectionalLight();
-			DirectionalLight(light).direction = new Vector3D(0, -1, 0);
-			light.ambient = 1.0;
-			light.diffuse = 1.0;
-			light.name = "light_" + m_lightCount;
-			addToScene(light);
-			
-			var lights:Array = game.lightPicker.lights;
-			lights.push(light);
-			game.lightPicker.lights = lights;*/
-			
+		{	
 			var info:LightInfo = new LightInfo();
 			
 			LightManager.instance.addLight(info);
@@ -1067,7 +996,7 @@ package
 			}
 			else if(event.shiftKey)
 			{
-				m_shiftKeyDown = true;
+				//m_shiftKeyDown = true;
 				switch(event.keyCode)
 				{
 					case Keyboard.DELETE:
@@ -1162,7 +1091,7 @@ package
 		
 		protected function onStageKeyUp(event:KeyboardEvent):void
 		{
-			m_shiftKeyDown = event.shiftKey;		
+			//m_shiftKeyDown = event.shiftKey;		
 			
 		}
 		
@@ -1182,9 +1111,9 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			if (move) 
+			if(move) 
 			{
-				if(m_shiftKeyDown)
+				/*if(m_shiftKeyDown)
 				{
 					var dx:Number = 0.3*(stage.mouseX - lastPanX);
 					var dy:Number = 0.3*(stage.mouseY - lastPanY);
@@ -1201,7 +1130,7 @@ package
 					lastMouseX = stage.mouseX;
 					lastMouseY = stage.mouseY;
 				}
-				else
+				else*/
 				{
 //					game.cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 //					game.cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;	
@@ -1628,25 +1557,7 @@ package
 		}
 		
 		private function setObjectInfo(o:ObjectContainer3D):void
-		{
-			/*var text:String = "";
-			
-			if(o)
-			{
-				text = "Object Info :\nname : " + o.name + 
-					   "\ntype : " + o.assetType +
-					   "\npos : " + o.position.toString() + 
-					   "\n sPos : " + o.scenePosition.toString() +
-					   "\nrot : " + o.eulers.toString() +
-					   "\nscale : " + o.scaleX + ", " + o.scaleY + ", " + o.scaleZ +
-					   "\nclas : " + getQualifiedClassName(o) +
-					   "\ntriangles : " + getObject3DInfo.getFaceCounts(o) + 
-					   "\nvertices : " + getObject3DInfo.getVertexCounts(o) +
-					   "\nbounds size : " + (o.maxX - o.minX).toFixed(2) + ", " + (o.maxY - o.minY).toFixed(2) + ", " + (o.maxZ - o.minZ).toFixed(2)
-						;
-			}
-			
-			m_meshInfo.text = text;*/
+		{	
 			m_objInfoUI.target = o;
 		}
 		
