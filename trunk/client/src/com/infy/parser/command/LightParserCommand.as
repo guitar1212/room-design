@@ -79,6 +79,11 @@ package com.infy.parser.command
 			this.dispatchEvent(event);
 		}
 		
+		override public function updateCommand():void
+		{
+			super.updateCommand();
+		}
+		
 		override public function toString():String
 		{
 			var str:String = ParserCommandType.LIGHT;

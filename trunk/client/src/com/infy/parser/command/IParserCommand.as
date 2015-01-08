@@ -4,6 +4,7 @@ package com.infy.parser.command
 	{
 		function parser(args:Array):void
 		function excute():void
+		function updateCommand():void
 		function toString():String
 	}
 }

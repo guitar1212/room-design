@@ -86,16 +86,20 @@ package com.infy.parser.command
 			dispatchEvent(event);
 		}
 		
-		override public function toString():String
+		override public function updateCommand():void
 		{
+			super.updateCommand();
 			if(target)
 			{
 				position = target.position;
 				rotation.x = target.rotationX;
 				rotation.y = target.rotationY;
 				rotation.z = target.rotationZ;
-			}
-			
+			}	
+		}
+		
+		override public function toString():String
+		{	
 			var str:String = "";
 			if(!target.parent)
 			{

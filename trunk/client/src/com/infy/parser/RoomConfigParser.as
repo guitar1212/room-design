@@ -460,6 +460,16 @@ package com.infy.parser
 			return material;
 		}
 		
+		public function get primiteCommand():Vector.<PrimitiveParserCommand>
+		{
+			return m_primitiveCommand; 
+		}
+		
+		public function get loadCommand():Vector.<LoadParserCommand>
+		{
+			return m_loadCommand; 
+		}
+		
 		private function excuteLoadCommand():void
 		{
 			for(var i:int = 0; i < m_loadCommand.length; i++)
@@ -472,11 +482,6 @@ package com.infy.parser
 		{
 			for(var i:int = 0; i < m_primitiveCommand.length; i++)
 				m_primitiveCommand[i].excute();
-		}
-		
-		public function get primiteCommand():Vector.<PrimitiveParserCommand>
-		{
-			return m_primitiveCommand; 
 		}
 		
 		private function excuteCameraCommand():void
@@ -497,7 +502,26 @@ package com.infy.parser
 		
 		public function refresh():void
 		{
-			this.data;
+			var cmd:IParserCommand
+			for each(cmd in m_cameraCommand)
+			{
+				cmd.updateCommand();
+			}
+			
+			for each(cmd in m_lightCommand)
+			{
+				cmd.updateCommand();
+			}
+			
+			for each(cmd in m_primitiveCommand)
+			{
+				cmd.updateCommand();
+			}
+			
+			for each(cmd in m_loadCommand)
+			{
+				cmd.updateCommand();
+			}
 		}
 		
 		public function get data():String

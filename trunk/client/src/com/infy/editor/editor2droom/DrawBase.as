@@ -5,6 +5,8 @@ package com.infy.editor.editor2droom
 	import flash.events.Event;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	
 	public class DrawBase extends Sprite
 	{
@@ -36,9 +38,15 @@ package com.infy.editor.editor2droom
 		
 		private var m_modifier:DrawObjectModifyer = new DrawObjectModifyer();
 		
+		private var m_text:TextField = new TextField();
+		
 		public function DrawBase()
 		{
 			super();
+			
+			m_text.autoSize = TextFieldAutoSize.LEFT;
+			m_text.textColor = 0x0000ff;
+			this.addChild(m_text);
 		}
 		
 		public function startDraw(startX:Number, startY:Number):void
@@ -90,18 +98,25 @@ package com.infy.editor.editor2droom
 			{
 				//this.filters = [new GlowFilter(0xffff00, 0.8, 3, 3)];
 				m_modifier.target = this;
+				text = this.name; 
 				
 			}
 			else
 			{
 				//this.filters = [];
 				m_modifier.target = null;
+				text = "";
 			}
 		}
 		
 		public function get select():Boolean
 		{
 			return m_bSelect;
+		}
+		
+		public function set text(str:String):void
+		{
+			m_text.text = str;
 		}
 	}
 }

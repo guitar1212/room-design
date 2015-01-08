@@ -43,6 +43,11 @@ package com.infy.parser.command
 			
 		}
 		
+		public function updateCommand():void
+		{
+			
+		}
+		
 		public function toString():String
 		{
 			return null;

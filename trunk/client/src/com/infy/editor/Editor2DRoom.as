@@ -885,6 +885,13 @@ package com.infy.editor
 			return p;
 		}
 		
+		private function sortObject():void
+		{
+			var i:int = 0, len:int = m_drawObjectContainer.numChildren;
+			
+			
+		}
+		
 		public function clean():void
 		{
 			m_drawObjectContainer.removeChildren();

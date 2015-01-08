@@ -1,13 +1,5 @@
 package com.infy.game
 {
-	import com.infy.constant.View3DCons;
-	import com.infy.event.RoomEvent;
-	import com.infy.light.LightInfo;
-	import com.infy.light.LightManager;
-	
-	import flash.display.Sprite;
-	import flash.geom.Vector3D;
-	
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
@@ -24,6 +16,14 @@ package com.infy.game
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.loaders.parsers.Parsers;
 	import away3d.materials.lightpickers.StaticLightPicker;
+	
+	import com.infy.constant.View3DCons;
+	import com.infy.event.RoomEvent;
+	import com.infy.light.LightInfo;
+	import com.infy.light.LightManager;
+	
+	import flash.display.Sprite;
+	import flash.geom.Vector3D;
 	
 	/**
 	 * 
@@ -50,14 +50,12 @@ package com.infy.game
 		
 		private function initEngine():void
 		{			
-			scene = new Scene3D();
-			
 			var lens:PerspectiveLens = new PerspectiveLens();
 			lens.near = 5;
-			camera = new Camera3D(lens);
+			camera.lens = lens;
 			camera.name = "mainCamera";
 			
-			view = new View3D();
+			view.name = "gameView";
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;

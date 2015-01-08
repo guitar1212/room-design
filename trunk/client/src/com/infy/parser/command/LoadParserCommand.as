@@ -40,15 +40,13 @@ package com.infy.parser.command
 			}
 		}
 		
-		override public function toString():String
+		override public function updateCommand():void
 		{
-			if(target)
-			{
-				position = target.position;
-				rotation.x = target.rotationX;
-				rotation.y = target.rotationY;
-				rotation.z = target.rotationZ;
-			}
+			super.updateCommand();			
+		}
+		
+		override public function toString():String
+		{	
 			return super.toString();
 		}
 	}
