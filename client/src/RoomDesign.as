@@ -96,8 +96,6 @@ package
 						break;
 				}
 			}
-			
-			game.onKeyDown(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey);
 		}
 		
 		protected function onResize(event:Event = null):void

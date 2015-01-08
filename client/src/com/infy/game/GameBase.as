@@ -27,6 +27,7 @@ package com.infy.game
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	
 	/**
@@ -68,7 +69,25 @@ package com.infy.game
 			view.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			view.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			
+			root.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			root.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 		}
+		
+		protected function onKeyUp(event:KeyboardEvent):void
+		{
+			m_shiftKeyDown = event.shiftKey;
+		}
+		
+		protected function onKeyDown(event:KeyboardEvent):void
+		{
+			m_shiftKeyDown = event.shiftKey;
+			
+			keyDown(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey);
+		}
+		
+		protected function keyDown(keycode:uint, ctrl:Boolean, shift:Boolean, alt:Boolean):void
+		{
+		}	
 		
 		protected function onMouseUp(event:MouseEvent):void
 		{
@@ -105,8 +124,29 @@ package com.infy.game
 			{
 				if(m_moveCamera)
 				{
-					cameraController.panAngle = 0.3*(root.stage.mouseX - lastMouseX) + lastPanAngle;
-					cameraController.tiltAngle = 0.3*(root.stage.mouseY - lastMouseY) + lastTiltAngle;	
+					if(m_shiftKeyDown)
+					{
+						var dx:Number = 0.3*(root.stage.mouseX - lastPanX);
+						var dy:Number = 0.3*(root.stage.mouseY - lastPanY);
+						
+						cameraController.lookAtPosition.x -= dx;
+						
+						if(camera.lens is OrthographicLens)						
+							cameraController.lookAtPosition.z += dy;
+						else
+							cameraController.lookAtPosition.y += dy;
+						
+						cameraController.update();
+						lastPanX = root.stage.mouseX;
+						lastPanY = root.stage.mouseY;
+						lastMouseX = root.stage.mouseX;
+						lastMouseY = root.stage.mouseY;
+					}
+					else
+					{
+						cameraController.panAngle = 0.3*(root.stage.mouseX - lastMouseX) + lastPanAngle;
+						cameraController.tiltAngle = 0.3*(root.stage.mouseY - lastMouseY) + lastTiltAngle;
+					}
 				}
 			}
 		}
@@ -246,6 +286,10 @@ package com.infy.game
 		private var lastMouseY:Number;
 		private var lastPanX:Number;
 		private var lastPanY:Number;
+		
+		// key state
+		private var m_shiftKeyDown:Boolean = false;
+		
 		public function captureScreen():void
 		{
 			if(!m_bScreenCapture)
