@@ -44,9 +44,9 @@ package com.infy.editor.editor2droom
 		{
 			super();
 			
-			m_text.autoSize = TextFieldAutoSize.LEFT;
+			/*m_text.autoSize = TextFieldAutoSize.LEFT;
 			m_text.textColor = 0x0000ff;
-			this.addChild(m_text);
+			this.addChild(m_text);*/
 		}
 		
 		public function startDraw(startX:Number, startY:Number):void
@@ -117,6 +117,15 @@ package com.infy.editor.editor2droom
 		public function set text(str:String):void
 		{
 			m_text.text = str;
+		}
+		
+		public function move(_x:Number, _y:Number):void
+		{
+			this.x += _x;
+			this.y += _y;
+			
+			this.offset.x += _x;
+			this.offset.y += _y;
 		}
 	}
 }

@@ -75,6 +75,7 @@ package com.infy.editor
 		
 		private var m_background:Sprite;
 		private var m_drawArea:Sprite;
+		private var m_drawCanvas:Sprite;
 		private var m_drawObjectContainer:Sprite;
 		private var m_grid:Sprite;
 		
@@ -134,12 +135,15 @@ package com.infy.editor
 			m_drawArea.x = _x;
 			m_drawArea.y = _y;			
 			this.addChildToLayer(0, m_drawArea);
+			
+			m_drawCanvas = new Sprite();
+			m_drawArea.addChild(m_drawCanvas);
 						
 			m_grid = new Sprite();
-			m_drawArea.addChild(m_grid);
+			m_drawCanvas.addChild(m_grid);
 			
 			m_drawObjectContainer = new Sprite();
-			m_drawArea.addChild(m_drawObjectContainer);
+			m_drawCanvas.addChild(m_drawObjectContainer);
 			
 			var drawMash:Sprite = new Sprite();
 			drawMash.mouseEnabled = false;
@@ -154,7 +158,7 @@ package com.infy.editor
 			m_drawPoint = new Sprite();			
 			m_drawPoint.mouseEnabled = false;
 			m_drawPoint.mouseChildren = false;
-			m_drawArea.addChild(m_drawPoint);
+			m_drawCanvas.addChild(m_drawPoint);
 			changeDrawPoint(0);
 			
 			//====================================================================
@@ -304,7 +308,15 @@ package com.infy.editor
 			{
 				case Keyboard.DELETE:
 					if(event.shiftKey)
-						cleanAllDrawItem();
+						cleanAllDrawObjects();
+					else
+					{
+						if(m_curSelectDrawObject)
+						{
+							deleteDrawObject(m_curSelectDrawObject);
+							m_curSelectDrawObject = null;
+						}
+					}						
 					break;
 				
 				case Keyboard.S:
@@ -339,18 +351,48 @@ package com.infy.editor
 					if(m_curSelectDrawObject)
 						rotationFromCenter(m_curSelectDrawObject, 45);
 					break;
+				
+				case Keyboard.HOME:
+					this.scale = 1;
+					m_drawCanvas.x -= m_penOffset.x;
+					m_drawCanvas.y -= m_penOffset.y;
+					m_penOffset.setTo(0, 0);					
+					break;
 			}
+		}
+		
+		private function cleanAllDrawObjects():void
+		{
+			var i:int = 0, len:int = m_drawObjectContainer.numChildren;
+			for(i; i < len; i++)
+			{
+				var d:DrawBase = m_drawObjectContainer.getChildAt(0) as DrawBase;
+				deleteDrawObject(d);
+			}
+		}
+		
+		private function deleteDrawObject(obj:DrawBase):void
+		{
+			obj.removeChildren();
+			obj.graphics.clear();
+			
+			m_drawObjectContainer.removeChild(obj);
+			
+			obj = null;
 		}
 		
 		private function moveDrawArea(offsetX:Number, offsetY:Number):void
 		{
 			m_penOffset.x += offsetX;
-			m_drawObjectContainer.x += offsetX;
-			m_grid.x += offsetX;
+			/*m_drawObjectContainer.x += offsetX;
+			m_grid.x += offsetX;*/
 			
 			m_penOffset.y += offsetY;
-			m_drawObjectContainer.y += offsetY;
-			m_grid.y += offsetY;
+			/*m_drawObjectContainer.y += offsetY;
+			m_grid.y += offsetY;*/
+			
+			m_drawCanvas.x += offsetX;
+			m_drawCanvas.y += offsetY;
 		}
 		
 		protected function onMouseUp(event:MouseEvent):void
@@ -400,8 +442,8 @@ package com.infy.editor
 			if(bDrawRec || bDrawCircle)
 			{
 				m_bStartDraw = true;
-				//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
-				var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
+				//var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
+				var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
 				if(bDrawRec)
 				{
 					m_drawObj = new DrawRectangle();
@@ -428,6 +470,27 @@ package com.infy.editor
 			}
 		}
 		
+		private function onDrawEnd(event:MouseEvent):void
+		{
+			event.stopImmediatePropagation();
+			m_bMoveDrawArea = false;
+			
+			if(bDrawRec || bDrawCircle)
+			{
+				m_bStartDraw = false;				
+				
+				if(m_drawObj)
+				{
+					var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
+					//var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
+					
+					m_drawObj.endDraw(p.x, p.y);
+					
+					m_drawObj = null;
+				}
+			}
+		}
+		
 		private function selectDrawObject(d:DrawBase):void
 		{
 			for(var i:int = 0; i < m_drawObjectContainer.numChildren; i++)
@@ -440,27 +503,6 @@ package com.infy.editor
 				else
 				{
 					draw.select = false;
-				}
-			}
-		}
-		
-		private function onDrawEnd(event:MouseEvent):void
-		{
-			event.stopImmediatePropagation();
-			m_bMoveDrawArea = false;
-			
-			if(bDrawRec || bDrawCircle)
-			{
-				m_bStartDraw = false;				
-				
-				if(m_drawObj)
-				{
-					//var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
-					//var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
-					var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
-					m_drawObj.endDraw(p.x, p.y);
-					
-					m_drawObj = null;
 				}
 			}
 		}
@@ -526,7 +568,7 @@ package com.infy.editor
 			}
 			else
 			{
-				var p:Point = m_drawArea.globalToLocal(new Point(stage.mouseX, stage.mouseY));
+				var p:Point = m_drawCanvas.globalToLocal(new Point(stage.mouseX, stage.mouseY));
 				m_drawPoint.x = p.x;
 				m_drawPoint.y = p.y;
 			}
@@ -626,17 +668,6 @@ package com.infy.editor
 			}			
 		}
 		
-		private function cleanAllDrawItem():void
-		{
-			for(var i:int = 0; i < m_drawObjectContainer.numChildren; i++)
-			{
-				var d:DrawBase = m_drawObjectContainer.getChildAt(i) as DrawBase;
-				d.graphics.clear();
-			}
-			
-			m_drawObjectContainer.removeChildren();
-		}
-		
 		private function scaleDrawItem(value:Number):void
 		{
 			for(var i:int = 0; i < m_drawObjectContainer.numChildren; i++)
@@ -654,9 +685,7 @@ package com.infy.editor
 			obj.scaleX = _sX;
 			obj.scaleY = _sY;
 			obj.x = (_sX*(obj.offset.x) + DRAW_AREA_CENTER_X);
-			obj.y = (_sY*(obj.offset.y) + DRAW_AREA_CENTER_Y);
-			
-			// 中心點 在縮放時會跑掉  跟 m_penOffset 有關
+			obj.y = (_sY*(obj.offset.y) + DRAW_AREA_CENTER_Y);			
 		}
 		
 		private function rotationFromCenter(obj:DrawBase, angle:Number):void
@@ -734,15 +763,12 @@ package com.infy.editor
 			
 			var unit_width:Number = scale*GRID_WIDTH;
 			
-			var localPoint:Point = m_drawArea.globalToLocal(new Point(stageX, stageY));
+			var localPoint:Point = m_drawCanvas.globalToLocal(new Point(stageX, stageY));
 			localPoint.x -= DRAW_AREA_CENTER_X;
 			localPoint.y -= DRAW_AREA_CENTER_Y;
 			
-			localPoint.x -= m_penOffset.x;
-			localPoint.y -= m_penOffset.y;
-			
-			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X + m_grid.x;
-			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y + m_grid.y;
+			p.x = Math.round(localPoint.x/unit_width)*unit_width + DRAW_AREA_CENTER_X;
+			p.y = Math.round(localPoint.y/unit_width)*unit_width + DRAW_AREA_CENTER_Y;
 			
 			return p;
 		}
@@ -871,13 +897,13 @@ package com.infy.editor
 		
 		public function getDrawCoordinatePosition(stageX:Number, stageY:Number):Point
 		{
-			var p:Point = m_drawArea.globalToLocal(new Point(stageX, stageY));
+			var p:Point = m_drawCanvas.globalToLocal(new Point(stageX, stageY));
 			
 			p.x -= DRAW_AREA_CENTER_X;
 			p.y -= DRAW_AREA_CENTER_Y;
 			
-			p.x -= m_penOffset.x;
-			p.y -= m_penOffset.y;
+			p.x += m_penOffset.x;
+			p.y += m_penOffset.y;
 			
 			p.x = p.x/m_scale;
 			p.y = p.y/m_scale;

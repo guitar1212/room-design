@@ -4,15 +4,20 @@ package com.infy.editor.editor2droom
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	public class DrawObjectModifyer extends MovieClip
 	{
 		private var m_target:DrawBase;
 		
+		private var m_modifyType:String = "";
+		
 		private var m_modifyIndex:String;
 		
 		private var m_spriteList:Vector.<Sprite> = new Vector.<Sprite>();
+		
+		private var m_lastPoint:Point = new Point();
 		
 		public function DrawObjectModifyer()
 		{
@@ -66,22 +71,61 @@ package com.infy.editor.editor2droom
 			var targetName:String = event.target.name;
 			if(targetName.indexOf("scale") > -1)
 			{
+				m_modifyType = "scale";
 				m_modifyIndex = targetName.charAt(5);
 				trace(m_modifyIndex);
 			}
+			else if(targetName.indexOf("rotate") > -1)
+			{
+				m_modifyType = "rotate";
+			}
+			else
+				m_modifyType = "move";
+		
+			m_lastPoint.setTo(event.stageX, event.stageY);
 			
 			this.addEventListener(Event.ENTER_FRAME, onModifyObject);
+			this.stage.addEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
 			
 		}
-		
+				
 		protected function onModifyObject(event:Event):void
 		{
+			var dx:Number = stage.mouseX - m_lastPoint.x;
+			var dy:Number = stage.mouseY - m_lastPoint.y;
 			
+			if(m_modifyType == "scale")
+			{
+				
+			}
+			else if(m_modifyType == "rotate")
+			{
+				/*var angle:Number = Math.atan(dy/dx)*180/Math.PI;
+				m_target.rotationZ += angle;*/
+				var lastLen:Number = m_lastPoint.length;
+				m_lastPoint.setTo(stage.mouseX, stage.mouseY);
+				var len:Number = m_lastPoint.length;
+				m_target.rotation += (len - lastLen);
+			}
+			else // move
+			{	
+				/*m_target.x += dx;
+				m_target.y += dy;*/
+				m_target.move(dx, dy);
+			}
+			
+			m_lastPoint.setTo(stage.mouseX, stage.mouseY);
 		}
 		
 		protected function onMouseUp(event:MouseEvent):void
 		{
 			this.removeEventListener(Event.ENTER_FRAME, onModifyObject);
+		}
+		
+		protected function onStageMouseUp(event:MouseEvent):void
+		{
+			onMouseUp(event);
+			this.stage.removeEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
 		}
 		
 		public function set target(obj:DrawBase):void

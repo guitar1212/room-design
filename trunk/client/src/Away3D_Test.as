@@ -1015,21 +1015,8 @@ package
 					case Keyboard.INSERT:					
 						//loadRoom(roomPath);			
 						game.captureScreen();
-						break;						
-					
-					/*case Keyboard.NUMBER_9:
-						testDrawWireFrame(m_meshList[0]);
-						break;*/
-					/*case Keyboard.NUMBER_1:
-						var c:CameraInfo = CameraInfoManager.instance.getCameraInfo("cam01");
-						setCamera(c, camera);						
 						break;
-					
-					case Keyboard.NUMBER_2:
-						var c2:CameraInfo = CameraInfoManager.instance.getCameraInfo("cam02");
-						setCamera(c2, camera);
-						break;*/
-					
+				
 					case Keyboard.NUMBER_9:
 						var b:BloomFilter3D = new BloomFilter3D();
 						game.view.filters3d = [b];

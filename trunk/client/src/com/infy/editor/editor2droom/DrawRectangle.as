@@ -15,9 +15,12 @@ package com.infy.editor.editor2droom
 		{
 			super.draw();
 			
-			this.graphics.beginFill(drawColor, drawAlpha);			
-			this.graphics.drawRect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-			this.graphics.endFill();			
+			this.graphics.beginFill(drawColor, drawAlpha);
+			var w:Number = endPoint.x - startPoint.x;
+			var h:Number = endPoint.y - startPoint.y;
+			this.graphics.drawRect(startPoint.x, startPoint.y, w, h);
+			this.graphics.endFill();
+			trace("w , h = " + "(" + w + ", " + h + ")" + "    width, height = " + "(" + this.width + ", " + this.height + ")");
 		}
 		
 		override public function endDraw(endX:Number, endY:Number):void
@@ -44,6 +47,9 @@ package com.infy.editor.editor2droom
 			// modify offset
 			this.offset.x -= (sX - cX);
 			this.offset.y -= (sY - cY);
+			
+			this.oriWidth = this.width/this.oriScale;
+			this.oriHeight = this.height/this.oriScale;
 		}
 		
 		private function drawCenter():void
