@@ -139,5 +139,10 @@ package com.infy.game
 			//camLight.position = camera.position;
 			super.update();
 		}
+		
+		override protected function keyDown(keycode:uint, ctrl:Boolean, shift:Boolean, alt:Boolean):void
+		{
+			super.keyDown(keycode, ctrl, shift, alt);
+		}
 	}
 }
