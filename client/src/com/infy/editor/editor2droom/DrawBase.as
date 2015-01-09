@@ -124,8 +124,9 @@ package com.infy.editor.editor2droom
 			this.x += _x;
 			this.y += _y;
 			
-			this.offset.x += _x;
-			this.offset.y += _y;
+			// calculate offset 
+			
+			
 		}
 	}
 }
