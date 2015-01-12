@@ -73,22 +73,22 @@ package com.infy.editor.editor2droom
 		
 		protected function draw():void
 		{
+			graphics.clear();
+			
+			var s:Point;
 			var p:Point;
 			if(refrenceObject)
 			{				
 				//p = new Point(refrenceObject.x - this.x - parent.x, refrenceObject.y - this.y - parent.y);
-				var s:Point = refrenceObject.parent.localToGlobal(new Point(refrenceObject.x, refrenceObject.y));
+				s = refrenceObject.parent.localToGlobal(new Point(refrenceObject.x, refrenceObject.y));
 				//p = globalToLocal(new Point(stage.mouseX, stage.mouseY));
-				p = globalToLocal(s);
+				
 			}
 			else
-				p = globalToLocal(new Point(stage.mouseX, stage.mouseY));
+				s = new Point(stage.mouseX, stage.mouseY);				
 			
-			this.endPoint.setTo(p.x, p.y);
-			
-			graphics.clear();
-			
-			
+			p = globalToLocal(s);
+			this.endPoint.setTo(p.x, p.y);			
 		}
 		
 		public function set select(value:Boolean):void
@@ -125,7 +125,7 @@ package com.infy.editor.editor2droom
 			this.y += _y;
 			
 			// calculate offset 
-			_x = _x/this.oriScale*this.scaleX;/*
+			/*_x = _x/this.oriScale*this.scaleX;
 			_y = _y/this.oriScale*this.scaleX;
 			this.offset.x += _x;
 			this.offset.y += _y;*/
