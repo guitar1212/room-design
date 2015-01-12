@@ -62,11 +62,18 @@ package com.infy.editor
 		private static const DIALOG_WIDTH:Number = 800;
 		private static const DIALOG_HEIGHT:Number = 600;
 		
+		private static const DIALOG_BACKGROUND_COLOR:uint = 0x888888;
+		
 		private static const DRAW_AREA_WIDTH:Number = 750;
 		private static const DRAW_AREA_HEIGHT:Number = 450;
 		
 		private static const DRAW_AREA_CENTER_X:Number = DRAW_AREA_WIDTH/2;
 		private static const DRAW_AREA_CENTER_Y:Number = DRAW_AREA_HEIGHT/2;
+		
+		private static const DRAW_AREA_BACKGROUND_COLOR:uint = 0x333333;
+		
+		private static const GRID_COLOR:uint = 0xaaaaaa;
+		private static const GRID_ALPHA:Number = 0.8;
 		
 		private var m_scale:Number = 1;
 		
@@ -121,13 +128,13 @@ package com.infy.editor
 			}
 			
 			m_background = new Sprite();
-			m_background.graphics.beginFill(0x888888);
+			m_background.graphics.beginFill(DIALOG_BACKGROUND_COLOR);
 			m_background.graphics.drawRect(0,0,DIALOG_WIDTH,DIALOG_HEIGHT);
 			m_background.graphics.endFill();			
 			this.addChildToLayer(0, m_background);
 			
 			m_drawArea = new Sprite();
-			m_drawArea.graphics.beginFill(0x333333);
+			m_drawArea.graphics.beginFill(DRAW_AREA_BACKGROUND_COLOR);
 			var _x:Number = (DIALOG_WIDTH - DRAW_AREA_WIDTH)/2;
 			var _y:Number = (DIALOG_HEIGHT - DRAW_AREA_HEIGHT)/2;
 			m_drawArea.graphics.drawRect(0,0,DRAW_AREA_WIDTH,DRAW_AREA_HEIGHT);
@@ -140,7 +147,7 @@ package com.infy.editor
 			m_drawArea.addChild(m_drawCanvas);
 						
 			m_grid = new Sprite();
-			m_drawCanvas.addChild(m_grid);
+			m_drawArea.addChild(m_grid);
 			
 			m_drawObjectContainer = new Sprite();
 			m_drawCanvas.addChild(m_drawObjectContainer);
@@ -265,7 +272,7 @@ package com.infy.editor
 			this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			
 			this.alpha = 0;
-			drawGrid(scale);
+			drawGrid(scale, m_penOffset.x, m_penOffset.y);
 			
 			m_background.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			m_background.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -354,9 +361,10 @@ package com.infy.editor
 				
 				case Keyboard.HOME:
 					this.scale = 1;
-					m_drawCanvas.x -= m_penOffset.x;
-					m_drawCanvas.y -= m_penOffset.y;
-					m_penOffset.setTo(0, 0);					
+					m_penOffset.setTo(0, 0);
+					m_drawCanvas.x = 0;
+					m_drawCanvas.y = 0;
+					drawGrid(1, 0, 0);
 					break;
 			}
 		}
@@ -393,6 +401,8 @@ package com.infy.editor
 			
 			m_drawCanvas.x += offsetX;
 			m_drawCanvas.y += offsetY;
+			
+			drawGrid(m_scale, m_drawCanvas.x, m_drawCanvas.y);
 		}
 		
 		protected function onMouseUp(event:MouseEvent):void
@@ -461,8 +471,8 @@ package com.infy.editor
 				m_drawObj.startDraw(p.x, p.y);
 				m_drawObj.refrenceObject = m_drawPoint;
 				var offset:Point = new Point();
-				offset.x = p.x - DRAW_AREA_CENTER_X;// + m_penOffset.x;
-				offset.y = p.y - DRAW_AREA_CENTER_Y;// + m_penOffset.y;
+				offset.x = p.x - DRAW_AREA_CENTER_X;
+				offset.y = p.y - DRAW_AREA_CENTER_Y;
 				
 				m_drawObj.offset.x = offset.x;
 				m_drawObj.offset.y = offset.y;
@@ -482,7 +492,6 @@ package com.infy.editor
 				if(m_drawObj)
 				{
 					var p:Point = new Point(m_drawPoint.x, m_drawPoint.y);
-					//var p:Point = new Point(m_drawPoint.x - m_penOffset.x, m_drawPoint.y - m_penOffset.y);
 					
 					m_drawObj.endDraw(p.x, p.y);
 					
@@ -518,7 +527,7 @@ package com.infy.editor
 			
 			scaleDrawItem(value);
 			
-			drawGrid(m_scale);
+			drawGrid(m_scale, m_penOffset.x, m_penOffset.y);			
 		}
 		
 		private function addChildToLayer(layerIndex:int, child:DisplayObject):void
@@ -689,69 +698,58 @@ package com.infy.editor
 		}
 		
 		private function rotationFromCenter(obj:DrawBase, angle:Number):void
-		{
-//			var oriCenterX:Number = obj.width/2; + obj.x;
-//			var oriCenterY:Number = obj.height/2 + obj.y;
-			
+		{			
 			obj.rotation = angle;
-			
-//			var newCenterX:Number = obj.width/2; + obj.x;
-//			var newCenterY:Number = obj.height/2 + obj.y;
-//			
-//			var dx:Number = newCenterX - oriCenterX;
-//			var dy:Number = newCenterY - oriCenterX;
-//			
-//			var len:Number = Math.sqrt(dx*dx + dy*dy);
-//			obj.x += Math.cos(angle);
-//			obj.y -= Math.sin(angle);
 		}
 		
-		private function drawGrid(scale:Number):void
+		private function drawGrid(scale:Number, offsetX:Number, offsetY:Number):void
 		{
 			m_grid.graphics.clear();
 			
 			//m_grid.graphics.beginFill(0xaaaaaa, 0.8);
-			m_grid.graphics.lineStyle(1, 0xaaaaaa, 0.8);
+			m_grid.graphics.lineStyle(1, GRID_COLOR, GRID_ALPHA);
 			
 			var total_len:Number = scale*GRID_SIZE;
 			var unit_width:Number = scale*GRID_WIDTH;
 			
 			var units:int = ~~(total_len/unit_width);
 			
+			var gridCenter:Point = new Point(DRAW_AREA_CENTER_X + offsetX, DRAW_AREA_CENTER_Y + offsetY);
+			
 			var i:int = 0;
 			var dx:Number = 0, dy:Number = 0;
-			var maxX:Number = DRAW_AREA_CENTER_X + units*unit_width;
+			var maxX:Number = gridCenter.x + units*unit_width;
 			//if(maxX > DRAW_AREA_WIDTH) maxX = DRAW_AREA_WIDTH;
-			var minX:Number = DRAW_AREA_CENTER_X - units*unit_width;
+			var minX:Number = gridCenter.x - units*unit_width;
 			//if(minX < 0) minX = 0;
-			var maxY:Number = DRAW_AREA_CENTER_Y + units*unit_width;
+			var maxY:Number = gridCenter.y + units*unit_width;
 			//if(maxY > DRAW_AREA_HEIGHT) maxY = DRAW_AREA_HEIGHT;
-			var minY:Number = DRAW_AREA_CENTER_Y - units*unit_width;
+			var minY:Number = gridCenter.y - units*unit_width;
 			//if(minY < 0) minY = 0;
 			while(i < units)
 			{				
-				m_grid.graphics.moveTo(DRAW_AREA_CENTER_X + unit_width*(1 + i), maxY);
-				m_grid.graphics.lineTo(DRAW_AREA_CENTER_X + unit_width*(1 + i), minY);
+				m_grid.graphics.moveTo(gridCenter.x + unit_width*(1 + i), maxY);
+				m_grid.graphics.lineTo(gridCenter.x + unit_width*(1 + i), minY);
 				
-				m_grid.graphics.moveTo(DRAW_AREA_CENTER_X - unit_width*(1 + i), maxY);
-				m_grid.graphics.lineTo(DRAW_AREA_CENTER_X - unit_width*(1 + i), minY);
+				m_grid.graphics.moveTo(gridCenter.x - unit_width*(1 + i), maxY);
+				m_grid.graphics.lineTo(gridCenter.x - unit_width*(1 + i), minY);
 				
-				m_grid.graphics.moveTo(minX, DRAW_AREA_CENTER_Y + unit_width*(1 + i));
-				m_grid.graphics.lineTo(maxX, DRAW_AREA_CENTER_Y + unit_width*(1 + i));
+				m_grid.graphics.moveTo(minX, gridCenter.y + unit_width*(1 + i));
+				m_grid.graphics.lineTo(maxX, gridCenter.y + unit_width*(1 + i));
 				
-				m_grid.graphics.moveTo(minX, DRAW_AREA_CENTER_Y - unit_width*(1 + i));
-				m_grid.graphics.lineTo(maxX, DRAW_AREA_CENTER_Y - unit_width*(1 + i));
+				m_grid.graphics.moveTo(minX, gridCenter.y - unit_width*(1 + i));
+				m_grid.graphics.lineTo(maxX, gridCenter.y - unit_width*(1 + i));
 				
 				i++;
 			}
 			
 			m_grid.graphics.lineStyle(1.5, 0xff0000, 0.8);
-			m_grid.graphics.moveTo(minX, DRAW_AREA_CENTER_Y);
-			m_grid.graphics.lineTo(maxX, DRAW_AREA_CENTER_Y);
+			m_grid.graphics.moveTo(minX, gridCenter.y);
+			m_grid.graphics.lineTo(maxX, gridCenter.y);
 			
 			m_grid.graphics.lineStyle(1.5, 0x0000ff, 0.8);
-			m_grid.graphics.moveTo(DRAW_AREA_CENTER_X, minY);
-			m_grid.graphics.lineTo(DRAW_AREA_CENTER_X, maxY);
+			m_grid.graphics.moveTo(gridCenter.x, minY);
+			m_grid.graphics.lineTo(gridCenter.x, maxY);
 			
 			
 			//m_grid.graphics.endFill();
