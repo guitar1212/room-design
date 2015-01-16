@@ -52,6 +52,7 @@ package com.infy.parser
 		
 		private var m_lightCommand:Vector.<LightParserCommand> = new Vector.<LightParserCommand>();
 		
+		public var useToonshadingForModel:Boolean = true;
 		
 		public function RoomConfigParser(game:GameBase)
 		{
@@ -410,16 +411,10 @@ package com.infy.parser
 		}
 		
 		protected function onModelLoadCompleted(event:LoaderEvent):void
-		{
-			var i:int;
-			var mesh:Mesh;
-			var len:uint = (event.target as Loader3D).numChildren;
-			
-			var material:ColorMaterial = testToonShading();
-			for(i = 0; i < len; ++i) 
+		{	
+			if(useToonshadingForModel)
 			{
-				mesh = Mesh((event.target as Loader3D).getChildAt(i));
-				mesh.material = material;
+				setToonShading(event.target as ObjectContainer3D);
 			}
 			
 			//addObjectContainerToScene(event.target as ObjectContainer3D);
@@ -441,6 +436,25 @@ package com.infy.parser
 			
 				excutePrivimiteCommand();
 				excuteCameraCommand();
+			}
+		}
+		
+		private function setToonShading(container:ObjectContainer3D):void
+		{
+			var i:int;
+			var mesh:Mesh;
+			var len:uint = container.numChildren;
+			var material:ColorMaterial = testToonShading();
+			for(i = 0; i < len; ++i) 
+			{
+				var c:ObjectContainer3D = container.getChildAt(i);
+				if(c is Mesh)
+				{
+					mesh = Mesh(c);
+					mesh.material = material;
+				}
+				else
+					setToonShading(c);
 			}
 		}
 		

@@ -145,15 +145,11 @@ package
 		
 		private var m_edit2D:Editor2DRoom;
 		
-		//signature variables
-		//private var Signature:Sprite;
-		//private var SignatureBitmap:Bitmap;
-		
 		//material objects
-		private var planeMaterial:TextureMaterial;
+		/*private var planeMaterial:TextureMaterial;
 		private var sphereMaterial:TextureMaterial;
 		private var cubeMaterial:TextureMaterial;
-		private var torusMaterial:TextureMaterial;
+		private var torusMaterial:TextureMaterial;*/
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -887,7 +883,7 @@ package
 				
 				e = new Editor2DEvent(Editor2DEvent.CREATE);
 				e.name = lmd.name;
-				e.style = "rectangle";
+				e.style = "model";
 				e.depth = lmd.size.y;
 				e.position.setTo(lmd.position.x, -lmd.position.z);
 				e.size.setTo(sizeX, sizeY);

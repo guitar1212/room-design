@@ -822,6 +822,10 @@ package com.infy.editor
 			{
 				obj = new DrawRectangle();
 			}
+			else if(event.style == "model")
+			{
+				obj = new DrawRectangle();
+			}
 			else if(event.style == "circle")
 			{
 				obj = new DrawCircle();
@@ -848,6 +852,10 @@ package com.infy.editor
 			
 			obj.graphics.beginFill(event.color, obj.drawAlpha);
 			if(event.style == "rectangle")
+			{	
+				obj.graphics.drawRect(-obj.oriWidth/2, -obj.oriHeight/2, obj.oriWidth, obj.oriHeight);
+			}
+			else if(event.style == "model")
 			{	
 				obj.graphics.drawRect(-obj.oriWidth/2, -obj.oriHeight/2, obj.oriWidth, obj.oriHeight);
 			}
