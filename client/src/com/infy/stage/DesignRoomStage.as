@@ -80,7 +80,7 @@ package com.infy.stage
 			game.lockCamera = true;
 			
 			if(m_roomParser == null)
-				m_roomParser = new RoomConfigParser(game);
+				m_roomParser = new RoomConfigParser(game, null);
 			
 			initRoom();
 			init3D();

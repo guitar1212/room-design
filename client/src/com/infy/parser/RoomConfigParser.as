@@ -19,6 +19,7 @@ package com.infy.parser
 	
 	import com.infy.camera.CameraInfo;
 	import com.infy.camera.CameraInfoManager;
+	import com.infy.editor.editor2droom.event.Editor2DEvent;
 	import com.infy.event.RoomEvent;
 	import com.infy.game.GameBase;
 	import com.infy.parser.command.CameraParserCommand;
@@ -34,6 +35,7 @@ package com.infy.parser
 	import com.infy.util.zip.ZipLoader;
 	
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.geom.Vector3D;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
@@ -42,6 +44,8 @@ package com.infy.parser
 	public class RoomConfigParser
 	{
 		private var m_game:GameBase = null;
+		
+		private var m_editor2DRoom:EventDispatcher;
 		
 		private var m_loadCommand:Vector.<LoadParserCommand> = new Vector.<LoadParserCommand>();
 		private var m_loadCount:int = 0;
@@ -54,9 +58,10 @@ package com.infy.parser
 		
 		public var useToonshadingForModel:Boolean = true;
 		
-		public function RoomConfigParser(game:GameBase)
+		public function RoomConfigParser(game:GameBase, editor2D:EventDispatcher)
 		{
 			m_game = game;
+			m_editor2DRoom = editor2D; 
 		}
 		
 		public function loadRoomSetting(roomID:String):void
@@ -563,6 +568,48 @@ package com.infy.parser
 			}
 			
 			return str;
+		}
+		
+		public function excute2DCommand():void
+		{
+			var cmd:ParserCommandBase;
+			var event:Editor2DEvent;
+			for each(cmd in m_cameraCommand)
+			{
+				if(cmd.isDelete) continue;
+				
+				event = cmd.create2DEvnet();				
+				if(event)
+					m_editor2DRoom.dispatchEvent(event);
+			}
+			
+			for each(cmd in m_lightCommand)
+			{
+				if(cmd.isDelete) continue;
+				
+				event = cmd.create2DEvnet();
+				if(event)
+					m_editor2DRoom.dispatchEvent(event);
+			}
+			
+			for each(cmd in m_primitiveCommand)
+			{
+				if(cmd.isDelete) continue;
+				
+				event = cmd.create2DEvnet();
+				if(event)
+					m_editor2DRoom.dispatchEvent(event);
+			}
+			
+			for each(cmd in m_loadCommand)
+			{
+				if(cmd.isDelete) continue;
+				
+				event = cmd.create2DEvnet();
+				if(event)
+					m_editor2DRoom.dispatchEvent(event);
+			}
+			
 		}
 	}
 }

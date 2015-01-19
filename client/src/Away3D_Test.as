@@ -77,7 +77,6 @@ package
 	import com.infy.constant.View3DCons;
 	import com.infy.constant.WireFrameConst;
 	import com.infy.editor.Editor2DRoom;
-	import com.infy.editor.editor2droom.event.Editor2DEvent;
 	import com.infy.editor.ui.ImageSavePanel;
 	import com.infy.editor.ui.ObjectInfoUI;
 	import com.infy.event.CameraEvent;
@@ -91,9 +90,7 @@ package
 	import com.infy.parser.RoomConfigParser;
 	import com.infy.parser.command.CameraParserCommand;
 	import com.infy.parser.command.LightParserCommand;
-	import com.infy.parser.command.LoadParserCommand;
 	import com.infy.parser.command.ParserCommandType;
-	import com.infy.parser.command.PrimitiveParserCommand;
 	import com.infy.path.GamePath;
 	import com.infy.ui.CameraInfoUI;
 	import com.infy.ui.Modify3DObjectUI;
@@ -103,7 +100,6 @@ package
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
 	import com.infy.util.scene.SceneObjectView;
-	import com.infy.util.tools.ColorUtil;
 	import com.infy.util.zip.ZipLoader;
 	
 	import fl.controls.Button;
@@ -226,7 +222,10 @@ package
 		{
 			game = new EditRoomGame(this);
 			game.lockCamera = false;
-			roomParser = new RoomConfigParser(game);
+			
+			m_edit2D = new Editor2DRoom();
+			
+			roomParser = new RoomConfigParser(game, m_edit2D);
 			
 			initUI();
 			initMaterials();
@@ -824,10 +823,7 @@ package
 		}
 		
 		private function onToggle2DEditorBtnClick(event:MouseEvent):void
-		{
-			if(m_edit2D == null)
-				m_edit2D = new Editor2DRoom();
-			
+		{	
 			if(m_edit2D.parent == null)
 			{
 				this.addChild(m_edit2D);
@@ -845,52 +841,7 @@ package
 		{
 			// update command
 			roomParser.refresh();
-			
-			var commands:Vector.<PrimitiveParserCommand> = roomParser.primiteCommand;
-			var i:int, len:int = commands.length;
-			var e:Editor2DEvent;
-			for(i = 0; i < len; i++)
-			{				
-				var cmd:PrimitiveParserCommand = commands[i];
-				if(cmd.isDelete) continue;
-				
-				if(cmd.cmd == ParserCommandType.BOX || cmd.cmd == ParserCommandType.PLANE)
-				{
-					e = new Editor2DEvent(Editor2DEvent.CREATE);
-					e.name = cmd.name;
-					e.style = "rectangle";
-					e.depth = cmd.size.y;
-					e.position.setTo(cmd.position.x, cmd.position.z);
-					e.size.setTo(cmd.size.x, cmd.size.z);
-					e.rotation = cmd.rotation.y;
-					e.color = ColorUtil.getHexCode(cmd.color[0], cmd.color[1], cmd.color[2]);
-					m_edit2D.dispatchEvent(e);
-				}
-			}
-			
-			var loadCmd:Vector.<LoadParserCommand> = roomParser.loadCommand;
-			len = loadCmd.length;
-			for(i = 0; i < len; i++)
-			{				
-				var lmd:LoadParserCommand = loadCmd[i];
-				
-				if(lmd.isDelete) continue;
-				
-				var target:ObjectContainer3D = lmd.target;
-				var sizeX:Number = (target.maxX - target.minX)*target.scaleX;
-				var sizeY:Number = (target.maxZ - target.minZ)*target.scaleZ;
-				
-				
-				e = new Editor2DEvent(Editor2DEvent.CREATE);
-				e.name = lmd.name;
-				e.style = "model";
-				e.depth = lmd.size.y;
-				e.position.setTo(lmd.position.x, -lmd.position.z);
-				e.size.setTo(sizeX, sizeY);
-				e.rotation = lmd.rotation.y;
-				e.color = ColorUtil.getHexCode(lmd.color[0], lmd.color[1], lmd.color[2]);
-				m_edit2D.dispatchEvent(e);
-			}
+			roomParser.excute2DCommand();		
 		}
 		
 		/*private function onSaveCapture(event:MouseEvent):void
