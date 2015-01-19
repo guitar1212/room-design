@@ -2,6 +2,8 @@ package com.infy.parser.command
 {
 	import away3d.containers.ObjectContainer3D;
 	
+	import com.infy.editor.editor2droom.event.Editor2DEvent;
+	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Vector3D;
@@ -49,6 +51,11 @@ package com.infy.parser.command
 		}
 		
 		public function toString():String
+		{
+			return null;
+		}
+		
+		public function create2DEvnet():Editor2DEvent
 		{
 			return null;
 		}

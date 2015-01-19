@@ -3,10 +3,12 @@ package com.infy.parser.command
 	import away3d.containers.ObjectContainer3D;
 	import away3d.entities.Mesh;
 	
+	import com.infy.editor.editor2droom.event.Editor2DEvent;
 	import com.infy.event.RoomEvent;
 	import com.infy.path.GamePath;
 	import com.infy.util.primitive.PrimitiveCreator;
 	import com.infy.util.primitive.PrimitiveInfo;
+	import com.infy.util.tools.ColorUtil;
 	
 	import flash.events.EventDispatcher;
 	import flash.geom.Vector3D;
@@ -122,6 +124,27 @@ package com.infy.parser.command
 			str += addString(shadowLight);
 			str += addNumber(epsilon);
 			return str;
+		}
+		
+		override public function create2DEvnet():Editor2DEvent
+		{	
+			if(isDelete) return null;
+			
+			var e:Editor2DEvent = null;
+			if(cmd == ParserCommandType.BOX || cmd == ParserCommandType.PLANE)
+			{
+				e = new Editor2DEvent(Editor2DEvent.CREATE);
+				e.name = name;
+				e.style = "rectangle";
+				e.depth = size.y;
+				e.position.setTo(position.x, position.z);
+				e.size.setTo(size.x, size.z);
+				e.rotation = rotation.y;
+				e.color = ColorUtil.getHexCode(color[0], color[1], color[2]);
+			}
+			
+			return e;
+			
 		}
 	}
 }
